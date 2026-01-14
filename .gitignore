@@ -1,0 +1,41 @@
+# Vendor/Dependencies
+/vendor/
+/node_modules/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Log files
+*.log
+logs/
+
+# Cache directories
+cache/
+tmp/
+
+# Compiled files
+*.cache
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# phpMyAdmin exports (if any)
+*.sql.gz
+
+# Session files
+sessions/
