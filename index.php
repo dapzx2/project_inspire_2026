@@ -11,28 +11,11 @@ session_start();
 
     <title>INSPIRE Portal - Login</title>
 
-    <!-- Load local CSS -->
-    <!-- Load local CSS -->
+    <!-- Local CSS -->
     <link rel="icon" href="assets/images/logo.png" type="image/png">
     <link rel="stylesheet" href="assets/css/auth.bundle.css">
     <link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <style>
-    /* Custom icons to match INSPIRE portal exactly */
-    .icon-user-circle::before {
-        content: "\f2bd";
-        font-family: "Font Awesome 5 Free";
-        font-weight: 400;
-        font-size: 18px;
-    }
-    .icon-key::before {
-        content: "\f084";
-        font-family: "Font Awesome 5 Free";
-        font-weight: 900;
-        font-size: 18px;
-    }
-    </style>
 
 </head>
 

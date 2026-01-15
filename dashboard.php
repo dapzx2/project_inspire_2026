@@ -1,6 +1,11 @@
 <?php include 'layout/header.php'; ?>
 
 <?php
+// Batas evaluasi studi
+define('MIN_SKS_LULUS', 96);
+define('MIN_IPK', 2.00);
+define('SEMESTER_EVALUASI', 7);
+
 // Fetch user academic data from database
 include 'config/database.php';
 
@@ -45,18 +50,18 @@ if (isset($_SESSION['nim'])) {
         $ipk = (float) $row_ipk['ipk_hitung'];
     }
     
-    // Tentukan status bahaya
-    $bahaya_sks = ($sks_lulus < 96);
-    $bahaya_ipk = ($ipk < 2.00);
+    // Tentukan status bahaya berdasarkan batas evaluasi
+    $bahaya_sks = ($sks_lulus < MIN_SKS_LULUS);
+    $bahaya_ipk = ($ipk < MIN_IPK);
     
-    // Tentukan apakah warning ditampilkan (hanya jika semester >= 7)
+    // Warning ditampilkan jika semester >= batas evaluasi
     $semester_mahasiswa = isset($user_data['semester']) ? (int) $user_data['semester'] : 0;
-    $tampilkan_warning = (($bahaya_sks || $bahaya_ipk) && $semester_mahasiswa >= 7);
+    $tampilkan_warning = (($bahaya_sks || $bahaya_ipk) && $semester_mahasiswa >= SEMESTER_EVALUASI);
 }
 
-// Fetch pengumuman (with error handling)
+// Fetch pengumuman (with error handling) - filter by user's NIM
 $pengumuman_list = [];
-$query_pengumuman = "SELECT * FROM pengumuman ORDER BY created_at DESC LIMIT 5";
+$query_pengumuman = "SELECT * FROM pengumuman WHERE nim = '$nim' ORDER BY created_at DESC LIMIT 5";
 $result_pengumuman = @mysqli_query($conn, $query_pengumuman);
 if ($result_pengumuman) {
     while ($row = mysqli_fetch_assoc($result_pengumuman)) {
@@ -115,11 +120,14 @@ if ($result_pengumuman) {
 
                 <!-- Academic Info Section -->
                 <div class="col-sm-12 col-md-6">
+                    <!-- Perhatian - Selalu ditampilkan -->
+                    <div class="alert alert-danger alert-dismissible text-center">
+                        <h5><i class="icon fas fa-exclamation-triangle"></i> Perhatian !</h5>
+                    </div>
+                    
                     <?php if ($tampilkan_warning): ?>
                     <!-- Peringatan Evaluasi Studi - Hanya ditampilkan jika ada bahaya -->
                     <div class="alert alert-danger" style="text-align: center;">
-                        <h5><i class="icon fas fa-exclamation-triangle"></i> Perhatian !</h5>
-                        
                         <?php if ($bahaya_sks && $bahaya_ipk): ?>
                         <!-- KONDISI 3: Keduanya Kurang -->
                         <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>

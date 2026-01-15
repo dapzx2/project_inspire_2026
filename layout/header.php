@@ -33,6 +33,29 @@ $current_page = basename($_SERVER['PHP_SELF']);
 		#navbar-title {
 			font-family: 'Philosopher', sans-serif !important;
 		}
+		
+		/* Fix dropdown arrow position to match original INSPIRE */
+		.nav-sidebar .nav-link > .right,
+		.nav-sidebar .nav-link > p > .right {
+			position: absolute;
+			right: 1rem;
+			top: 0.7rem;
+		}
+		
+		/* Hide sidebar scrollbar completely (Clean Look) & Remove Shadow */
+		.sidebar {
+			-ms-overflow-style: none;  /* IE and Edge */
+			scrollbar-width: none;  /* Firefox */
+			padding-bottom: 2rem;
+		}
+		.sidebar::-webkit-scrollbar {
+			display: none;
+		}
+		
+		/* Remove shadow/hover effect for a flatter, cleaner look */
+		.sidebar-light-danger .nav-sidebar > .nav-item > .nav-link.active {
+			box-shadow: none !important;
+		}
 	</style>
 
 
@@ -146,7 +169,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 									<p>Perkuliahan <i class="fas fa-angle-left right"></i></p>
 								</a>
 								<ul class="nav nav-treeview">
-									<li class="nav-item">
+									<li class="nav-item has-treeview">
 										<a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Kampus Merdeka <i class="fas fa-angle-left right"></i></p></a>
 										<ul class="nav nav-treeview">
 											<li class="nav-item">

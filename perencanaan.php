@@ -1,7 +1,11 @@
 <?php
-// Process form BEFORE any output (header include)
+// Form processing BEFORE any output (header include)
 include 'config/database.php';
-session_start();
+
+// Session already started in header.php, get nim for processing
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 $nim = isset($_SESSION['nim']) ? mysqli_real_escape_string($conn, $_SESSION['nim']) : '';
 $message = '';
@@ -162,26 +166,23 @@ if ($result_user_semester && $row_sem = mysqli_fetch_assoc($result_user_semester
 }
 
 // ============================================
-// DETECT IF IN KRS FILING PERIOD
+// PLANNING FOR NEXT SEMESTER
 // ============================================
-// Check if user has KRS entries for current semester = in KRS period
-$is_in_krs_period = false;
-$query_check_krs = "SELECT COUNT(*) as total FROM krs WHERE nim = '$nim'";
-$result_check_krs = @mysqli_query($conn, $query_check_krs);
-if ($result_check_krs && $row_krs = mysqli_fetch_assoc($result_check_krs)) {
-    $is_in_krs_period = ($row_krs['total'] > 0);
-}
+// Always plan for next semester (current + 1)
+// User wants to prepare for semester 8 while currently in semester 7
+$planning_semester = $current_semester + 1;
 
-// Determine which semester to plan for
-if ($is_in_krs_period) {
-    // Has KRS entries: KRS period is OVER, plan for NEXT semester
-    $planning_semester = $current_semester + 1;
-} else {
-    // No KRS entries: currently in KRS filing period, show CURRENT semester
-    $planning_semester = $current_semester;
-}
+// ============================================
+// SEMESTER TYPE VARIABLES
+// ============================================
 
-// Determine if planning semester is ganjil (odd) or genap (even)
+// Current semester type (for "Status Matakuliah yang Sudah Dikontrak")
+$is_current_ganjil = ($current_semester % 2 == 1);
+$current_semester_label = $is_current_ganjil ? 'Ganjil' : 'Genap';
+$current_semester_icon = $is_current_ganjil ? 'fa-calendar-alt' : 'fa-calendar-check';
+$current_semester_color = $is_current_ganjil ? 'primary' : 'success';
+
+// Planning semester type (for recommendations and planning next semester)
 $is_semester_ganjil = ($planning_semester % 2 == 1);
 $semester_type_label = $is_semester_ganjil ? 'Ganjil' : 'Genap';
 $semester_type_icon = $is_semester_ganjil ? 'fa-calendar-alt' : 'fa-calendar-check';
@@ -486,7 +487,7 @@ $sort_function = function($a, $b) {
                         </div>
                         <div class="card-body">
                             <?php 
-                            // Select data based on current semester type
+                            // Select data based on PLANNING semester type (semester 8 = Genap)
                             $transkrip_aktif = $is_semester_ganjil ? $transkrip_ganjil : $transkrip_genap;
                             $semester_list = $is_semester_ganjil ? '1, 3, 5, 7' : '2, 4, 6, 8';
                             
@@ -545,30 +546,20 @@ $sort_function = function($a, $b) {
             <!-- SECTION: REKOMENDASI KONTRAK (MK TIDAK LULUS) -->
             <!-- ============================================ -->
             <?php if (count($mk_tidak_lulus) > 0): 
-                // Get current semester from user data
-                $query_semester = "SELECT semester FROM users WHERE nim = '$nim'";
-                $result_semester = @mysqli_query($conn, $query_semester);
-                $current_semester = 8; // default
-                if ($result_semester && $row_sem = mysqli_fetch_assoc($result_semester)) {
-                    $current_semester = $row_sem['semester'];
-                }
-                // Next semester is current + 1
-                $next_semester = $current_semester + 1;
-                $is_next_ganjil = ($next_semester % 2 == 1);
+                // Use the planning_semester that was already calculated above
+                // planning_semester is already set to either current_semester or current_semester + 1
+                $is_planning_ganjil = ($planning_semester % 2 == 1);
                 
-                // Filter mk_tidak_lulus based on next semester type
-                // If next semester is ganjil, show ganjil MK. If next is genap, show genap MK.
-                $rekomendasi_aktif = array_filter($mk_tidak_lulus, function($mk) use ($is_next_ganjil) {
+                // Filter mk_tidak_lulus based on planning semester type
+                // If planning semester is ganjil, show ganjil MK. If planning is genap, show genap MK.
+                $rekomendasi_aktif = array_filter($mk_tidak_lulus, function($mk) use ($is_planning_ganjil) {
                     $is_mk_ganjil = ($mk['semester'] % 2 == 1);
-                    return $is_mk_ganjil == $is_next_ganjil;
+                    return $is_mk_ganjil == $is_planning_ganjil;
                 });
                 
-                $semester_label = $is_next_ganjil ? 'Ganjil' : 'Genap';
-                $semester_icon = $is_next_ganjil ? 'fa-calendar-alt' : 'fa-calendar-check';
-                $semester_color = $is_next_ganjil ? 'primary' : 'success';
-
-                // Next semester for display purposes
-                $next_semester = $planning_semester;
+                $semester_label = $is_planning_ganjil ? 'Ganjil' : 'Genap';
+                $semester_icon = $is_planning_ganjil ? 'fa-calendar-alt' : 'fa-calendar-check';
+                $semester_color = $is_planning_ganjil ? 'primary' : 'success';
                 
                 // Apply Sorting
                 usort($rekomendasi_aktif, $sort_function);
