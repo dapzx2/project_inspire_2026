@@ -1,99 +1,191 @@
-# INSPIRE Portal Clone
+<p align="center">
+  <img src="https://inspire.unsrat.ac.id/assets/logo-unsrat.png" alt="Logo UNSRAT" width="120"/>
+</p>
 
-Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Universitas Sam Ratulangi. Project ini dibuat sebagai **proposal penambahan fitur baru** untuk portal INSPIRE yang sesungguhnya.
+<h1 align="center">INSPIRE Portal</h1>
+<h3 align="center">Sistem Informasi Akademik dengan Fitur Perencanaan Studi</h3>
 
-## Repository
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-Native-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP"/>
+  <img src="https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"/>
+  <img src="https://img.shields.io/badge/Bootstrap-4.6-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap"/>
+  <img src="https://img.shields.io/badge/AdminLTE-3.2-007bff?style=for-the-badge" alt="AdminLTE"/>
+</p>
 
-GitHub: [https://github.com/dapzx2/project_inspire_2026](https://github.com/dapzx2/project_inspire_2026)
+<p align="center">
+  <strong>Tugas Akhir Mata Kuliah Pengembangan Web</strong><br/>
+  Teknik Informatika - Universitas Sam Ratulangi
+</p>
 
 ---
 
-## Proposal Fitur: Perencanaan Studi
+## Deskripsi
 
-Fitur utama yang diusulkan dalam project ini adalah **Perencanaan Studi** - sebuah sistem yang membantu mahasiswa merencanakan mata kuliah untuk semester berikutnya.
+Proyek ini merupakan implementasi sistem portal akademik yang terinspirasi dari **INSPIRE Portal** Universitas Sam Ratulangi. Fokus utama pengembangan adalah penambahan fitur **Perencanaan Studi** yang belum tersedia di sistem aslinya — memungkinkan mahasiswa untuk merencanakan pengambilan mata kuliah sebelum periode KRS dibuka.
 
-### Latar Belakang
+## Fitur Utama
 
-Portal INSPIRE saat ini belum memiliki fitur yang membantu mahasiswa dalam:
-- Melihat status kelulusan mata kuliah semester ganjil/genap
-- Mengidentifikasi mata kuliah yang perlu diulang (nilai D/E)
-- Merencanakan pengambilan mata kuliah sebelum periode KRS dibuka
+### Perencanaan Studi
 
-### Fitur yang Diusulkan
+Fitur yang membantu mahasiswa dalam perencanaan akademik:
 
 | Fitur | Deskripsi |
-|-------|-----------|
-| Status Matakuliah | Menampilkan daftar mata kuliah yang sudah dikontrak beserta status lulus/tidak lulus |
-| Rekomendasi Kontrak Ulang | Menampilkan mata kuliah dengan nilai D/E yang dapat dikontrak ulang di semester berikutnya (berdasarkan semester ganjil/genap) |
-| Matakuliah Belum Dikontrak | Menampilkan mata kuliah wajib yang belum pernah dikontrak |
-| Rencana Studi | Mahasiswa dapat menambahkan mata kuliah ke dalam daftar rencana sebelum periode KRS |
-| Peringatan Evaluasi | Menampilkan peringatan jika SKS lulus < 96 atau IPK < 2.00 pada semester 7+ |
+|:------|:----------|
+| **Status Matakuliah** | Melihat seluruh mata kuliah yang sudah dikontrak beserta status kelulusan |
+| **Rekomendasi Kontrak Ulang** | Identifikasi mata kuliah bernilai D/E yang dapat dikontrak ulang |
+| **Matakuliah Belum Dikontrak** | Daftar mata kuliah wajib yang belum pernah diambil |
+| **Rencana Semester** | Susun rencana mata kuliah sebelum periode KRS |
+| **Peringatan Evaluasi** | Notifikasi jika SKS < 96 atau IPK < 2.00 pada semester 7+ |
 
-### Manfaat
+### Fitur Akademik Lainnya
 
-1. **Bagi Mahasiswa**: Dapat merencanakan studi dengan lebih baik, menghindari keterlambatan kelulusan
-2. **Bagi Dosen PA**: Memudahkan konsultasi perencanaan studi dengan mahasiswa bimbingan
-3. **Bagi Akademik**: Mengurangi kasus mahasiswa yang terlambat menyadari kekurangan SKS
+- **Autentikasi** — Login/logout dengan password hashing (bcrypt)
+- **Dashboard** — Ringkasan informasi akademik mahasiswa
+- **Transkrip Nilai** — Riwayat nilai per semester dengan ekspor PDF
+- **KRS** — Kartu Rencana Studi dengan ekspor PDF
+- **KHS** — Kartu Hasil Studi dengan ekspor PDF
 
 ---
 
-## Fitur Lainnya
+## Tech Stack
 
-- Login/Logout dengan hashing password
-- Dashboard ringkasan informasi akademik
-- Transkrip nilai per semester dengan cetak PDF
-- KRS (Kartu Rencana Studi) dengan cetak PDF
+<table>
+  <tr>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" width="48" height="48" alt="PHP"/>
+      <br/><strong>PHP 8.x</strong>
+      <br/><sub>Backend Native</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="48" height="48" alt="MySQL"/>
+      <br/><strong>MySQL</strong>
+      <br/><sub>Database</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" width="48" height="48" alt="Bootstrap"/>
+      <br/><strong>Bootstrap 4</strong>
+      <br/><sub>CSS Framework</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="48" height="48" alt="JavaScript"/>
+      <br/><strong>JavaScript</strong>
+      <br/><sub>Frontend Logic</sub>
+    </td>
+  </tr>
+</table>
 
-## Teknologi
+**Tools & Libraries:**
+- [AdminLTE 3.2](https://adminlte.io/) — Admin dashboard template
+- [Font Awesome 5](https://fontawesome.com/) — Icon library
+- [Laragon](https://laragon.org/) — Local development environment
 
-- **Backend**: PHP Native
-- **Database**: MySQL
-- **Frontend**: AdminLTE 3, Bootstrap 4, Font Awesome 5
+---
 
 ## Instalasi
 
-1. Clone repository:
-   ```bash
-   git clone https://github.com/dapzx2/project_inspire_2026.git
-   ```
+### Prerequisites
 
-2. Import database `config/database.sql` ke phpMyAdmin
+- PHP 8.0+
+- MySQL 5.7+ / MariaDB 10.4+
+- Web Server (Apache/Nginx) atau Laragon
 
-3. Konfigurasi `config/database.php`:
-   ```php
-   $host = "localhost";
-   $user = "root";
-   $pass = "";
-   $db   = "db_inspire_project";
-   ```
+### Langkah Instalasi
 
-4. Akses: `http://localhost/project_inspire_2026/`
+```bash
+# 1. Clone repository
+git clone https://github.com/dapzx2/project_inspire_2026.git
 
-## Login Demo
+# 2. Masuk ke direktori proyek
+cd project_inspire_2026
+```
 
-- **NIM**: 220211060323
-- **Password**: DAVAulus123
+```sql
+-- 3. Import database ke MySQL/phpMyAdmin
+-- File: config/database.sql
+```
 
-## Struktur Folder
+```php
+// 4. Konfigurasi koneksi database (config/database.php)
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "db_inspire_project";
+```
 
 ```
-├── assets/css/       # Stylesheet (auth.bundle.css, dashboard.bundle.css)
-├── assets/js/        # JavaScript (auth.bundle.js, dashboard.bundle.js)
-├── assets/images/    # Logo & gambar
-├── config/           # Konfigurasi database
-├── layout/           # Header & footer template
-├── index.php         # Halaman login
-├── dashboard.php     # Dashboard utama
-├── perencanaan.php   # Perencanaan studi (fitur utama)
-├── transkrip.php     # Transkrip nilai
-└── krs.php           # KRS
+# 5. Akses aplikasi
+http://localhost/project_inspire_2026/
 ```
+
+---
+
+## Demo Access
+
+| Field | Value |
+|:------|:------|
+| **NIM** | `220211060323` |
+| **Password** | `DAVAulus123` |
+
+---
+
+## Struktur Proyek
+
+```
+project_inspire_2026/
+│
+├── assets/
+│   ├── css/              # Stylesheet bundles
+│   ├── js/               # JavaScript bundles
+│   └── images/           # Logo & gambar
+│
+├── config/
+│   ├── database.php      # Konfigurasi koneksi DB
+│   └── database.sql      # Schema & data SQL
+│
+├── layout/
+│   ├── header.php        # Header template
+│   └── footer.php        # Footer template
+│
+├── index.php             # Halaman login
+├── auth.php              # Proses autentikasi
+├── logout.php            # Proses logout
+├── dashboard.php         # Dashboard utama
+├── perencanaan.php       # Perencanaan studi (fitur utama)
+├── transkrip.php         # Transkrip nilai
+├── transkrip_cetak.php   # Cetak transkrip PDF
+├── krs.php               # Kartu Rencana Studi
+├── krs_cetak.php         # Cetak KRS PDF
+├── khs.php               # Kartu Hasil Studi
+└── khs_cetak.php         # Cetak KHS PDF
+```
+
+---
 
 ## Author
 
-**Dava Oktavito Josua L. Ulus**  
-Teknik Informatika - Universitas Sam Ratulangi
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/dapzx2">
+        <img src="https://github.com/dapzx2.png" width="100px;" alt="Dava" style="border-radius:50%"/><br/>
+        <strong>Dava Oktavito Josua L. Ulus</strong>
+      </a>
+      <br/>
+      <sub>220211060323</sub>
+      <br/>
+      <sub>Teknik Informatika</sub>
+      <br/>
+      <sub>Universitas Sam Ratulangi</sub>
+    </td>
+  </tr>
+</table>
+
+---
 
 ## License
 
-Project ini dibuat untuk keperluan edukasi dan sebagai proposal pengembangan sistem INSPIRE.
+Proyek ini dibuat untuk keperluan **Tugas Akhir Mata Kuliah Pengembangan Web**.
+
+<p align="center">
+  <sub>© 2026 - Dava Oktavito Josua L. Ulus</sub>
+</p>
