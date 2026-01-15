@@ -1,38 +1,65 @@
 # INSPIRE Portal Clone
 
-Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Universitas Sam Ratulangi.
+Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Universitas Sam Ratulangi. Project ini dibuat sebagai **proposal penambahan fitur baru** untuk portal INSPIRE yang sesungguhnya.
 
-## 🔗 Repository
+## Repository
 
-**GitHub**: [https://github.com/dapzx2/project_inspire_2026](https://github.com/dapzx2/project_inspire_2026)
+GitHub: [https://github.com/dapzx2/project_inspire_2026](https://github.com/dapzx2/project_inspire_2026)
 
-## ✨ Fitur
+---
 
-- 🔐 **Login/Logout** - Autentikasi dengan hashing password
-- 📊 **Dashboard** - Ringkasan informasi akademik mahasiswa
-- 📋 **Transkrip** - Daftar nilai per semester dengan cetak PDF
-- 📝 **KRS** - Kartu Rencana Studi dengan cetak PDF
-- 📅 **Perencanaan Studi** - Perencanaan mata kuliah untuk semester berikutnya
+## Proposal Fitur: Perencanaan Studi
 
-## 🛠️ Teknologi
+Fitur utama yang diusulkan dalam project ini adalah **Perencanaan Studi** - sebuah sistem yang membantu mahasiswa merencanakan mata kuliah untuk semester berikutnya.
+
+### Latar Belakang
+
+Portal INSPIRE saat ini belum memiliki fitur yang membantu mahasiswa dalam:
+- Melihat status kelulusan mata kuliah semester ganjil/genap
+- Mengidentifikasi mata kuliah yang perlu diulang (nilai D/E)
+- Merencanakan pengambilan mata kuliah sebelum periode KRS dibuka
+
+### Fitur yang Diusulkan
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| Status Matakuliah | Menampilkan daftar mata kuliah yang sudah dikontrak beserta status lulus/tidak lulus |
+| Rekomendasi Kontrak Ulang | Menampilkan mata kuliah dengan nilai D/E yang dapat dikontrak ulang di semester berikutnya (berdasarkan semester ganjil/genap) |
+| Matakuliah Belum Dikontrak | Menampilkan mata kuliah wajib yang belum pernah dikontrak |
+| Rencana Studi | Mahasiswa dapat menambahkan mata kuliah ke dalam daftar rencana sebelum periode KRS |
+| Peringatan Evaluasi | Menampilkan peringatan jika SKS lulus < 96 atau IPK < 2.00 pada semester 7+ |
+
+### Manfaat
+
+1. **Bagi Mahasiswa**: Dapat merencanakan studi dengan lebih baik, menghindari keterlambatan kelulusan
+2. **Bagi Dosen PA**: Memudahkan konsultasi perencanaan studi dengan mahasiswa bimbingan
+3. **Bagi Akademik**: Mengurangi kasus mahasiswa yang terlambat menyadari kekurangan SKS
+
+---
+
+## Fitur Lainnya
+
+- Login/Logout dengan hashing password
+- Dashboard ringkasan informasi akademik
+- Transkrip nilai per semester dengan cetak PDF
+- KRS (Kartu Rencana Studi) dengan cetak PDF
+
+## Teknologi
 
 - **Backend**: PHP Native
 - **Database**: MySQL
 - **Frontend**: AdminLTE 3, Bootstrap 4, Font Awesome 5
 
-## 🚀 Instalasi
+## Instalasi
 
-1. **Clone repository**:
+1. Clone repository:
    ```bash
    git clone https://github.com/dapzx2/project_inspire_2026.git
-   cd project_inspire_2026
    ```
 
-2. **Import database**:
-   - Buat database `db_inspire_project` di phpMyAdmin
-   - Import file `config/database.sql`
+2. Import database `config/database.sql` ke phpMyAdmin
 
-3. **Konfigurasi database** di `config/database.php`:
+3. Konfigurasi `config/database.php`:
    ```php
    $host = "localhost";
    $user = "root";
@@ -40,45 +67,33 @@ Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Univer
    $db   = "db_inspire_project";
    ```
 
-4. **Akses melalui browser**:
-   ```
-   http://localhost/project_inspire_2026/
-   ```
+4. Akses: `http://localhost/project_inspire_2026/`
 
-## 🔑 Login Demo
+## Login Demo
 
-| Field    | Value          |
-|----------|----------------|
-| NIM      | 220211060323   |
-| Password | DAVAulus123    |
+- **NIM**: 220211060323
+- **Password**: DAVAulus123
 
-## 📁 Struktur Folder
+## Struktur Folder
 
 ```
-project_inspire_2026/
-├── assets/
-│   ├── css/          # auth.bundle.css, dashboard.bundle.css
-│   ├── js/           # auth.bundle.js, dashboard.bundle.js
-│   └── images/       # Logo & default images
-├── config/
-│   ├── database.php  # Database connection
-│   └── database.sql  # Database schema & data
-├── layout/
-│   ├── header.php    # Header template
-│   └── footer.php    # Footer template
-├── index.php         # Login page
-├── dashboard.php     # Main dashboard
-├── perencanaan.php   # Study planning
-├── transkrip.php     # Transcript view
-├── krs.php           # KRS view
-└── README.md
+├── assets/css/       # Stylesheet (auth.bundle.css, dashboard.bundle.css)
+├── assets/js/        # JavaScript (auth.bundle.js, dashboard.bundle.js)
+├── assets/images/    # Logo & gambar
+├── config/           # Konfigurasi database
+├── layout/           # Header & footer template
+├── index.php         # Halaman login
+├── dashboard.php     # Dashboard utama
+├── perencanaan.php   # Perencanaan studi (fitur utama)
+├── transkrip.php     # Transkrip nilai
+└── krs.php           # KRS
 ```
 
-## 👨‍💻 Author
+## Author
 
 **Dava Oktavito Josua L. Ulus**  
 Teknik Informatika - Universitas Sam Ratulangi
 
-## 📜 License
+## License
 
-This project is for educational purposes only.
+Project ini dibuat untuk keperluan edukasi dan sebagai proposal pengembangan sistem INSPIRE.
