@@ -2,7 +2,11 @@
 
 Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Universitas Sam Ratulangi.
 
-## Fitur
+## 🔗 Repository
+
+**GitHub**: [https://github.com/dapzx2/project_inspire_2026](https://github.com/dapzx2/project_inspire_2026)
+
+## ✨ Fitur
 
 - 🔐 **Login/Logout** - Autentikasi dengan hashing password
 - 📊 **Dashboard** - Ringkasan informasi akademik mahasiswa
@@ -10,24 +14,25 @@ Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Univer
 - 📝 **KRS** - Kartu Rencana Studi dengan cetak PDF
 - 📅 **Perencanaan Studi** - Perencanaan mata kuliah untuk semester berikutnya
 
-## Teknologi
+## 🛠️ Teknologi
 
 - **Backend**: PHP Native
 - **Database**: MySQL
 - **Frontend**: AdminLTE 3, Bootstrap 4, Font Awesome 5
 
-## Instalasi
+## 🚀 Instalasi
 
-1. Clone repository ini ke folder web server (htdocs/www):
+1. **Clone repository**:
    ```bash
-   git clone https://github.com/username/inspire-portal.git
+   git clone https://github.com/dapzx2/project_inspire_2026.git
+   cd project_inspire_2026
    ```
 
-2. Import database:
+2. **Import database**:
    - Buat database `db_inspire_project` di phpMyAdmin
    - Import file `config/database.sql`
 
-3. Konfigurasi database di `config/database.php`:
+3. **Konfigurasi database** di `config/database.php`:
    ```php
    $host = "localhost";
    $user = "root";
@@ -35,23 +40,26 @@ Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Univer
    $db   = "db_inspire_project";
    ```
 
-4. Akses melalui browser:
+4. **Akses melalui browser**:
    ```
-   http://localhost/inspire-portal/
+   http://localhost/project_inspire_2026/
    ```
 
-## Login Demo
+## 🔑 Login Demo
 
-- **NIM**: 220211060323
-- **Password**: DAVAulus123
+| Field    | Value          |
+|----------|----------------|
+| NIM      | 220211060323   |
+| Password | DAVAulus123    |
 
-## Struktur Folder
+## 📁 Struktur Folder
 
 ```
+project_inspire_2026/
 ├── assets/
-│   ├── css/          # Stylesheet files
-│   ├── js/           # JavaScript files
-│   └── images/       # Image assets
+│   ├── css/          # auth.bundle.css, dashboard.bundle.css
+│   ├── js/           # auth.bundle.js, dashboard.bundle.js
+│   └── images/       # Logo & default images
 ├── config/
 │   ├── database.php  # Database connection
 │   └── database.sql  # Database schema & data
@@ -66,11 +74,11 @@ Portal akademik berbasis PHP Native yang terinspirasi dari sistem INSPIRE Univer
 └── README.md
 ```
 
-## Author
+## 👨‍💻 Author
 
 **Dava Oktavito Josua L. Ulus**  
 Teknik Informatika - Universitas Sam Ratulangi
 
-## License
+## 📜 License
 
 This project is for educational purposes only.

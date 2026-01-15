@@ -54,7 +54,7 @@ CREATE TABLE users (
 
 -- Insert user - Password: DAVAulus123
 INSERT INTO users (nim, password, nama, angkatan, fakultas, prodi, jenjang, status, semester, sks_lulus, ipk, pembimbing_akademik, foto_profil) VALUES
-('220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'Aktif', 7, 120, 3.55, 'Dr. TIK, S.T., M.T.', 'assets/img/default-profile.jpg');
+('220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'Aktif', 7, 82, 2.63, 'Dr. TIK, S.T., M.T.', 'assets/img/default-profile.jpg');
 
 -- ============================================
 -- TABEL PENGUMUMAN
