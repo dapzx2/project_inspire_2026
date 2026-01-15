@@ -125,6 +125,11 @@ session_start();
                             <img title="Arti INSPIRE" src="assets/images/logo_inspire.png">
                         </div>
                         <br>
+                        <?php if (isset($_GET['pesan']) && $_GET['pesan'] == 'gagal'): ?>
+                        <div class="text-center text-white mb-2">
+                            Username atau Password salah
+                        </div>
+                        <?php endif; ?>
                         <div class="card-body">
                             <div class="input-group no-border input-lg">
                                 <div class="input-group-prepend">
@@ -168,6 +173,11 @@ session_start();
     <script>
     $(document).ready(function() {
         /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+        
+        // Clear error message from URL to prevent it showing on refresh
+        if (window.location.search.includes('pesan=gagal')) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     });
 
     $('.btn_pulse_1').on('click', function() {

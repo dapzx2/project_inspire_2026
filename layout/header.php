@@ -89,7 +89,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 							<a href="ubah_password.php" class="dropdown-item dropdown-footer text-bold text-uppercase">
 								Ubah Password<i class="nav-icon fas fa-unlock-alt ml-2"></i>
 							</a>
-							<a href="logout.php" class="dropdown-item dropdown-footer text-bold text-uppercase">
+							<a href="#" class="dropdown-item dropdown-footer text-bold text-uppercase" data-toggle="modal" data-target="#mdl-logout">
 								KELUAR<i class="nav-icon fas fa-sign-out-alt ml-2"></i>
 							</a>
 						</div>

@@ -12,20 +12,16 @@
 
 <!-- Modal Logout -->
 <div class="modal fade" id="mdl-logout">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-sm">
 		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Konfirmasi Logout</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
 			<div class="modal-body">
-				<p>Apakah Anda yakin ingin keluar dari sistem?</p>
+				<h5>Yakin untuk keluar?</h5>
 			</div>
 			<div class="modal-footer justify-content-between">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-				<a href="logout.php" class="btn btn-danger">Ya, Keluar</a>
+				<a href="logout.php">
+					<button type="button" class="btn bg-black"><i class="fas fa-sign-out-alt mr-2"></i>KELUAR</button>
+				</a>
 			</div>
 		</div>
 	</div>

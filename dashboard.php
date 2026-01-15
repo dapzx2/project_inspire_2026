@@ -122,7 +122,7 @@ if ($result_pengumuman) {
                         
                         <?php if ($bahaya_sks && $bahaya_ipk): ?>
                         <!-- KONDISI 3: Keduanya Kurang -->
-                        <p>Saat ini jumlah total SKS lulus anda adalah <strong><?php echo $sks_lulus; ?></strong> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
+                        <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
                         <p><i>Jika jumlah SKS lulus tidak mencapai 96 SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
                         <hr>
                         <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester 8 Anda memperbaiki nilai mata kuliah.</p>
@@ -130,7 +130,7 @@ if ($result_pengumuman) {
                         
                         <?php elseif ($bahaya_sks): ?>
                         <!-- KONDISI 1: SKS Kurang -->
-                        <p>Saat ini jumlah total SKS lulus anda adalah <strong><?php echo $sks_lulus; ?></strong> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
+                        <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
                         <p><i>Jika jumlah SKS lulus tidak mencapai 96 SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
                         
                         <?php elseif ($bahaya_ipk): ?>
