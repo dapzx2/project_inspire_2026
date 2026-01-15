@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://inspire.unsrat.ac.id/assets/logo-unsrat.png" alt="Logo UNSRAT" width="120"/>
+  <img src="assets/images/logo-unsrat.png" alt="Logo UNSRAT" width="120"/>
 </p>
 
 <h1 align="center">INSPIRE Portal</h1>
