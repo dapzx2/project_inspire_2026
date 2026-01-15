@@ -39,11 +39,11 @@ Fitur yang membantu mahasiswa dalam perencanaan akademik:
 
 ### Fitur Akademik Lainnya
 
-- **Autentikasi** — Login/logout dengan password hashing (bcrypt)
-- **Dashboard** — Ringkasan informasi akademik mahasiswa
-- **Transkrip Nilai** — Riwayat nilai per semester dengan ekspor PDF
-- **KRS** — Kartu Rencana Studi dengan ekspor PDF
-- **KHS** — Kartu Hasil Studi dengan ekspor PDF
+- **Autentikasi**: Login/logout dengan password hashing (bcrypt)
+- **Dashboard**: Ringkasan informasi akademik mahasiswa
+- **Transkrip Nilai**: Riwayat nilai per semester dengan ekspor PDF
+- **KRS**: Kartu Rencana Studi dengan ekspor PDF
+- **KHS**: Kartu Hasil Studi dengan ekspor PDF
 
 ---
 
@@ -121,10 +121,10 @@ http://localhost/project_inspire_2026/
 
 ## Demo Access
 
-| Field | Value |
-|:------|:------|
-| **NIM** | `220211060323` |
-| **Password** | `DAVAulus123` |
+| Nama | NIM | Password |
+|:-----|:----|:---------|
+| Dava Oktavito Josua L. Ulus | `220211060323` | `DAVAulus123` |
+| Romal Putra Lengkong | `220211060242` | `Romal11#` |
 
 ---
 
