@@ -21,7 +21,7 @@
 
 ## Deskripsi
 
-Proyek ini merupakan implementasi sistem portal akademik yang terinspirasi dari **INSPIRE Portal** Universitas Sam Ratulangi. Fokus utama pengembangan adalah penambahan fitur **Perencanaan Studi** yang belum tersedia di sistem aslinya — memungkinkan mahasiswa untuk merencanakan pengambilan mata kuliah sebelum periode KRS dibuka.
+Proyek ini merupakan implementasi sistem portal akademik yang terinspirasi dari **INSPIRE Portal** Universitas Sam Ratulangi. Fokus utama pengembangan adalah penambahan fitur **Perencanaan Studi** yang belum tersedia di sistem aslinya memungkinkan mahasiswa untuk merencanakan pengambilan mata kuliah sebelum periode KRS dibuka.
 
 ## Fitur Utama
 
