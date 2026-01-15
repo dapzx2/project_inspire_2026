@@ -123,11 +123,8 @@ if ($result_pengumuman) {
                     <!-- Perhatian - Selalu ditampilkan -->
                     <div class="alert alert-danger alert-dismissible text-center">
                         <h5><i class="icon fas fa-exclamation-triangle"></i> Perhatian !</h5>
-                    </div>
-                    
-                    <?php if ($tampilkan_warning): ?>
-                    <!-- Peringatan Evaluasi Studi - Hanya ditampilkan jika ada bahaya -->
-                    <div class="alert alert-danger" style="text-align: center;">
+                        
+                        <?php if ($tampilkan_warning): ?>
                         <?php if ($bahaya_sks && $bahaya_ipk): ?>
                         <!-- KONDISI 3: Keduanya Kurang -->
                         <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
@@ -150,8 +147,8 @@ if ($result_pengumuman) {
                         <a href="perencanaan.php" class="btn btn-sm mt-2 btn-peringatan">
                             <i class="fas fa-list mr-1"></i> Lihat Perencanaan Studi
                         </a>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
 
                     <!-- Semester Info -->
                     <div class="callout callout-info">
