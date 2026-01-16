@@ -1,7 +1,6 @@
 <?php include 'layout/header.php'; ?>
 
 <?php
-// Fetch user academic data from database
 include 'config/database.php';
 
 $user_data = null;
@@ -10,44 +9,49 @@ $total_sks = 0;
 $total_mk = 0;
 $ips = 0;
 
-if (isset($_SESSION['nim'])) {
-    $nim = mysqli_real_escape_string($conn, $_SESSION['nim']);
-    
-    // Get user data
-    $query = "SELECT * FROM users WHERE nim = '$nim'";
-    $result = mysqli_query($conn, $query);
-    if ($result && mysqli_num_rows($result) > 0) {
-        $user_data = mysqli_fetch_assoc($result);
-    }
-    
-    // Get transkrip data grouped by semester (ordered by id to maintain original order)
-    $query_transkrip = "SELECT * FROM transkrip WHERE nim = '$nim' ORDER BY semester ASC, id ASC";
-    $result_transkrip = @mysqli_query($conn, $query_transkrip);
-    if ($result_transkrip) {
-        while ($row = mysqli_fetch_assoc($result_transkrip)) {
-            $semester = $row['semester'];
-            if (!isset($transkrip_data[$semester])) {
-                $transkrip_data[$semester] = [];
-            }
-            $transkrip_data[$semester][] = $row;
-            $total_sks += $row['sks'];
-            $total_mk++;
-        }
-    }
-    
-    // Calculate IP Semester (using IPK from transkrip)
-    $query_ips = "SELECT 
-                    CASE 
-                        WHEN SUM(sks) > 0 THEN ROUND(SUM(sks * bobot) / SUM(sks), 2)
-                        ELSE 0 
-                    END as ips
-                  FROM transkrip 
-                  WHERE nim = '$nim'";
-    $result_ips = @mysqli_query($conn, $query_ips);
-    if ($result_ips && $row_ips = mysqli_fetch_assoc($result_ips)) {
-        $ips = $row_ips['ips'];
-    }
+$nim = $_SESSION['nim'] ?? '';
+
+// ambil data user
+$stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
 }
+$stmt->close();
+
+// ambil data transkrip grouped by semester
+$stmt = $conn->prepare("SELECT * FROM transkrip WHERE nim = ? ORDER BY semester ASC, id ASC");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $semester = $row['semester'];
+    if (!isset($transkrip_data[$semester])) {
+        $transkrip_data[$semester] = [];
+    }
+    $transkrip_data[$semester][] = $row;
+    $total_sks += (int) $row['sks'];
+    $total_mk++;
+}
+$stmt->close();
+
+// hitung IPK
+$stmt = $conn->prepare("SELECT 
+            CASE 
+                WHEN SUM(sks) > 0 THEN ROUND(SUM(sks * bobot) / SUM(sks), 2)
+                ELSE 0 
+            END as ips
+          FROM transkrip 
+          WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $row = $result->fetch_assoc()) {
+    $ips = (float) $row['ips'];
+}
+$stmt->close();
 ?>
 
 <!-- Content Wrapper -->
@@ -73,11 +77,11 @@ if (isset($_SESSION['nim'])) {
                             <div class="row">
                                 <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                                     <label>Nama</label><br>
-                                    <?php echo $user_data ? htmlspecialchars($user_data['nama']) : '-'; ?>
+                                    <?php echo $user_data ? htmlspecialchars($user_data['nama'], ENT_QUOTES, 'UTF-8') : '-'; ?>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                                     <label>NIM</label><br>
-                                    <?php echo $user_data ? htmlspecialchars($user_data['nim']) : '-'; ?>
+                                    <?php echo $user_data ? htmlspecialchars($user_data['nim'], ENT_QUOTES, 'UTF-8') : '-'; ?>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                                     <label>Program Studi</label><br>
@@ -107,22 +111,23 @@ if (isset($_SESSION['nim'])) {
 
                             <?php if (count($transkrip_data) > 0): ?>
                                 <?php foreach ($transkrip_data as $semester => $matakuliah_list): ?>
-                                    <h4 class="mt-4">SEMESTER <?php echo $semester; ?></h4>
+                                    <h4 class="mt-4">SEMESTER <?php echo (int) $semester; ?></h4>
                                     <ul class="list-group mb-4" id="list-semester">
                                         <?php foreach ($matakuliah_list as $mk): ?>
-                                            <li class="list-group-item list-group-item-action flex-column align-items-start <?php echo in_array($mk['nilai_huruf'], ['D', 'E']) ? 'border-left-danger' : ''; ?>">
+                                            <?php $is_danger = in_array($mk['nilai_huruf'], ['D', 'E'], true); ?>
+                                            <li class="list-group-item list-group-item-action flex-column align-items-start <?php echo $is_danger ? 'border-left-danger' : ''; ?>">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h6 class="mb-0"><?php echo htmlspecialchars($mk['nama_mk']); ?></h6>
+                                                    <h6 class="mb-0"><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></h6>
                                                     <span class="<?php 
-                                                        if ($mk['nilai_huruf'] == 'A') echo 'text-success';
-                                                        elseif (in_array($mk['nilai_huruf'], ['D', 'E'])) echo 'text-danger';
+                                                        if ($mk['nilai_huruf'] === 'A') echo 'text-success';
+                                                        elseif ($is_danger) echo 'text-danger';
                                                         else echo 'text-primary';
                                                     ?>">
-                                                        <b><?php echo htmlspecialchars($mk['nilai_huruf']); ?></b>
+                                                        <b><?php echo htmlspecialchars($mk['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></b>
                                                     </span>
                                                 </div>
                                                 <small class="text-muted">
-                                                    <?php echo htmlspecialchars($mk['kode_mk']); ?> • <?php echo $mk['sks']; ?> SKS
+                                                    <?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?> • <?php echo (int) $mk['sks']; ?> SKS
                                                 </small>
                                             </li>
                                         <?php endforeach; ?>

@@ -2,42 +2,46 @@
 session_start();
 include 'config/database.php';
 
-// Check if logged in
+// cek login
 if (!isset($_SESSION['nim'])) {
     header('Location: index.php');
     exit;
 }
 
-$nim = mysqli_real_escape_string($conn, $_SESSION['nim']);
-$selected_semester = isset($_GET['semester']) ? mysqli_real_escape_string($conn, $_GET['semester']) : '';
+$nim = $_SESSION['nim'];
+$selected_semester = $_GET['semester'] ?? '';
 
-if (!$selected_semester) {
+if ($selected_semester === '') {
     header('Location: khs.php');
     exit;
 }
 
-// Get user data
+// ambil data user
 $user_data = null;
-$query = "SELECT * FROM users WHERE nim = '$nim'";
-$result = mysqli_query($conn, $query);
-if ($result && mysqli_num_rows($result) > 0) {
-    $user_data = mysqli_fetch_assoc($result);
+$stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
 }
+$stmt->close();
 
-// Get KHS data from KRS table
+// ambil data KHS dari tabel KRS
 $khs_data = [];
 $total_sks = 0;
 $total_nilai_sks = 0;
 
-$query_khs = "SELECT * FROM krs WHERE nim = '$nim' AND semester_krs = '$selected_semester' ORDER BY id ASC";
-$result_khs = @mysqli_query($conn, $query_khs);
-if ($result_khs) {
-    while ($row = mysqli_fetch_assoc($result_khs)) {
-        $khs_data[] = $row;
-        $total_sks += $row['sks'];
-        $total_nilai_sks += $row['sks'] * (isset($row['bobot']) ? $row['bobot'] : 0);
-    }
+$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = ? ORDER BY id ASC");
+$stmt->bind_param("ss", $nim, $selected_semester);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $khs_data[] = $row;
+    $total_sks += (int) $row['sks'];
+    $total_nilai_sks += (int) $row['sks'] * (float) ($row['bobot'] ?? 0);
 }
+$stmt->close();
 
 // Calculate IPS
 $ips = ($total_sks > 0) ? round($total_nilai_sks / $total_sks, 2) : 0;

@@ -2,51 +2,58 @@
 session_start();
 include 'config/database.php';
 
-// Check if logged in
+// cek login
 if (!isset($_SESSION['nim'])) {
     header('Location: index.php');
     exit;
 }
 
-$nim = mysqli_real_escape_string($conn, $_SESSION['nim']);
+$nim = $_SESSION['nim'];
 
-// Get user data
+// ambil data user
 $user_data = null;
-$query = "SELECT * FROM users WHERE nim = '$nim'";
-$result = mysqli_query($conn, $query);
-if ($result && mysqli_num_rows($result) > 0) {
-    $user_data = mysqli_fetch_assoc($result);
+$stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
 }
+$stmt->close();
 
-// Get transkrip data grouped by semester
+// ambil data transkrip grouped by semester
 $transkrip_data = [];
 $total_sks = 0;
 $sks_lulus = 0;
 
-$query_transkrip = "SELECT * FROM transkrip WHERE nim = '$nim' ORDER BY semester ASC, id ASC";
-$result_transkrip = @mysqli_query($conn, $query_transkrip);
-if ($result_transkrip) {
-    while ($row = mysqli_fetch_assoc($result_transkrip)) {
-        $semester = $row['semester'];
-        if (!isset($transkrip_data[$semester])) {
-            $transkrip_data[$semester] = [];
-        }
-        $transkrip_data[$semester][] = $row;
-        $total_sks += $row['sks'];
-        // SKS Lulus = tidak menghitung nilai D dan E
-        if ($row['nilai_huruf'] != 'E' && $row['nilai_huruf'] != 'D') {
-            $sks_lulus += $row['sks'];
-        }
+$stmt = $conn->prepare("SELECT * FROM transkrip WHERE nim = ? ORDER BY semester ASC, id ASC");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $semester = $row['semester'];
+    if (!isset($transkrip_data[$semester])) {
+        $transkrip_data[$semester] = [];
+    }
+    $transkrip_data[$semester][] = $row;
+    $total_sks += (int) $row['sks'];
+    // SKS lulus = tidak menghitung D dan E
+    if (!in_array($row['nilai_huruf'], ['D', 'E'], true)) {
+        $sks_lulus += (int) $row['sks'];
     }
 }
+$stmt->close();
 
-// Calculate IPK
+// hitung IPK
 $ipk = 0;
-$query_ipk = "SELECT CASE WHEN SUM(sks) > 0 THEN ROUND(SUM(sks * bobot) / SUM(sks), 2) ELSE 0 END as ipk FROM transkrip WHERE nim = '$nim'";
-$result_ipk = @mysqli_query($conn, $query_ipk);
-if ($result_ipk && $row_ipk = mysqli_fetch_assoc($result_ipk)) {
-    $ipk = $row_ipk['ipk'];
+$stmt = $conn->prepare("SELECT CASE WHEN SUM(sks) > 0 THEN ROUND(SUM(sks * bobot) / SUM(sks), 2) ELSE 0 END as ipk FROM transkrip WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $row = $result->fetch_assoc()) {
+    $ipk = (float) $row['ipk'];
 }
+$stmt->close();
 
 // Format tanggal dalam Bahasa Indonesia
 $bulan_indo = [

@@ -1,19 +1,19 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if user is logged in
-if (!isset($_SESSION['status']) || $_SESSION['status'] != "login") {
-    header("Location: index.php");
-    exit();
+// cek login
+if (!isset($_SESSION['status']) || $_SESSION['status'] !== 'login') {
+    header('Location: index.php');
+    exit;
 }
 
-// Get user info from session
-$nim = isset($_SESSION['nim']) ? $_SESSION['nim'] : '';
-$nama = isset($_SESSION['nama']) ? $_SESSION['nama'] : $nim;
+// ambil data user dari session
+$nim = $_SESSION['nim'] ?? '';
+$nama = $_SESSION['nama'] ?? $nim;
 
-// Get current page name for active menu highlighting
+// halaman aktif untuk highlight menu
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
@@ -34,7 +34,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 			font-family: 'Philosopher', sans-serif !important;
 		}
 		
-		/* Fix dropdown arrow position to match original INSPIRE */
+		/* dropdown arrow position */
 		.nav-sidebar .nav-link > .right,
 		.nav-sidebar .nav-link > p > .right {
 			position: absolute;
@@ -42,23 +42,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
 			top: 0.7rem;
 		}
 		
-		/* Hide sidebar scrollbar completely (Clean Look) & Remove Shadow */
+		/* hide sidebar scrollbar */
 		.sidebar {
-			-ms-overflow-style: none;  /* IE and Edge */
-			scrollbar-width: none;  /* Firefox */
+			-ms-overflow-style: none;
+			scrollbar-width: none;
 			padding-bottom: 2rem;
 		}
 		.sidebar::-webkit-scrollbar {
 			display: none;
 		}
 		
-		/* Remove shadow/hover effect for a flatter, cleaner look */
+		/* flat look tanpa shadow */
 		.sidebar-light-danger .nav-sidebar > .nav-item > .nav-link.active {
 			box-shadow: none !important;
 		}
 	</style>
-
-
 
 </head>
 
@@ -99,8 +97,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 					</li>
 					<li class="nav-item dropdown">
 						<a class="nav-link pl-2 pr-3 d-none d-sm-block" data-toggle="dropdown" href="#" style="line-height: 1em;">
-							<small><span class="text-uppercase"><?php echo htmlspecialchars($nama); ?></span></small><br>
-							<small><?php echo htmlspecialchars($nim); ?></small>
+							<small><span class="text-uppercase"><?php echo htmlspecialchars($nama, ENT_QUOTES, 'UTF-8'); ?></span></small><br>
+							<small><?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?></small>
 						</a>
 						<a class="nav-link button pl-2 pr-3 d-block d-sm-none" data-toggle="dropdown" href="#">
 							<i class="fas fa-user"></i>
@@ -133,7 +131,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 						<ul class="nav nav-pills nav-sidebar nav-child-indent flex-column text-sm" data-widget="treeview" role="menu" data-accordion="true">
 							<!-- Beranda -->
 							<li class="nav-item">
-								<a href="dashboard.php" class="nav-link <?php echo ($current_page == 'dashboard.php') ? 'active' : ''; ?>">
+								<a href="dashboard.php" class="nav-link <?php echo ($current_page === 'dashboard.php') ? 'active' : ''; ?>">
 									<i class="nav-icon fas fa-home"></i>
 									<p>Beranda</p>
 								</a>
@@ -161,7 +159,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 							<!-- Perkuliahan -->
 							<?php 
 							$perkuliahan_pages = ['jadwal.php', 'krs.php', 'perencanaan.php', 'khs.php', 'transkrip.php'];
-							$is_perkuliahan_active = in_array($current_page, $perkuliahan_pages);
+							$is_perkuliahan_active = in_array($current_page, $perkuliahan_pages, true);
 							?>
 							<li class="nav-item has-treeview <?php echo $is_perkuliahan_active ? 'menu-open' : ''; ?>">
 								<a href="#" class="nav-link <?php echo $is_perkuliahan_active ? 'active' : ''; ?>">
@@ -181,13 +179,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
 										</ul>
 									</li>
 									<li class="nav-item">
-										<a href="jadwal.php" class="nav-link <?php echo ($current_page == 'jadwal.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>Jadwal</p></a>
+										<a href="jadwal.php" class="nav-link <?php echo ($current_page === 'jadwal.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>Jadwal</p></a>
 									</li>
 									<li class="nav-item">
-								<a href="krs.php" class="nav-link <?php echo ($current_page == 'krs.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>KRS</p></a>
+								<a href="krs.php" class="nav-link <?php echo ($current_page === 'krs.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>KRS</p></a>
 							</li>
 							<li class="nav-item">
-								<a href="perencanaan.php" class="nav-link <?php echo ($current_page == 'perencanaan.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>Perencanaan Studi</p></a>
+								<a href="perencanaan.php" class="nav-link <?php echo ($current_page === 'perencanaan.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>Perencanaan Studi</p></a>
 							</li>
 							<li class="nav-item">
 								<a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Presensi</p></a>
@@ -219,10 +217,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 										<a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>EPOM</p></a>
 									</li>
 									<li class="nav-item">
-										<a href="khs.php" class="nav-link <?php echo ($current_page == 'khs.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>KHS</p></a>
+										<a href="khs.php" class="nav-link <?php echo ($current_page === 'khs.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>KHS</p></a>
 									</li>
 									<li class="nav-item">
-										<a href="transkrip.php" class="nav-link <?php echo ($current_page == 'transkrip.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>Transkrip</p></a>
+										<a href="transkrip.php" class="nav-link <?php echo ($current_page === 'transkrip.php') ? 'active' : ''; ?>"><i class="far fa-circle nav-icon"></i><p>Transkrip</p></a>
 									</li>
 									<li class="nav-item">
 										<a href="#" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Bimbingan Khusus</p></a>

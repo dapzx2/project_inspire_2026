@@ -3,32 +3,36 @@
 <?php
 include 'config/database.php';
 
-$nim = isset($_SESSION['nim']) ? mysqli_real_escape_string($conn, $_SESSION['nim']) : '';
+$nim = $_SESSION['nim'] ?? '';
 
-// Fetch user data
+// ambil data user
 $user_data = [];
-$query_user = "SELECT * FROM users WHERE nim = '$nim'";
-$result_user = @mysqli_query($conn, $query_user);
-if ($result_user && mysqli_num_rows($result_user) > 0) {
-    $user_data = mysqli_fetch_assoc($result_user);
+$stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
 }
+$stmt->close();
 
-// Fetch KRS data from krs table
+// ambil data KRS
 $krs_list = [];
 $total_sks = 0;
 
-$query_krs = "SELECT * FROM krs WHERE nim = '$nim' ORDER BY hari ASC, jam_mulai ASC";
-$result_krs = @mysqli_query($conn, $query_krs);
-if ($result_krs) {
-    while ($row = mysqli_fetch_assoc($result_krs)) {
-        $krs_list[] = $row;
-        $total_sks += $row['sks'];
-    }
+$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? ORDER BY hari ASC, jam_mulai ASC");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $krs_list[] = $row;
+    $total_sks += (int) $row['sks'];
 }
+$stmt->close();
 
-// Get IP Semester sebelumnya (semester 6)
+// hitung IP semester sebelumnya (sem 6 untuk contoh)
 $ip_sebelum = 0;
-$query_ip = "SELECT 
+$stmt = $conn->prepare("SELECT 
     SUM(
         CASE 
             WHEN nilai_huruf = 'A' THEN 4 * sks
@@ -39,16 +43,18 @@ $query_ip = "SELECT
             WHEN nilai_huruf = 'D' THEN 1 * sks
             ELSE 0
         END
-    ) / SUM(sks) as ip
+    ) / NULLIF(SUM(sks), 0) as ip
     FROM transkrip 
-    WHERE nim = '$nim' AND semester = 6";
-$result_ip = @mysqli_query($conn, $query_ip);
-if ($result_ip && $row = mysqli_fetch_assoc($result_ip)) {
+    WHERE nim = ? AND semester = 6");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $row = $result->fetch_assoc()) {
     $ip_sebelum = $row['ip'] ? number_format($row['ip'], 2) : 3.39;
 }
+$stmt->close();
 
-// Determine max SKS based on IP
-$max_sks = 24;
+// tentukan maks SKS berdasarkan IP
 if ($ip_sebelum >= 3.00) {
     $max_sks = 24;
 } elseif ($ip_sebelum >= 2.50) {
@@ -124,33 +130,33 @@ if ($ip_sebelum >= 3.00) {
                                     <div class="col-12 col-sm-6 col-md-4">
                                         <div class="card card-success card-outline">
                                             <div class="card-header text-muted border-bottom-0">
-                                                <?php echo htmlspecialchars($mk['kode_mk']); ?> • 
-                                                <?php echo $mk['sks']; ?> SKS • 
-                                                <?php echo $mk['jenis']; ?> •
+                                                <?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?> • 
+                                                <?php echo (int) $mk['sks']; ?> SKS • 
+                                                <?php echo htmlspecialchars($mk['jenis'] ?? '', ENT_QUOTES, 'UTF-8'); ?> •
                                                 <br>
                                             </div>
                                             <div class="card-body pt-0">
                                                 <div class="row">
                                                     <div class="col-12">
-                                                        <h2 class="lead"><b><?php echo htmlspecialchars($mk['nama_mk']); ?></b></h2>
-                                                        <p class="text-muted text-sm"><b>KELAS:</b> <?php echo $mk['kelas']; ?></p>
+                                                        <h2 class="lead"><b><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></b></h2>
+                                                        <p class="text-muted text-sm"><b>KELAS:</b> <?php echo htmlspecialchars($mk['kelas'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
                                                         <ul class="ml-4 fa-ul text-muted">
                                                             <?php if (!empty($mk['dosen1'])): ?>
                                                             <li class="small">
                                                                 <div class="fa-li"><i class="fas fa-lg fa-chalkboard-teacher"></i></div>
-                                                                <?php echo htmlspecialchars($mk['dosen1']); ?>
+                                                                <?php echo htmlspecialchars($mk['dosen1'], ENT_QUOTES, 'UTF-8'); ?>
                                                             </li>
                                                             <?php endif; ?>
                                                             <?php if (!empty($mk['dosen2'])): ?>
                                                             <li class="small">
                                                                 <div class="fa-li"><i class="fas fa-lg fa-chalkboard-teacher"></i></div>
-                                                                <?php echo htmlspecialchars($mk['dosen2']); ?>
+                                                                <?php echo htmlspecialchars($mk['dosen2'], ENT_QUOTES, 'UTF-8'); ?>
                                                             </li>
                                                             <?php endif; ?>
                                                             <br>
                                                             <li class="small">
                                                                 <span class="fa-li"><i class="fas fa-lg fa-clock"></i></span>
-                                                                <?php echo $mk['hari']; ?>, <?php echo $mk['jam_mulai']; ?> - <?php echo $mk['jam_selesai']; ?>
+                                                                <?php echo htmlspecialchars($mk['hari'] ?? '', ENT_QUOTES, 'UTF-8'); ?>, <?php echo htmlspecialchars($mk['jam_mulai'] ?? '', ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars($mk['jam_selesai'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -163,7 +169,7 @@ if ($ip_sebelum >= 3.00) {
                                     <div class="col-12">
                                         <div class="alert alert-info text-center">
                                             <i class="fas fa-info-circle mr-2"></i>
-                                            Belum ada matakuliah yang dikontrak. Pastikan tabel <code>krs</code> sudah ada di database.
+                                            Belum ada matakuliah yang dikontrak.
                                         </div>
                                     </div>
                                 <?php endif; ?>

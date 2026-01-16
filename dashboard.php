@@ -1,77 +1,135 @@
 <?php include 'layout/header.php'; ?>
 
 <?php
-// Batas evaluasi studi
-define('MIN_SKS_LULUS', 96);
+// konstanta evaluasi studi
 define('MIN_IPK', 2.00);
-define('SEMESTER_EVALUASI', 7);
+define('MAX_MASA_STUDI', 14);
 
-// Fetch user academic data from database
+// include database hanya sekali karena header.php sudah include session
 include 'config/database.php';
 
+// init variabel
 $user_data = null;
 $sks_lulus = 0;
 $ipk = 0.00;
 $bahaya_sks = false;
 $bahaya_ipk = false;
 $tampilkan_warning = false;
-
-if (isset($_SESSION['nim'])) {
-    $nim = mysqli_real_escape_string($conn, $_SESSION['nim']);
-    $query = "SELECT * FROM users WHERE nim = '$nim'";
-    $result = mysqli_query($conn, $query);
-    if ($result && mysqli_num_rows($result) > 0) {
-        $user_data = mysqli_fetch_assoc($result);
-    }
-    
-    // ============================================
-    // LOGIKA PERINGATAN EVALUASI STUDI
-    // ============================================
-    
-    // Hitung SKS Lulus dari transkrip (nilai != 'E' dan != 'D')
-    $query_sks_lulus = "SELECT COALESCE(SUM(sks), 0) as total_sks 
-                        FROM transkrip 
-                        WHERE nim = '$nim' AND nilai_huruf NOT IN ('D', 'E')";
-    $result_sks = @mysqli_query($conn, $query_sks_lulus);
-    if ($result_sks && $row_sks = mysqli_fetch_assoc($result_sks)) {
-        $sks_lulus = (int) $row_sks['total_sks'];
-    }
-    
-    // Hitung IPK dari transkrip: SUM(sks * bobot) / SUM(sks)
-    $query_ipk = "SELECT 
-                    CASE 
-                        WHEN SUM(sks) > 0 THEN SUM(sks * bobot) / SUM(sks)
-                        ELSE 0 
-                    END as ipk_hitung
-                  FROM transkrip 
-                  WHERE nim = '$nim'";
-    $result_ipk = @mysqli_query($conn, $query_ipk);
-    if ($result_ipk && $row_ipk = mysqli_fetch_assoc($result_ipk)) {
-        $ipk = (float) $row_ipk['ipk_hitung'];
-    }
-    
-    // Tentukan status bahaya berdasarkan batas evaluasi
-    $bahaya_sks = ($sks_lulus < MIN_SKS_LULUS);
-    $bahaya_ipk = ($ipk < MIN_IPK);
-    
-    // Warning ditampilkan jika semester >= batas evaluasi
-    $semester_mahasiswa = isset($user_data['semester']) ? (int) $user_data['semester'] : 0;
-    $tampilkan_warning = (($bahaya_sks || $bahaya_ipk) && $semester_mahasiswa >= SEMESTER_EVALUASI);
-}
-
-// Fetch pengumuman (with error handling) - filter by user's NIM
+$min_sks_semester = 0;
+$semester_target = 1;
+$semester_mahasiswa = 0;
 $pengumuman_list = [];
-$query_pengumuman = "SELECT * FROM pengumuman WHERE nim = '$nim' ORDER BY created_at DESC LIMIT 5";
-$result_pengumuman = @mysqli_query($conn, $query_pengumuman);
-if ($result_pengumuman) {
-    while ($row = mysqli_fetch_assoc($result_pengumuman)) {
-        $pengumuman_list[] = $row;
-    }
+
+// skip kalo belum login
+if (!isset($_SESSION['nim'])) {
+    header('Location: index.php');
+    exit;
 }
+
+$nim = $_SESSION['nim'];
+
+// ambil data user dengan prepared statement
+$stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
+    $semester_mahasiswa = (int) ($user_data['semester'] ?? 0);
+}
+$stmt->close();
+
+// ============================================
+// LOGIKA PERINGATAN EVALUASI STUDI BERTAHAP
+// Berdasarkan standar Universitas Indonesia:
+// Semester 1-2: SKS < 24 atau IPK < 2.00
+// Semester 3-4: SKS < 48 atau IPK < 2.00
+// Semester 5-6: SKS < 72 atau IPK < 2.00
+// Semester 7+:  SKS < 96 atau IPK < 2.00
+// ============================================
+
+// hitung SKS lulus (nilai selain D dan E)
+$stmt = $conn->prepare("SELECT COALESCE(SUM(sks), 0) as total_sks 
+                        FROM transkrip 
+                        WHERE nim = ? AND nilai_huruf NOT IN ('D', 'E')");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $row = $result->fetch_assoc()) {
+    $sks_lulus = (int) $row['total_sks'];
+}
+$stmt->close();
+
+// hitung IPK: SUM(sks * bobot) / SUM(sks)
+$stmt = $conn->prepare("SELECT 
+                CASE 
+                    WHEN SUM(sks) > 0 THEN SUM(sks * bobot) / SUM(sks)
+                    ELSE 0 
+                END as ipk_hitung
+              FROM transkrip 
+              WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $row = $result->fetch_assoc()) {
+    $ipk = (float) $row['ipk_hitung'];
+}
+$stmt->close();
+
+// tentukan batas SKS berdasarkan semester
+if ($semester_mahasiswa >= 7) {
+    $min_sks_semester = 96;
+    $semester_target = 8;
+} elseif ($semester_mahasiswa >= 5) {
+    $min_sks_semester = 72;
+    $semester_target = $semester_mahasiswa + 1;
+} elseif ($semester_mahasiswa >= 3) {
+    $min_sks_semester = 48;
+    $semester_target = $semester_mahasiswa + 1;
+} else {
+    $min_sks_semester = 24;
+    $semester_target = $semester_mahasiswa + 1;
+}
+
+// cek status bahaya
+$bahaya_ipk = ($ipk < MIN_IPK);
+$bahaya_sks = ($sks_lulus < $min_sks_semester);
+$tampilkan_warning = ($bahaya_sks || $bahaya_ipk);
+
+// ambil pengumuman khusus user ini
+$stmt = $conn->prepare("SELECT judul, isi, role, oleh, created_at 
+                        FROM pengumuman 
+                        WHERE nim = ? 
+                        ORDER BY created_at DESC 
+                        LIMIT 5");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $pengumuman_list[] = $row;
+}
+$stmt->close();
+
+// helper: format tanggal ke bahasa Indonesia
+function formatTanggalID($datetime) {
+    $bulan = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+    $ts = strtotime($datetime);
+    return date('d', $ts) . ' ' . $bulan[(int)date('n', $ts)] . ' ' . date('Y H:i:s', $ts);
+}
+
+// hitung masa studi
+$masa_studi = $semester_mahasiswa;
+$sisa_masa_studi = max(0, MAX_MASA_STUDI - $semester_mahasiswa);
+
+// ambil first name untuk greeting
+$first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
 ?>
 
-<!-- Additional CSS for Dashboard -->
-
+<!-- CSS khusus dashboard -->
 <style>
     .btn-peringatan {
         background-color: #dc3545 !important;
@@ -92,18 +150,14 @@ if ($result_pengumuman) {
     <div class="content-header">
         <div class="container-fluid"><h1>Beranda</h1></div>
     </div>
-    <input class="" type="hidden" id="user_session" value="<?php echo htmlspecialchars($nim); ?>">
+    <input type="hidden" id="user_session" value="<?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?>">
     <div class="content">
         <div class="container-fluid">
             <div class="row">
                 <!-- Welcome Section -->
                 <div class="col-sm-12 col-md-12">
                     <div class="jumbotron bg-white mb-3">
-                        <?php 
-                        // Extract first name only and convert to UPPERCASE
-                        $first_name = strtoupper(explode(' ', $nama)[0]);
-                        ?>
-                        <h2 class="display-6">Halo, <?php echo htmlspecialchars($first_name); ?> !</h2>
+                        <h2 class="display-6">Halo, <?php echo htmlspecialchars($first_name, ENT_QUOTES, 'UTF-8'); ?> !</h2>
                         <p class="lead">Selamat datang di <span style="font-weight: bold; font-size: 16pt;">PORTAL INSPIRE</span> Universitas Sam Ratulangi.</p>
                         <a href="https://www.unsrat.ac.id" target="_blank">
                             <button class="btn btn-flat btn-primary">
@@ -125,42 +179,39 @@ if ($result_pengumuman) {
                         <h5><i class="icon fas fa-exclamation-triangle"></i> Perhatian !</h5>
                         
                         <?php if ($tampilkan_warning): ?>
-                        <?php if ($bahaya_sks && $bahaya_ipk): ?>
-                        <!-- KONDISI 3: Keduanya Kurang -->
-                        <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
-                        <p><i>Jika jumlah SKS lulus tidak mencapai 96 SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
-                        <hr>
-                        <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester 8 Anda memperbaiki nilai mata kuliah.</p>
-                        <p><i>Jika IPK tidak mencapai 2.00, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
-                        
-                        <?php elseif ($bahaya_sks): ?>
-                        <!-- KONDISI 1: SKS Kurang -->
-                        <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester 8 Anda mengontrak dan lulus lebih banyak SKS.</p>
-                        <p><i>Jika jumlah SKS lulus tidak mencapai 96 SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
-                        
-                        <?php elseif ($bahaya_ipk): ?>
-                        <!-- KONDISI 2: IPK Kurang -->
-                        <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester 8 Anda memperbaiki nilai mata kuliah.</p>
-                        <p><i>Jika IPK tidak mencapai 2.00, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
+                            <?php if ($bahaya_sks && $bahaya_ipk): ?>
+                            <!-- keduanya kurang -->
+                            <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester <?php echo $semester_target; ?> Anda mengontrak dan lulus lebih banyak SKS.</p>
+                            <p><i>Jika jumlah SKS lulus tidak mencapai <?php echo $min_sks_semester; ?> SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
+                            <hr>
+                            <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester <?php echo $semester_target; ?> Anda memperbaiki nilai mata kuliah.</p>
+                            <p><i>Jika IPK tidak mencapai 2.00, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
+                            
+                            <?php elseif ($bahaya_sks): ?>
+                            <!-- SKS kurang -->
+                            <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester <?php echo $semester_target; ?> Anda mengontrak dan lulus lebih banyak SKS.</p>
+                            <p><i>Jika jumlah SKS lulus tidak mencapai <?php echo $min_sks_semester; ?> SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
+                            
+                            <?php elseif ($bahaya_ipk): ?>
+                            <!-- IPK kurang -->
+                            <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester <?php echo $semester_target; ?> Anda memperbaiki nilai mata kuliah.</p>
+                            <p><i>Jika IPK tidak mencapai 2.00, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
+                            <?php endif; ?>
+                            
+                            <a href="perencanaan.php" class="btn btn-sm mt-2 btn-peringatan">
+                                <i class="fas fa-list mr-1"></i> Lihat Perencanaan Studi
+                            </a>
                         <?php endif; ?>
-                        
-                        <a href="perencanaan.php" class="btn btn-sm mt-2 btn-peringatan">
-                            <i class="fas fa-list mr-1"></i> Lihat Perencanaan Studi
-                        </a>
-                        <?php endif; ?>
+                        <!-- Jika tidak ada warning, alert tetap muncul tapi kosong -->
                     </div>
 
                     <!-- Semester Info -->
                     <div class="callout callout-info">
                         <?php if ($user_data): ?>
-                        <?php 
-                        $masa_studi_curr = $semester_mahasiswa;
-                        $sisa_masa_studi_curr = max(0, 14 - $semester_mahasiswa);
-                        ?>
-                        Saat ini Anda sedang menempuh semester <?php echo $user_data['semester']; ?> T.A <?php echo htmlspecialchars($user_data['tahun_akademik']); ?> <?php echo htmlspecialchars($user_data['periode']); ?> <br><br>
-                        <label>MASA STUDI :</label> <?php echo $masa_studi_curr; ?> Semester <br>
-                        <label>SISA MASA STUDI MAKS. :</label> <?php echo $sisa_masa_studi_curr; ?> Semester <br>
-                        <label>STATUS PDDIKTI :</label> <?php echo htmlspecialchars($user_data['status_pddikti']); ?> <br>
+                        Saat ini Anda sedang menempuh semester <?php echo (int) $user_data['semester']; ?> T.A <?php echo htmlspecialchars($user_data['tahun_akademik'] ?? '-', ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($user_data['periode'] ?? '', ENT_QUOTES, 'UTF-8'); ?> <br><br>
+                        <label>MASA STUDI :</label> <?php echo $masa_studi; ?> Semester <br>
+                        <label>SISA MASA STUDI MAKS. :</label> <?php echo $sisa_masa_studi; ?> Semester <br>
+                        <label>STATUS PDDIKTI :</label> <?php echo htmlspecialchars($user_data['status_pddikti'] ?? '-', ENT_QUOTES, 'UTF-8'); ?> <br>
                         <?php else: ?>
                         Saat ini Anda sedang menempuh semester - T.A - <br><br>
                         <label>MASA STUDI :</label> - Semester <br>
@@ -171,13 +222,8 @@ if ($result_pengumuman) {
 
                     <!-- IPK & SKS Info -->
                     <div class="callout callout-info">
-                        <?php if ($user_data): ?>
                         <label>IPK</label> : <?php echo number_format($ipk, 2); ?> <br>
                         <label>SKS Lulus</label> : <?php echo $sks_lulus; ?>
-                        <?php else: ?>
-                        <label>IPK</label> : - <br>
-                        <label>SKS Lulus</label> : -
-                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -193,17 +239,12 @@ if ($result_pengumuman) {
                                     <?php if (count($pengumuman_list) > 0): ?>
                                         <?php foreach ($pengumuman_list as $pengumuman): ?>
                                         <li class="item">
-                                            <div class="">
-                                                <a href="#" class="product-title text-danger text-capitalize"><?php echo htmlspecialchars($pengumuman['judul']); ?></a>
-                                                <span class="float-right"><small class="text-muted"><i class="fas fa-clock mr-1"></i><?php 
-                                                    $date_str = date('d F Y H:i:s', strtotime($pengumuman['created_at']));
-                                                    $en_months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                                                    $id_months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                                                    echo str_replace($en_months, $id_months, $date_str);
-                                                ?></small></span><br>
-                                                Oleh: <label class="badge badge-success"><?php echo htmlspecialchars($pengumuman['role']); ?></label> <?php echo htmlspecialchars($pengumuman['oleh']); ?>
+                                            <div>
+                                                <a href="#" class="product-title text-danger text-capitalize"><?php echo htmlspecialchars($pengumuman['judul'], ENT_QUOTES, 'UTF-8'); ?></a>
+                                                <span class="float-right"><small class="text-muted"><i class="fas fa-clock mr-1"></i><?php echo formatTanggalID($pengumuman['created_at']); ?></small></span><br>
+                                                Oleh: <label class="badge badge-success"><?php echo htmlspecialchars($pengumuman['role'], ENT_QUOTES, 'UTF-8'); ?></label> <?php echo htmlspecialchars($pengumuman['oleh'], ENT_QUOTES, 'UTF-8'); ?>
                                                 <span class="product-description">
-                                                    <small><?php echo htmlspecialchars($pengumuman['isi']); ?></small>
+                                                    <small><?php echo htmlspecialchars($pengumuman['isi'], ENT_QUOTES, 'UTF-8'); ?></small>
                                                 </span>
                                             </div>
                                         </li>
@@ -256,102 +297,29 @@ if ($result_pengumuman) {
                         <div class="collapse" id="collapseExample">
                             <div class="card card-body">
                                 <div class="row d-flex align-items-stretch">
+                                    <?php 
+                                    $menu_items = [
+                                        ['title' => 'BIODATA', 'desc' => 'Untuk melakukan pergantian biodata. Contoh: (Foto untuk wisuda, Data pribadi, dan data lainnya)'],
+                                        ['title' => 'PERKULIAHAN', 'desc' => 'Untuk melihat Jadwal, KRS, KHS dan Transkrip Mahasiswa'],
+                                        ['title' => 'KEMAHASISWAAN', 'desc' => 'Aplikasi untuk pendaftaran beasiswa, isi prestasi dan organisasi mahasiswa'],
+                                        ['title' => 'KKT', 'desc' => 'Aplikasi untuk pendaftaran KKT (Kuliah Kerja Terpadu)'],
+                                        ['title' => 'BIMBINGAN AKADEMIK', 'desc' => 'Aplikasi untuk melakukan komunikasi dengan dosen pembimbing akademik'],
+                                        ['title' => 'SKRIPSI', 'desc' => 'Aplikasi untuk pengurusan skripsi secara online'],
+                                        ['title' => 'WISUDA', 'desc' => 'Aplikasi untuk pendaftaran wisuda.'],
+                                        ['title' => 'BILLING', 'desc' => 'Aplikasi untuk generate billing pembayaran.'],
+                                    ];
+                                    foreach ($menu_items as $item): ?>
                                     <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
                                         <div class="card">
                                             <div class="card-body">
                                                 <div class="row">
-                                                    <h2 class="lead"><b>BIODATA</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Untuk melakukan pergantian biodata. Contoh: (Foto untuk wisuda, Data pribadi, dan data lainnya)
-                                                    </p>
+                                                    <h2 class="lead"><b><?php echo $item['title']; ?></b></h2>
+                                                    <p class="text-muted text-sm"><?php echo $item['desc']; ?></p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>PERKULIAHAN</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Untuk melihat Jadwal, KRS, KHS dan Transkrip Mahasiswa
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>KEMAHASISWAAN</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Aplikasi untuk pendaftaran beasiswa, isi prestasi dan organisasi mahasiswa
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>KKT</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Aplikasi untuk pendaftaran KKT (Kuliah Kerja Terpadu)
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>BIMBINGAN AKADEMIK</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Aplikasi untuk melakukan komunikasi dengan dosen pembimbing akademik
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>SKRIPSI</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Aplikasi untuk pengurusan skripsi secara online
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>WISUDA</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Aplikasi untuk pendaftaran wisuda.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <h2 class="lead"><b>BILLING</b></h2>
-                                                    <p class="text-muted text-sm">
-                                                        Aplikasi untuk generate billing pembayaran.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
@@ -376,30 +344,22 @@ if ($result_pengumuman) {
                 <div class="container-fluid">
                     <div class="row">
                         <div class="text-center">
-                            <a class="btn btn-app" href="dashboard.php">
-                                <i class="fa fa-home"></i> Beranda
+                            <?php 
+                            $quick_menu = [
+                                ['href' => 'dashboard.php', 'icon' => 'fa fa-home', 'label' => 'Beranda'],
+                                ['href' => 'biodata.php', 'icon' => 'fas fa-user', 'label' => 'Biodata'],
+                                ['href' => 'jadwal.php', 'icon' => 'fas fa-clock', 'label' => 'Jadwal Kuliah'],
+                                ['href' => 'krs.php', 'icon' => 'fas fa-list', 'label' => 'KRS'],
+                                ['href' => 'perencanaan.php', 'icon' => 'fas fa-calendar-check', 'label' => 'Perencanaan Studi'],
+                                ['href' => 'khs.php', 'icon' => 'fas fa-list', 'label' => 'KHS'],
+                                ['href' => 'transkrip.php', 'icon' => 'fas fa-list-alt', 'label' => 'Transkrip'],
+                                ['href' => 'billing.php', 'icon' => 'fas fa-money-bill-alt', 'label' => 'Billing'],
+                            ];
+                            foreach ($quick_menu as $menu): ?>
+                            <a class="btn btn-app" href="<?php echo $menu['href']; ?>">
+                                <i class="<?php echo $menu['icon']; ?>"></i> <?php echo $menu['label']; ?>
                             </a>
-                            <a class="btn btn-app" href="biodata.php">
-                                <i class="fas fa-user"></i> Biodata
-                            </a>
-                            <a class="btn btn-app" href="jadwal.php">
-                                <i class="fas fa-clock"></i> Jadwal Kuliah
-                            </a>
-                            <a class="btn btn-app" href="krs.php">
-                                <i class="fas fa-list"></i> KRS
-                            </a>
-                            <a class="btn btn-app" href="perencanaan.php">
-                                <i class="fas fa-calendar-check"></i> Perencanaan Studi
-                            </a>
-                            <a class="btn btn-app" href="khs.php">
-                                <i class="fas fa-list"></i> KHS
-                            </a>
-                            <a class="btn btn-app" href="transkrip.php">
-                                <i class="fas fa-list-alt"></i> Transkrip
-                            </a>
-                            <a class="btn btn-app" href="billing.php">
-                                <i class="fas fa-money-bill-alt"></i> Billing
-                            </a>
+                            <?php endforeach; ?>
                             <a class="btn btn-app" id="btn-app-logout" data-toggle="modal" data-target="#mdl-logout">
                                 <i class="fas fa-power-off"></i> Keluar
                             </a>
@@ -412,7 +372,6 @@ if ($result_pengumuman) {
 </div>
 
 <!-- FullCalendar Script -->
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('calendar');

@@ -2,38 +2,42 @@
 session_start();
 include 'config/database.php';
 
-// Check if logged in
+// cek login
 if (!isset($_SESSION['nim'])) {
     header('Location: index.php');
     exit;
 }
 
-$nim = mysqli_real_escape_string($conn, $_SESSION['nim']);
+$nim = $_SESSION['nim'];
 
-// Get user data
+// ambil data user dengan prepared statement
 $user_data = null;
-$query = "SELECT * FROM users WHERE nim = '$nim'";
-$result = mysqli_query($conn, $query);
-if ($result && mysqli_num_rows($result) > 0) {
-    $user_data = mysqli_fetch_assoc($result);
+$stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $user_data = $result->fetch_assoc();
 }
+$stmt->close();
 
-// Get KRS data
+// ambil data KRS
 $krs_list = [];
 $total_sks = 0;
 
-$query_krs = "SELECT * FROM krs WHERE nim = '$nim' ORDER BY kode_mk ASC";
-$result_krs = @mysqli_query($conn, $query_krs);
-if ($result_krs) {
-    while ($row = mysqli_fetch_assoc($result_krs)) {
-        $krs_list[] = $row;
-        $total_sks += $row['sks'];
-    }
+$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? ORDER BY kode_mk ASC");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $krs_list[] = $row;
+    $total_sks += (int) $row['sks'];
 }
+$stmt->close();
 
-// Get IP Semester sebelumnya
+// hitung IP semester sebelumnya
 $ip_sebelum = 0;
-$query_ip = "SELECT 
+$stmt = $conn->prepare("SELECT 
     SUM(
         CASE 
             WHEN nilai_huruf = 'A' THEN 4 * sks
@@ -44,13 +48,16 @@ $query_ip = "SELECT
             WHEN nilai_huruf = 'D' THEN 1 * sks
             ELSE 0
         END
-    ) / SUM(sks) as ip
+    ) / NULLIF(SUM(sks), 0) as ip
     FROM transkrip 
-    WHERE nim = '$nim' AND semester = 7";
-$result_ip = @mysqli_query($conn, $query_ip);
-if ($result_ip && $row = mysqli_fetch_assoc($result_ip)) {
+    WHERE nim = ? AND semester = 7");
+$stmt->bind_param("s", $nim);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $row = $result->fetch_assoc()) {
     $ip_sebelum = $row['ip'] ? number_format($row['ip'], 2) : 3.39;
 }
+$stmt->close();
 
 // Format tanggal dalam Bahasa Indonesia
 $bulan_indo = [

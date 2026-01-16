@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// kalo sudah login, redirect ke dashboard
+if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
+    header('Location: dashboard.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -104,39 +110,54 @@ session_start();
                 <div class="col-md-4 ml-auto mr-auto">
                     <div class="card card-login card-plain">
                         <form action="auth.php" id="login-form" method="POST">
-                        <div class="text-center">
-                            <img title="Arti INSPIRE" src="assets/images/logo_inspire.png">
-                        </div>
-                        <br>
-                        <?php if (isset($_GET['pesan']) && $_GET['pesan'] == 'gagal'): ?>
-                        <div class="text-center text-white mb-2">
-                            Username atau Password salah
-                        </div>
-                        <?php endif; ?>
-                        <div class="card-body">
-                            <div class="input-group no-border input-lg">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="far fa-user-circle"></i>
-                                    </span>
-                                </div>
-                                <input type="text" name="username" class="form-control" placeholder="Username" required="">
+                            <!-- CSRF token -->
+                            <?php
+                            // generate CSRF token
+                            if (empty($_SESSION['csrf_token'])) {
+                                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                            }
+                            ?>
+                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            
+                            <div class="text-center">
+                                <img title="Arti INSPIRE" src="assets/images/logo_inspire.png">
                             </div>
-                            <div class="input-group no-border input-lg">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-key"></i>
-                                    </span>
-                                </div>
-                                <input type="password" name="password" placeholder="Password" class="form-control" required="">
-                            </div>
-                            <div class="input-group no-border input-lg">
-                                <button type="submit" class="btn btn-danger btn-round btn-lg btn-block">LOGIN</button>
-                            </div>
-                            <a href="#">Lupa Password</a>
                             <br>
-                            <a href="#">Request Reset Password</a>
-                        </div>
+                            <?php if (isset($_GET['pesan'])): ?>
+                                <?php if ($_GET['pesan'] === 'gagal'): ?>
+                                <div class="text-center text-white mb-2">
+                                    Username atau Password salah
+                                </div>
+                                <?php elseif ($_GET['pesan'] === 'logout'): ?>
+                                <div class="text-center text-white mb-2">
+                                    Anda telah logout
+                                </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            <div class="card-body">
+                                <div class="input-group no-border input-lg">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="far fa-user-circle"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" name="username" class="form-control" placeholder="Username" required autocomplete="username">
+                                </div>
+                                <div class="input-group no-border input-lg">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                    </div>
+                                    <input type="password" name="password" placeholder="Password" class="form-control" required autocomplete="current-password">
+                                </div>
+                                <div class="input-group no-border input-lg">
+                                    <button type="submit" class="btn btn-danger btn-round btn-lg btn-block">LOGIN</button>
+                                </div>
+                                <a href="#">Lupa Password</a>
+                                <br>
+                                <a href="#">Request Reset Password</a>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -155,10 +176,8 @@ session_start();
 
     <script>
     $(document).ready(function() {
-        /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
-        
-        // Clear error message from URL to prevent it showing on refresh
-        if (window.location.search.includes('pesan=gagal')) {
+        // clear pesan dari URL biar ga muncul pas refresh
+        if (window.location.search.includes('pesan=')) {
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     });

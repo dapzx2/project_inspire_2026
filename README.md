@@ -35,7 +35,7 @@ Fitur yang membantu mahasiswa dalam perencanaan akademik:
 | **Rekomendasi Kontrak Ulang** | Identifikasi mata kuliah bernilai D/E yang dapat dikontrak ulang |
 | **Matakuliah Belum Dikontrak** | Daftar mata kuliah wajib yang belum pernah diambil |
 | **Rencana Semester** | Susun rencana mata kuliah sebelum periode KRS |
-| **Peringatan Evaluasi** | Notifikasi jika SKS < 96 atau IPK < 2.00 pada semester 7+ |
+| **Peringatan Evaluasi** | Notifikasi evaluasi bertahap sesuai standar UI: Sem 1-2 (SKS < 24 / IPK < 2.00), Sem 3-4 (SKS < 48 / IPK < 2.00), Sem 5-6 (SKS < 72 / IPK < 2.00), Sem 7+ (SKS < 96 / IPK < 2.00) |
 
 ### Fitur Akademik Lainnya
 

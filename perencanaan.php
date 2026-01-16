@@ -7,7 +7,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-$nim = isset($_SESSION['nim']) ? mysqli_real_escape_string($conn, $_SESSION['nim']) : '';
+$nim = $_SESSION['nim'] ?? '';
 $message = '';
 $message_type = '';
 
@@ -15,10 +15,18 @@ $message_type = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($nim)) {
     if (isset($_POST['action'])) {
         if ($_POST['action'] === 'add' && isset($_POST['kode_mk'])) {
-            $kode_mk = mysqli_real_escape_string($conn, $_POST['kode_mk']);
-            $check = mysqli_query($conn, "SELECT * FROM perencanaan_studi WHERE nim = '$nim' AND kode_mk = '$kode_mk'");
-            if (mysqli_num_rows($check) == 0) {
-                mysqli_query($conn, "INSERT INTO perencanaan_studi (nim, kode_mk) VALUES ('$nim', '$kode_mk')");
+            $kode_mk = $_POST['kode_mk'];
+            // cek duplikat dengan prepared statement
+            $stmt = $conn->prepare("SELECT id FROM perencanaan_studi WHERE nim = ? AND kode_mk = ?");
+            $stmt->bind_param("ss", $nim, $kode_mk);
+            $stmt->execute();
+            $check = $stmt->get_result();
+            if ($check->num_rows == 0) {
+                $stmt->close();
+                $stmt = $conn->prepare("INSERT INTO perencanaan_studi (nim, kode_mk) VALUES (?, ?)");
+                $stmt->bind_param("ss", $nim, $kode_mk);
+                $stmt->execute();
+                $stmt->close();
                 $message = 'Mata kuliah berhasil ditambahkan ke perencanaan!';
                 $message_type = 'success';
             } else {
@@ -75,8 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($nim)) {
         }
         
         if ($_POST['action'] === 'delete' && isset($_POST['kode_mk'])) {
-            $kode_mk = mysqli_real_escape_string($conn, $_POST['kode_mk']);
-            mysqli_query($conn, "DELETE FROM perencanaan_studi WHERE nim = '$nim' AND kode_mk = '$kode_mk'");
+            $kode_mk = $_POST['kode_mk'];
+            $stmt = $conn->prepare("DELETE FROM perencanaan_studi WHERE nim = ? AND kode_mk = ?");
+            $stmt->bind_param("ss", $nim, $kode_mk);
+            $stmt->execute();
+            $stmt->close();
             $message = 'Mata kuliah berhasil dihapus dari perencanaan!';
             $message_type = 'info';
         }
@@ -159,8 +170,10 @@ include 'layout/header.php';
 // GET USER'S CURRENT SEMESTER
 // ============================================
 $current_semester = 8; // default
-$query_user_semester = "SELECT semester FROM users WHERE nim = '$nim'";
-$result_user_semester = @mysqli_query($conn, $query_user_semester);
+$stmt_user_sem = $conn->prepare("SELECT semester FROM users WHERE nim = ?");
+$stmt_user_sem->bind_param("s", $nim);
+$stmt_user_sem->execute();
+$result_user_semester = $stmt_user_sem->get_result();
 if ($result_user_semester && $row_sem = mysqli_fetch_assoc($result_user_semester)) {
     $current_semester = (int)$row_sem['semester'];
 }
@@ -200,12 +213,14 @@ $transkrip_genap = [];  // Semester 2, 4, 6, 8
 $mk_tidak_lulus = [];
 
 // Query transkrip mahasiswa
-$query_transkrip = "SELECT t.*, m.nama_mk as mk_nama 
+$stmt_transkrip = $conn->prepare("SELECT t.*, m.nama_mk as mk_nama 
                     FROM transkrip t 
                     LEFT JOIN mata_kuliah m ON t.kode_mk = m.kode_mk
-                    WHERE t.nim = '$nim' 
-                    ORDER BY t.semester ASC, t.kode_mk ASC";
-$result_transkrip = @mysqli_query($conn, $query_transkrip);
+                    WHERE t.nim = ? 
+                    ORDER BY t.semester ASC, t.kode_mk ASC");
+$stmt_transkrip->bind_param("s", $nim);
+$stmt_transkrip->execute();
+$result_transkrip = $stmt_transkrip->get_result();
 
 if ($result_transkrip) {
     while ($row = mysqli_fetch_assoc($result_transkrip)) {
@@ -235,8 +250,7 @@ if ($result_transkrip) {
 
 // Fetch available mata kuliah
 $mata_kuliah_list = [];
-$query_mk = "SELECT * FROM mata_kuliah ORDER BY semester ASC, kode_mk ASC";
-$result_mk = @mysqli_query($conn, $query_mk);
+$result_mk = $conn->query("SELECT * FROM mata_kuliah ORDER BY semester ASC, kode_mk ASC");
 if ($result_mk) {
     while ($row = mysqli_fetch_assoc($result_mk)) {
         $mata_kuliah_list[] = $row;
@@ -249,12 +263,14 @@ $total_sks = 0;
 $mk_wajib = 0;
 $mk_pilihan = 0;
 
-$query_plan = "SELECT p.*, m.nama_mk, m.sks, m.jenis, m.semester as mk_semester
+$stmt_plan = $conn->prepare("SELECT p.*, m.nama_mk, m.sks, m.jenis, m.semester as mk_semester
                FROM perencanaan_studi p 
                JOIN mata_kuliah m ON p.kode_mk = m.kode_mk 
-               WHERE p.nim = '$nim' 
-               ORDER BY m.semester ASC, m.kode_mk ASC";
-$result_plan = @mysqli_query($conn, $query_plan);
+               WHERE p.nim = ? 
+               ORDER BY m.semester ASC, m.kode_mk ASC");
+$stmt_plan->bind_param("s", $nim);
+$stmt_plan->execute();
+$result_plan = $stmt_plan->get_result();
 if ($result_plan) {
     while ($row = mysqli_fetch_assoc($result_plan)) {
         $perencanaan_list[] = $row;
@@ -276,8 +292,10 @@ $planned_codes = array_column($perencanaan_list, 'kode_mk');
 
 // Get all kode_mk that have been contracted (in transkrip)
 $contracted_codes = [];
-$query_contracted = "SELECT DISTINCT kode_mk FROM transkrip WHERE nim = '$nim'";
-$result_contracted = @mysqli_query($conn, $query_contracted);
+$stmt_contracted = $conn->prepare("SELECT DISTINCT kode_mk FROM transkrip WHERE nim = ?");
+$stmt_contracted->bind_param("s", $nim);
+$stmt_contracted->execute();
+$result_contracted = $stmt_contracted->get_result();
 if ($result_contracted) {
     while ($row = mysqli_fetch_assoc($result_contracted)) {
         $contracted_codes[] = $row['kode_mk'];
