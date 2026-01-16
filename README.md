@@ -45,6 +45,16 @@ Fitur yang membantu mahasiswa dalam perencanaan akademik:
 - **KRS**: Kartu Rencana Studi dengan ekspor PDF
 - **KHS**: Kartu Hasil Studi dengan ekspor PDF
 
+### Keamanan & Realabilitas (New) 🛡️
+
+Sistem ini telah melalui proses refactoring menyeluruh untuk memastikan keamanan dan kualitas kode standar industri:
+
+- **Anti-SQL Injection**: Menggunakan *Prepared Statements* secara konsisten di seluruh modul autentikasi dan transaksi database.
+- **XSS Prevention**: Output data user (NIM, Nama, Nilai) di-escape menggunakan `htmlspecialchars()` untuk mencegah Cross-Site Scripting.
+- **CSRF Protection**: Form login dilengkapi token CSRF untuk mencegah serangan pemalsuan permintaan.
+- **Secure Authentication**: Hashing password menggunakan `bcrypt` dan proteksi *Brute Force* dengan delay login.
+- **Error Handling**: Penyembunyian pesan error database mentah dari pengguna akhir untuk mencegah kebocoran informasi sistem.
+
 ---
 
 ## Tech Stack
