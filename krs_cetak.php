@@ -25,7 +25,7 @@ $stmt->close();
 $krs_list = [];
 $total_sks = 0;
 
-$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? ORDER BY kode_mk ASC");
+$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = '20251' ORDER BY nama_mk ASC");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -35,7 +35,9 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// hitung IP semester sebelumnya
+// hitung IP semester sebelumnya (dinamis)
+$semester_mahasiswa = (int) ($user_data['semester'] ?? 8);
+$semester_sebelum = max(1, $semester_mahasiswa - 1);
 $ip_sebelum = 0;
 $stmt = $conn->prepare("SELECT 
     SUM(
@@ -50,8 +52,8 @@ $stmt = $conn->prepare("SELECT
         END
     ) / NULLIF(SUM(sks), 0) as ip
     FROM transkrip 
-    WHERE nim = ? AND semester = 7");
-$stmt->bind_param("s", $nim);
+    WHERE nim = ? AND semester = ?");
+$stmt->bind_param("si", $nim, $semester_sebelum);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result && $row = $result->fetch_assoc()) {
@@ -71,12 +73,11 @@ $tanggal_cetak = date('d') . ' ' . $bulan_indo[(int)date('m')] . ' ' . date('Y')
 $angkatan = '20' . substr($nim, 0, 2);
 
 // Get dynamic data with fallbacks
-$prodi = isset($user_data['prodi']) ? $user_data['prodi'] : 'TEKNIK INFORMATIKA';
-$jenjang = isset($user_data['jenjang']) ? $user_data['jenjang'] : 'S1';
-$semester_mahasiswa = isset($user_data['semester']) ? $user_data['semester'] : 8;
-$dosen_pa = isset($user_data['dosen_pa']) ? $user_data['dosen_pa'] : 'MEICSY ELDAD ISRAEL NAJOAN ST, MT';
-$tahun_akademik = isset($user_data['tahun_akademik']) ? $user_data['tahun_akademik'] : '2025/2026';
-$periode = isset($user_data['periode']) ? $user_data['periode'] : 'Gasal';
+$prodi = $user_data['prodi'] ?? 'TEKNIK INFORMATIKA';
+$jenjang = $user_data['jenjang'] ?? 'S1';
+$dosen_pa = $user_data['pembimbing_akademik'] ?? '-';
+$tahun_akademik = $user_data['tahun_akademik'] ?? '2025/2026';
+$periode = $user_data['periode'] ?? 'Gasal';
 
 // Determine max SKS based on IP
 $max_sks = 24;
@@ -95,7 +96,7 @@ if ($ip_sebelum >= 3.00) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cetak KRS <?php echo $nim; ?></title>
+    <title>Cetak KRS <?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?></title>
     <link rel="icon" href="https://inspire.unsrat.ac.id/resources/img/logo-unsrat.png">
     <style>
         @page {
@@ -377,7 +378,7 @@ if ($ip_sebelum >= 3.00) {
                     <tr>
                         <td>Angkatan</td>
                         <td>:</td>
-                        <td><?php echo $angkatan; ?></td>
+                        <td><?php echo htmlspecialchars($angkatan, ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                     <tr>
                         <td>Program Studi</td>
@@ -437,8 +438,8 @@ if ($ip_sebelum >= 3.00) {
                                 <br><?php echo htmlspecialchars($mk['dosen2']); ?>
                             <?php endif; ?>
                         </td>
-                        <td class="hari"><?php echo $mk['hari']; ?></td>
-                        <td class="waktu"><?php echo $mk['jam_mulai'] . '-' . $mk['jam_selesai']; ?></td>
+                        <td class="hari"><?php echo htmlspecialchars($mk['hari'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="waktu"><?php echo htmlspecialchars($mk['jam_mulai'] . '-' . $mk['jam_selesai'], ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -471,7 +472,7 @@ if ($ip_sebelum >= 3.00) {
             <div class="signature">
                 <div class="title">Manado, <?php echo $tanggal_cetak; ?><br>Mahasiswa</div>
                 <div class="name"><?php echo htmlspecialchars($user_data['nama']); ?></div>
-                <div class="nip"><?php echo $nim; ?></div>
+                <div class="nip"><?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?></div>
             </div>
         </div>
 

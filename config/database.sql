@@ -309,14 +309,16 @@ CREATE TABLE `pengumuman` (
 --
 
 INSERT INTO `pengumuman` (`id`, `nim`, `judul`, `isi`, `kategori`, `oleh`, `role`, `created_at`) VALUES
-(1, '220211060323', '[PENGEMBANGAN GAME] Link Demo UAS', 'Demo UAS meet.google.com/zfy-suiy-bnn', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2026-01-15 09:23:47'),
-(2, '220211060323', '[REALITAS TERTAMBAH DAN REALITAS VIRTUAL]', '39SBJQ85', 'Matakuliah', 'WAHYUNI FITHRATUL ZALMI S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2026-01-15 09:23:47'),
-(3, '220211060323', '[KRIPTOGRAFI] Absensi UAS', '05HCHM85', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2026-01-15 09:23:47'),
-(4, '220211060242', '[PRAKTIKUM SISTEM MULTIMEDIA] Link Grup WA', 'untuk MK Praks. Sistem Multimedia kelas A, silahkan gabung & undang teman2 lainnya di grup ini', 'Matakuliah', 'BRAVE ANGKASA SUGIARSO ST', 'DOSEN MATAKULIAH', '2025-09-11 04:45:33'),
-(5, '220211060242', '[ETIKA PROFESI] Grup WA', 'Silakan masuk Grup WA', 'Matakuliah', 'YAULIE DEO Y RINDENGAN ST, M.Sc, MM', 'DOSEN MATAKULIAH', '2025-09-02 06:41:54'),
-(6, '220211060242', '[SISTEM MULTIMEDIA] Gabung WAG', 'https://chat.whatsapp.com/KJ8AxEclvvg0JvcdCpykg5', 'Matakuliah', 'ADE YUSUPA S.Pd, M.Kom', 'DOSEN MATAKULIAH', '2025-08-25 01:47:40'),
-(7, '220211060242', 'Selamat datang Mahasiswa Baru 2025', 'Selamat bergabung di keluarga besar Program Studi S1 Teknik Informatika, UNSRAT. Semoga perjalanan akademik kalian menyenangkan dan penuh prestasi!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2025-08-06 00:40:59'),
-(8, '220211060242', 'Kompetisi Bergengsi GEMASTIK 2024', 'CALLING ALL WARRIORS!!! Ajang PALING bergengsi sebagai Mahasiswa Teknik Informatika. GEMASTIK 2024 sudah dibuka! Ayo daftarkan timmu sekarang!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2024-04-18 09:04:09');
+(1, '220211060323', '[PENGEMBANGAN GAME ] Link Demo UAS', 'Demo UAS meet.google.com/zfy-suiy-bnn', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2025-12-16 12:01:26'),
+(2, '220211060323', '[REALITAS TERTAMBAH DAN REALITAS VIRTUAL]', '39SBJQ85', 'Matakuliah', 'WAHYUNI FITHRATUL ZALMI S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-16 01:59:10'),
+(3, '220211060323', '[KRIPTOGRAFI] Absensi UAS', '05HCHM85', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-12 03:03:27'),
+(4, '220211060323', '[KRIPTOGRAFI] UAS', 'Berikut saya lampirkan UAS Kriptografi', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-10 09:08:04'),
+(5, '220211060323', '[PENGEMBANGAN GAME ] Demo 1 UAS', 'Demo 1 UAS, 9 Desember 2025, 15.00 wita.', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2025-12-09 06:53:22'),
+(6, '220211060242', '[PRAKTIKUM SISTEM MULTIMEDIA] Link Grup WA', 'untuk MK Praks. Sistem Multimedia kelas A, silahkan gabung & undang teman2 lainnya di grup ini', 'Matakuliah', 'BRAVE ANGKASA SUGIARSO ST', 'DOSEN MATAKULIAH', '2025-09-11 04:45:33'),
+(7, '220211060242', '[ETIKA PROFESI] Grup WA', 'Silakan masuk Grup WA', 'Matakuliah', 'YAULIE DEO Y RINDENGAN ST, M.Sc, MM', 'DOSEN MATAKULIAH', '2025-09-02 06:41:54'),
+(8, '220211060242', '[SISTEM MULTIMEDIA] Gabung WAG', 'https://chat.whatsapp.com/KJ8AxEclvvg0JvcdCpykg5', 'Matakuliah', 'ADE YUSUPA S.Pd, M.Kom', 'DOSEN MATAKULIAH', '2025-08-25 01:47:40'),
+(9, '220211060242', 'Selamat datang Mahasiswa Baru 2025', 'Selamat bergabung di keluarga besar Program Studi S1 Teknik Informatika, UNSRAT. Semoga perjalanan akademik kalian menyenangkan dan penuh prestasi!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2025-08-06 00:40:59'),
+(10, '220211060242', 'Kompetisi Bergengsi GEMASTIK 2024', 'CALLING ALL WARRIORS!!! Ajang PALING bergengsi sebagai Mahasiswa Teknik Informatika. GEMASTIK 2024 sudah dibuka! Ayo daftarkan timmu sekarang!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2024-04-18 09:04:09');
 
 -- --------------------------------------------------------
 
@@ -477,6 +479,7 @@ CREATE TABLE `users` (
   `prodi` varchar(100) DEFAULT NULL,
   `jenjang` varchar(10) DEFAULT NULL,
   `pembimbing_akademik` varchar(100) DEFAULT NULL,
+  `nip_pembimbing` varchar(30) DEFAULT NULL,
   `masa_studi` int DEFAULT '1',
   `sisa_masa_studi` int DEFAULT '14',
   `ipk` decimal(3,2) DEFAULT '0.00',
@@ -492,9 +495,9 @@ CREATE TABLE `users` (
 -- Dumping data untuk tabel `users`
 --
 
-INSERT INTO `users` (`id`, `nim`, `password`, `nama`, `email`, `tempat_lahir`, `tanggal_lahir`, `tanggal_masuk`, `foto_profil`, `semester`, `tahun_akademik`, `periode`, `status`, `status_pddikti`, `angkatan`, `fakultas`, `prodi`, `jenjang`, `pembimbing_akademik`, `masa_studi`, `sisa_masa_studi`, `ipk`, `sks_lulus`, `sks_diambil`, `has_academic_warning`, `warning_message`, `created_at`, `updated_at`) VALUES
-(1, '220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', NULL, NULL, NULL, '2022-08-01', 'assets/img/default-profile.jpg', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'Dr. TIK, S.T., M.T.', 1, 14, 2.63, 82, 0, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44'),
-(2, '220211060242', '$2y$12$igUeo63omACWYKDF1vVRtefX2rFv4IXbKSLHFgZVYfVZIG/MqjA.C', 'ROMAL PUTRA LENGKONG', NULL, 'Manado', '2004-09-11', '2022-08-01', 'assets/img/default-profile.jpg', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'KENNETH YOSUA R PALILINGAN ST, MT', 1, 14, 3.31, 117, 0, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44');
+INSERT INTO `users` (`id`, `nim`, `password`, `nama`, `email`, `tempat_lahir`, `tanggal_lahir`, `tanggal_masuk`, `foto_profil`, `semester`, `tahun_akademik`, `periode`, `status`, `status_pddikti`, `angkatan`, `fakultas`, `prodi`, `jenjang`, `pembimbing_akademik`, `nip_pembimbing`, `masa_studi`, `sisa_masa_studi`, `ipk`, `sks_lulus`, `sks_diambil`, `has_academic_warning`, `warning_message`, `created_at`, `updated_at`) VALUES
+(1, '220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', NULL, NULL, NULL, '2022-08-01', 'assets/img/default-profile.jpg', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'MEICSY ELDAD ISRAEL NAJOAN ST, MT', '196705271995121001', 1, 14, 2.63, 82, 24, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44'),
+(2, '220211060242', '$2y$12$igUeo63omACWYKDF1vVRtefX2rFv4IXbKSLHFgZVYfVZIG/MqjA.C', 'ROMAL PUTRA LENGKONG', NULL, 'Manado', '2004-09-11', '2022-08-01', 'assets/img/default-profile.jpg', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'KENNETH YOSUA R PALILINGAN ST, MT', NULL, 1, 14, 3.31, 117, 0, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44');
 
 --
 -- Indeks untuk tabel yang dibuang
@@ -559,7 +562,7 @@ ALTER TABLE `mata_kuliah`
 -- AUTO_INCREMENT untuk tabel `pengumuman`
 --
 ALTER TABLE `pengumuman`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT untuk tabel `perencanaan_studi`

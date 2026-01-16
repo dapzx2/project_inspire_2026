@@ -85,7 +85,7 @@ else $max_sks = 18;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHS <?php echo $nim; ?> - <?php echo formatSemester($selected_semester); ?></title>
+    <title>KHS <?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?> - <?php echo formatSemester($selected_semester); ?></title>
     <link rel="icon" href="https://inspire.unsrat.ac.id/resources/img/logo-unsrat.png">
     <style>
         @page {
@@ -347,17 +347,17 @@ else $max_sks = 18;
                     <tr>
                         <td>Nama Mahasiswa</td>
                         <td>:</td>
-                        <td><?php echo $user_data ? htmlspecialchars($user_data['nama']) : '-'; ?></td>
+                        <td><?php echo $user_data ? htmlspecialchars($user_data['nama'], ENT_QUOTES, 'UTF-8') : '-'; ?></td>
                     </tr>
                     <tr>
                         <td>Nomor Induk Mahasiswa</td>
                         <td>:</td>
-                        <td><?php echo $nim; ?></td>
+                        <td><?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                     <tr>
                         <td>Angkatan</td>
                         <td>:</td>
-                        <td><?php echo $angkatan; ?></td>
+                        <td><?php echo htmlspecialchars($angkatan, ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                     <tr>
                         <td>Program Studi</td>
@@ -367,7 +367,7 @@ else $max_sks = 18;
                     <tr>
                         <td>Pembimbing Akademik</td>
                         <td>:</td>
-                        <td><?php echo htmlspecialchars($pembimbing); ?></td>
+                        <td><?php echo htmlspecialchars($pembimbing, ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                 </table>
             </div>

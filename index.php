@@ -117,7 +117,7 @@ if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
                                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                             }
                             ?>
-                            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                             
                             <div class="text-center">
                                 <img title="Arti INSPIRE" src="assets/images/logo_inspire.png">

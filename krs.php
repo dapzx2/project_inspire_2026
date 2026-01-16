@@ -20,7 +20,7 @@ $stmt->close();
 $krs_list = [];
 $total_sks = 0;
 
-$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? ORDER BY hari ASC, jam_mulai ASC");
+$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = '20251' ORDER BY hari ASC, jam_mulai ASC");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -30,7 +30,9 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// hitung IP semester sebelumnya (sem 6 untuk contoh)
+// hitung IP semester sebelumnya (dinamis berdasarkan semester user)
+$semester_sekarang = (int) ($user_data['semester'] ?? 7);
+$semester_sebelum = max(1, $semester_sekarang - 1);
 $ip_sebelum = 0;
 $stmt = $conn->prepare("SELECT 
     SUM(
@@ -45,8 +47,8 @@ $stmt = $conn->prepare("SELECT
         END
     ) / NULLIF(SUM(sks), 0) as ip
     FROM transkrip 
-    WHERE nim = ? AND semester = 6");
-$stmt->bind_param("s", $nim);
+    WHERE nim = ? AND semester = ?");
+$stmt->bind_param("si", $nim, $semester_sebelum);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result && $row = $result->fetch_assoc()) {
@@ -89,12 +91,13 @@ if ($ip_sebelum >= 3.00) {
             <div class="row">
                 <div class="col-md-12">
                     <div class="callout callout-info">
-                        <h5>Semester Gasal 2025/2026</h5>
+                        <h5>Semester <?php echo htmlspecialchars($user_data['periode'] ?? 'Gasal', ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars($user_data['tahun_akademik'] ?? '2025/2026', ENT_QUOTES, 'UTF-8'); ?></h5>
                         <label>Dosen Pembimbing Akademik</label>
-                        <p>
-                            MEICSY ELDAD ISRAEL NAJOAN ST, MT<br>
-                            NIP. 196705271995121001
+                        <p class="mb-0">
+                            <?php echo htmlspecialchars($user_data['pembimbing_akademik'] ?? '-', ENT_QUOTES, 'UTF-8'); ?><br>
+                            NIP. <?php echo htmlspecialchars($user_data['nip_pembimbing'] ?? '-', ENT_QUOTES, 'UTF-8'); ?>
                         </p>
+                        <br>
                         <label>IP Semester Sebelum : </label> <?php echo $ip_sebelum; ?> <br>
                         <label>Jumlah SKS Maksimal : </label> <?php echo $max_sks; ?> <br>
                         <label>Jumlah SKS Dikontrak : </label> <?php echo $total_sks; ?>
@@ -102,11 +105,10 @@ if ($ip_sebelum >= 3.00) {
                 </div>
             </div>
 
-            <!-- KRS Status -->
             <div class="row">
                 <div class="col-12">
                     <div class="alert alert-success">
-                        <span><i class="icon fas fa-check-circle"></i> KRS sudah disetujui oleh Dosen Pembimbing Akademik</span>
+                        <span><i class="icon fas fa-exclamation-triangle"></i> KRS sudah disetujui oleh Dosen Pembimbing Akademik</span><br>
                     </div>
                 </div>
             </div>

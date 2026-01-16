@@ -92,7 +92,7 @@ $tanggal_masuk = '01 Agustus ' . $angkatan;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transkrip <?php echo $nim; ?></title>
+    <title>Transkrip <?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?></title>
     <link rel="icon" href="https://inspire.unsrat.ac.id/resources/img/logo-unsrat.png">
     <style>
         @page {
@@ -431,10 +431,10 @@ $tanggal_masuk = '01 Agustus ' . $angkatan;
                         <?php $no = 1; foreach ($transkrip_data[$sem] as $mk): ?>
                         <tr>
                             <td class="no"><?php echo $no++; ?></td>
-                            <td class="kode"><?php echo $mk['kode_mk']; ?></td>
-                            <td class="nama"><?php echo $mk['nama_mk']; ?></td>
+                            <td class="kode"><?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td class="nama"><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td class="sks"><?php echo $mk['sks']; ?></td>
-                            <td class="nilai"><?php echo $mk['nilai_huruf']; ?></td>
+                            <td class="nilai"><?php echo htmlspecialchars($mk['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -469,10 +469,10 @@ $tanggal_masuk = '01 Agustus ' . $angkatan;
                         <?php $no = 1; foreach ($transkrip_data[$sem] as $mk): ?>
                         <tr>
                             <td class="no"><?php echo $no++; ?></td>
-                            <td class="kode"><?php echo $mk['kode_mk']; ?></td>
-                            <td class="nama"><?php echo $mk['nama_mk']; ?></td>
+                            <td class="kode"><?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td class="nama"><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
                             <td class="sks"><?php echo $mk['sks']; ?></td>
-                            <td class="nilai"><?php echo $mk['nilai_huruf']; ?></td>
+                            <td class="nilai"><?php echo htmlspecialchars($mk['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

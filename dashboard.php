@@ -143,6 +143,29 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
         background-color: #a71d2a !important;
         color: #fff !important;
     }
+    
+    /* Fix responsive calendar header untuk mobile */
+    @media (max-width: 576px) {
+        .fc .fc-toolbar {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .fc .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+        }
+        .fc .fc-toolbar-title {
+            font-size: 1.2em !important;
+        }
+        .fc .fc-button {
+            padding: 0.3em 0.5em !important;
+            font-size: 0.85em !important;
+        }
+        .fc .fc-button-group {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
 </style>
 
 <!-- Content Wrapper -->
