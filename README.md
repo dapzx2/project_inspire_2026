@@ -19,127 +19,127 @@
 
 ---
 
-## Table of Contents
+## Daftar Isi
 
-- [System Overview](#system-overview)
-- [System Capabilities](#system-capabilities)
-- [Technology Architecture](#technology-architecture)
-- [Deployment Guide](#deployment-guide)
-- [Access Credentials](#access-credentials)
-- [Project Hierarchy](#project-hierarchy)
-- [Author](#author)
-
----
-
-## System Overview
-
-**INSPIRE Portal** is a comprehensive academic information system designed to replicate and enhance the capabilities of the Universitas Sam Ratulangi student portal. This project serves as a robust demonstration of native PHP development, implementing secure authentication, complex database relationships, and PDF generation.
-
-The core innovation of this system is the **Academic Planning (Perencanaan Studi)** module. Unlike the standard portal, this feature empowers students to simulate their course selections for upcoming semesters, validating prerequisites and credit limits before the official study planner (KRS) period opens.
+- [Gambaran Umum Sistem](#gambaran-umum-sistem)
+- [Kapabilitas Sistem](#kapabilitas-sistem)
+- [Arsitektur Teknologi](#arsitektur-teknologi)
+- [Panduan Instalasi](#panduan-instalasi)
+- [Kredensial Akses](#kredensial-akses)
+- [Struktur Proyek](#struktur-proyek)
+- [Penulis](#penulis)
 
 ---
 
-## System Capabilities
+## Gambaran Umum Sistem
+
+**INSPIRE Portal** adalah sistem informasi akademik yang dibuat berdasarkan portal mahasiswa Universitas Sam Ratulangi. Proyek ini dibuat menggunakan PHP native dengan fitur autentikasi, database relasional, dan pembuatan dokumen PDF.
+
+Fitur utama dari sistem ini adalah modul **Perencanaan Studi**. Fitur ini membantu mahasiswa untuk menyusun rencana pengambilan mata kuliah semester depan, mengecek prasyarat, dan batas SKS sebelum KRS dibuka.
+
+---
+
+## Kapabilitas Sistem
 
 <details open>
-<summary><b>01. Academic Planning Module</b></summary>
+<summary><b>01. Modul Perencanaan Studi</b></summary>
 <br>
 
-This module allows students to draft their study plan strategically.
+Fitur ini membantu mahasiswa menyusun rencana studi.
 
-| Feature | Description |
+| Fitur | Deskripsi |
 | :--- | :--- |
-| **Course Validation** | Automated checking of course availability and prerequisites. |
-| **Retake Recommendations** | Algorithmically suggests courses with D or E grades for retaking. |
-| **Credit Calculation** | Real-time calculation of SKS (Credit Units) limits based on previous GPA. |
-| **Mandatory Course Tracking** | specific interface to identify mandatory courses not yet completed. |
+| **Validasi Mata Kuliah** | Pengecekan otomatis ketersediaan mata kuliah dan prasyaratnya. |
+| **Rekomendasi Kontrak Ulang** | Menampilkan mata kuliah bernilai D atau E yang bisa diperbaiki. |
+| **Kalkulasi Kredit** | Perhitungan batas SKS (Satuan Kredit Semester) secara real-time berdasarkan IPK sebelumnya. |
+| **Pelacakan Mata Kuliah Wajib** | Daftar mata kuliah wajib yang belum diambil. |
 
 </details>
 
 <details>
-<summary><b>02. Student Dashboard</b></summary>
+<summary><b>02. Dashboard Mahasiswa</b></summary>
 <br>
 
-A centralized hub for student information.
+Halaman utama yang menampilkan informasi mahasiswa.
 
-- **Academic Summary**: Displays current IPK (GPA), total credits, and semester status.
-- **Financial Status**: Verification of tuition payment status for the active semester.
-- **Advisor Information**: Direct access to academic advisor details.
+- **Ringkasan Akademik**: Menampilkan IPK saat ini, total kredit (SKS), dan status semester.
+- **Status Keuangan**: Verifikasi status pembayaran UKT untuk semester aktif.
+- **Informasi Pembimbing**: Akses langsung ke detail dosen pembimbing akademik.
 
 </details>
 
 <details>
-<summary><b>03. Academic Records & Administration</b></summary>
+<summary><b>03. Administrasi & Arsip Akademik</b></summary>
 <br>
 
-Digital management of essential academic documents.
+Dokumen-dokumen akademik yang bisa diakses dan dicetak.
 
-- **Transcript Generation**: Dynamic generation of full academic transcripts with PDF export capability.
-- **Study Card (KRS)**: Digital viewing and printing of the current semester's study plan.
-- **Result Card (KHS)**: detailed breakdown of grades per semester with downloadable reports.
+- **Transkrip**: Lihat dan cetak transkrip lengkap dalam format PDF.
+- **KRS**: Lihat dan cetak rencana studi semester ini.
+- **KHS**: Lihat rincian nilai per semester dan download laporannya.
 
 </details>
 
 <details>
-<summary><b>04. Security & Architecture</b></summary>
+<summary><b>04. Keamanan & Arsitektur</b></summary>
 <br>
 
-Built with industry-standard security practices.
+Sistem ini dibuat dengan standar keamanan yang baik.
 
-- **Secure Authentication**: Implementation of `bcrypt` for password hashing and session management.
-- **SQL Injection Prevention**: Comprehensive use of **Prepared Statements** for all database interactions.
-- **XSS Protection**: rigorous output escaping using `htmlspecialchars` to prevent Cross-Site Scripting.
-- **CSRF Tokens**: Form validations included to prevent Cross-Site Request Forgery attacks.
+- **Secure Authentication**: Implementasi `bcrypt` untuk *hashing* password dan manajemen sesi.
+- **SQL Injection Prevention**: Penggunaan menyeluruh **Prepared Statements** untuk semua interaksi database.
+- **XSS Protection**: *Escaping* output yang ketat menggunakan `htmlspecialchars` untuk mencegah Cross-Site Scripting.
+- **CSRF Tokens**: Validasi form disertakan untuk mencegah serangan Cross-Site Request Forgery.
 
 </details>
 
 ---
 
-## Technology Architecture
+## Arsitektur Teknologi
 
-The application is built upon a monolithic architecture ensuring stability and ease of deployment.
+Sistem ini dibangun dengan arsitektur sederhana yang mudah di-deploy.
 
-| Component | Technology | Description |
+| Komponen | Teknologi | Deskripsi |
 | :--- | :--- | :--- |
-| **Backend Language** | PHP 8.1+ | Core server-side logic (Native implementation). |
-| **Database** | MySQL / MariaDB | Relational database management system. |
-| **Frontend Framework** | Bootstrap 4.6 | Response UI grid and component library. |
-| **Admin Template** | AdminLTE 3.2 | Professional dashboard interface. |
-| **PDF Engine** | DomPDF | Engine for server-side PDF generation. |
+| **Bahasa Backend** | PHP 8.1+ | Logika server-side inti (Implementasi Native). |
+| **Database** | MySQL / MariaDB | Sistem manajemen basis data relasional. |
+| **Frontend Framework** | Bootstrap 4.6 | Grid UI responsif dan pustaka komponen. |
+| **Template Admin** | AdminLTE 3.2 | Antarmuka dashboard profesional. |
+| **PDF Engine** | DomPDF | Mesin untuk pembuatan PDF di sisi server. |
 
 ---
 
-## Deployment Guide
+## Panduan Instalasi
 
-Follow these instructions to deploy the application in a local development environment.
+Ikuti instruksi berikut untuk menjalankan aplikasi di lingkungan pengembangan lokal.
 
-### Prerequisites
+### Prasyarat
 
-Ensure the following software is installed:
-*   **Web Server**: Apache or Nginx (Laragon Recommended)
-*   **PHP**: Version 8.0 or higher
-*   **Database**: MySQL 5.7 or higher
+Pastikan perangkat lunak berikut telah terinstal:
+*   **Web Server**: Apache atau Nginx (Direkomendasikan menggunakan Laragon)
+*   **PHP**: Versi 8.0 atau lebih tinggi
+*   **Database**: MySQL 5.7 atau lebih tinggi
 
-### Installation Steps
+### Langkah Instalasi
 
-1.  **Clone the Repository**
+1.  **Clone Repositori**
 
     ```bash
     git clone https://github.com/dapzx2/project_inspire_2026.git
     cd project_inspire_2026
     ```
 
-2.  **Database Configuration**
+2.  **Konfigurasi Database**
 
-    Create a new database named `db_inspire_project` and import the schema.
+    Buat database baru bernama `db_inspire_project` dan impor skema database.
 
     ```bash
     mysql -u root -p db_inspire_project < config/database.sql
     ```
 
-3.  **Application Configuration**
+3.  **Konfigurasi Aplikasi**
 
-    Verify database credentials in `config/database.php`.
+    Verifikasi kredensial database pada file `config/database.php`.
 
     ```php
     $host = "localhost";
@@ -148,9 +148,9 @@ Ensure the following software is installed:
     $db   = "db_inspire_project";
     ```
 
-4.  **Launch**
+4.  **Jalankan Aplikasi**
 
-    Access the application through your web server.
+    Akses aplikasi melalui web server Anda.
     
     ```text
     http://localhost/project_inspire_2026/
@@ -158,34 +158,34 @@ Ensure the following software is installed:
 
 ---
 
-## Access Credentials
+## Kredensial Akses
 
-Use the following credentials for testing and demonstration purposes.
+Gunakan kredensial berikut untuk keperluan pengujian dan demonstrasi.
 
-| Role | Name | Username (NIM) | Password |
+| Peran | Nama | Username (NIM) | Password |
 | :--- | :--- | :--- | :--- |
-| **Student** | Dava Oktavito Josua L. Ulus | `220211060323` | `DAVAulus123` |
-| **Student** | Romal Putra Lengkong | `220211060242` | `Romal11#` |
+| **Mahasiswa** | Dava Oktavito Josua L. Ulus | `220211060323` | `DAVAulus123` |
+| **Mahasiswa** | Romal Putra Lengkong | `220211060242` | `Romal11#` |
 
 ---
 
-## Project Hierarchy
+## Struktur Proyek
 
 ```text
 project_inspire_2026/
-├── assets/                  # Static resources (CSS, JS, Images)
-├── config/                  # Configuration & Database files
-├── layout/                  # Reusable UI components (Header, Footer)
-├── auth.php                 # Authentication controller
-├── dashboard.php            # Main student dashboard
-├── perencanaan.php          # Academic planning controller
-├── transkrip.php            # Transcript viewer
-└── index.php                # Entry point (Login)
+├── assets/                  # CSS, JS, Images
+├── config/                  # Konfigurasi database
+├── layout/                  # Header & Footer
+├── auth.php                 # Proses login
+├── dashboard.php            # Halaman utama
+├── perencanaan.php          # Fitur perencanaan studi
+├── transkrip.php            # Lihat transkrip
+└── index.php                # Halaman login
 ```
 
 ---
 
-## Author
+## Penulis
 
 <table style="border: none;">
   <tr>
@@ -195,7 +195,7 @@ project_inspire_2026/
         <b>Dava Oktavito Josua L. Ulus</b>
       </a>
       <br>
-      <i>Informatics Engineering Student</i><br>
+      <i>Mahasiswa Teknik Informatika</i><br>
       Universitas Sam Ratulangi
     </td>
   </tr>
@@ -204,5 +204,5 @@ project_inspire_2026/
 ---
 
 <p align="center">
-  <small>&copy; 2026 Dava Oktavito Josua L. Ulus. All Rights Reserved.</small>
+  <small>&copy; 2026 Dava Oktavito Josua L. Ulus. Hak Cipta Dilindungi.</small>
 </p>

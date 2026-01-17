@@ -1,23 +1,16 @@
--- ============================================
--- Database: db_inspire_project
--- Portal INSPIRE - Universitas Sam Ratulangi
--- ============================================
-
--- Create and Use Database
-CREATE DATABASE IF NOT EXISTS db_inspire_project;
-USE db_inspire_project;
-
--- Drop existing tables to ensure clean import
-DROP TABLE IF EXISTS transkrip;
-DROP TABLE IF EXISTS krs;
-DROP TABLE IF EXISTS perencanaan_studi;
-DROP TABLE IF EXISTS pengumuman;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS mata_kuliah;
+-- phpMyAdmin SQL Dump
+-- version 5.2.3
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: Jan 17, 2026 at 06:00 AM
+-- Server version: 8.0.30
+-- PHP Version: 8.4.11
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,13 +18,25 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Basis data: `db_inspire_project`
+-- Database: `db_inspire_project`
 --
+CREATE DATABASE IF NOT EXISTS `db_inspire_project` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `db_inspire_project`;
+
+-- --------------------------------------------------------
+-- Drop existing tables (in reverse order due to foreign keys)
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `perencanaan_studi`;
+DROP TABLE IF EXISTS `transkrip`;
+DROP TABLE IF EXISTS `krs`;
+DROP TABLE IF EXISTS `pengumuman`;
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `mata_kuliah`;
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `krs`
+-- Table structure for table `mata_kuliah` (must be created first for FK references)
 --
 
 CREATE TABLE `krs` (
@@ -57,20 +62,20 @@ CREATE TABLE `krs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data untuk tabel `krs`
+-- Dumping data for table `krs`
 --
 
 INSERT INTO `krs` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `jenis`, `kelas`, `dosen1`, `dosen2`, `hari`, `jam_mulai`, `jam_selesai`, `nilai_huruf`, `bobot`, `nilai_dosen1`, `nilai_dosen2`, `semester_krs`, `status_krs`, `created_at`) VALUES
-(1, '220211060323', 'TIK2071', 'PRAKTIKUM TEKNOLOGI BASIS DATA', 1, 'Wajib', 'A', 'DIRKO GUSTAAFIANO SETYADHARMAPUTRA RUINDUNGAN', NULL, 'Jumat', '13:00', '15:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(2, '220211060323', 'TIK3011', 'PEMBELAJARAN MESIN', 3, 'Wajib', 'C', 'OKTAVIAN ABRAHAM LANTANG', NULL, 'Senin', '08:00', '10:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(3, '220211060323', 'TIK3021', 'PENGEMBANGAN GAME', 3, 'Wajib', 'C', 'SUMENGE TANGKAWAROUW GODION KAUNANG', NULL, 'Selasa', '08:00', '10:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(4, '220211060323', 'TIK3031', 'REALITAS TERTAMBAH DAN REALITAS MAYA', 3, 'Wajib', 'C', 'BRAVE ANGKASA SUGIARSO', 'WAHYUNI FITHRATUL ZALMI', 'Kamis', '08:00', '10:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(5, '220211060323', 'TIK4030', 'SEMINAR DAN PRAKTEK PROFESIONAL', 3, 'Wajib', 'B', 'ALWIN MELKIE SAMBUL', 'VICTOR TARIGAN', 'Selasa', '13:00', '15:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(6, '220211060323', 'TIK4041', 'GRAFIKA KOMPUTER', 2, 'Wajib', 'B', 'RIZAL SENGKEY', NULL, 'Rabu', '14:40', '16:20', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(7, '220211060323', 'TIK4051', 'ETIKA PROFESI', 2, 'Wajib', 'B', 'DRINGHUZEN JEKKE MAMAHIT', NULL, 'Selasa', '15:30', '17:10', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(8, '220211060323', 'TIK4061', 'KRIPTOGRAFI', 2, 'Wajib', 'B', 'RENDY SYAHPUTRA', NULL, 'Rabu', '13:00', '14:40', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(9, '220211060323', 'TIK1071', 'PROBABILITAS DAN STATISTIKA', 2, 'Wajib', 'A', 'KENNETH YOSUA R PALILINGAN', NULL, 'Jumat', '10:30', '12:10', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
-(10, '220211060323', 'TIK1051', 'MATEMATIKA DISKRIT', 3, 'Wajib', 'A', 'SARY DIANE EKAWATI PATURUSI', 'PUJO HARI SAPUTRO', 'Jumat', '08:00', '10:30', 'B', 3.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(1, '220211060323', 'TIK2071', 'PRAKTIKUM TEKNOLOGI BASIS DATA', 1, 'Wajib', 'A', 'DIRKO GUSTAAFIANO SETYADHARMAPUTRA RUINDUNGAN ST, M.Eng', NULL, 'Jumat', '13:00', '15:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(2, '220211060323', 'TIK3011', 'PEMBELAJARAN MESIN', 3, 'Wajib', 'C', 'OKTAVIAN ABRAHAM LANTANG ST, MTI, Ph.D', NULL, 'Senin', '08:00', '10:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(3, '220211060323', 'TIK3021', 'PENGEMBANGAN GAME', 3, 'Wajib', 'C', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', NULL, 'Selasa', '08:00', '10:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(4, '220211060323', 'TIK3031', 'REALITAS TERTAMBAH DAN REALITAS MAYA', 3, 'Wajib', 'C', 'BRAVE ANGKASA SUGIARSO ST', 'WAHYUNI FITHRATUL ZALMI S.Kom., M.Kom', 'Kamis', '08:00', '10:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(5, '220211060323', 'TIK4030', 'SEMINAR DAN PRAKTEK PROFESIONAL', 3, 'Wajib', 'B', 'ALWIN MELKIE SAMBUL ST, M.Eng, Ph.D.', 'VICTOR TARIGAN M.Kom', 'Selasa', '13:00', '15:30', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(6, '220211060323', 'TIK4041', 'GRAFIKA KOMPUTER', 2, 'Wajib', 'B', 'RIZAL SENGKEY ST, MT', NULL, 'Rabu', '14:40', '16:20', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(7, '220211060323', 'TIK4051', 'ETIKA PROFESI', 2, 'Wajib', 'B', 'DRINGHUZEN JEKKE MAMAHIT ST, MT', NULL, 'Selasa', '15:30', '17:10', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(8, '220211060323', 'TIK4061', 'KRIPTOGRAFI', 2, 'Wajib', 'B', 'RENDY SYAHPUTRA S.Kom., M.Kom', NULL, 'Rabu', '13:00', '14:40', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(9, '220211060323', 'TIK1071', 'PROBABILITAS DAN STATISTIKA', 2, 'Wajib', 'A', 'KENNETH YOSUA R PALILINGAN ST, MT', NULL, 'Jumat', '10:30', '12:10', 'A', 4.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
+(10, '220211060323', 'TIK1051', 'MATEMATIKA DISKRIT', 3, 'Wajib', 'A', 'Dr.Eng. SARY DIANE EKAWATI PATURUSI ST, M.Eng', 'PUJO HARI SAPUTRO S.Kom., M.T', 'Jumat', '08:00', '10:30', 'B', 3.00, NULL, NULL, '20251', 'Disetujui', '2026-01-15 17:49:45'),
 (11, '220211060323', 'TIK3022', 'RISET INFORMATIKA', 3, 'Wajib', 'A', 'JIMMY REAGEN ROBOT', NULL, 'Senin', '08:00', '10:30', 'C+', 2.50, 60.00, NULL, '20242', 'Disetujui', '2026-01-15 17:49:45'),
 (12, '220211060323', 'TIK3032', 'KEWIRAUSAHAAN', 2, 'Wajib', 'F', 'ARTHUR MOURITS RUMAGIT', NULL, 'Senin', '10:30', '12:10', 'A', 4.00, 84.00, NULL, '20242', 'Disetujui', '2026-01-15 17:49:45'),
 (13, '220211060323', 'TIK3042', 'TOPIK KHUSUS TEKNIK INFORMATIKA', 2, 'Wajib', 'E', 'KENNETH YOSUA R PALILINGAN', NULL, 'Selasa', '08:00', '09:40', 'B+', 3.50, 78.00, NULL, '20242', 'Disetujui', '2026-01-15 17:49:45'),
@@ -179,7 +184,7 @@ INSERT INTO `krs` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `jenis`, `kelas`, `
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `mata_kuliah`
+-- Table structure for table `mata_kuliah`
 --
 
 CREATE TABLE `mata_kuliah` (
@@ -194,7 +199,7 @@ CREATE TABLE `mata_kuliah` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data untuk tabel `mata_kuliah`
+-- Dumping data for table `mata_kuliah`
 --
 
 INSERT INTO `mata_kuliah` (`id`, `kode_mk`, `nama_mk`, `sks`, `semester`, `jenis`, `kategori`, `created_at`) VALUES
@@ -290,7 +295,7 @@ INSERT INTO `mata_kuliah` (`id`, `kode_mk`, `nama_mk`, `sks`, `semester`, `jenis
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `pengumuman`
+-- Table structure for table `pengumuman`
 --
 
 CREATE TABLE `pengumuman` (
@@ -305,25 +310,25 @@ CREATE TABLE `pengumuman` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data untuk tabel `pengumuman`
+-- Dumping data for table `pengumuman`
 --
 
 INSERT INTO `pengumuman` (`id`, `nim`, `judul`, `isi`, `kategori`, `oleh`, `role`, `created_at`) VALUES
-(1, '220211060323', '[PENGEMBANGAN GAME ] Link Demo UAS', 'Demo UAS meet.google.com/zfy-suiy-bnn', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2025-12-16 12:01:26'),
-(2, '220211060323', '[REALITAS TERTAMBAH DAN REALITAS VIRTUAL]', '39SBJQ85', 'Matakuliah', 'WAHYUNI FITHRATUL ZALMI S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-16 01:59:10'),
-(3, '220211060323', '[KRIPTOGRAFI] Absensi UAS', '05HCHM85', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-12 03:03:27'),
-(4, '220211060323', '[KRIPTOGRAFI] UAS', 'Berikut saya lampirkan UAS Kriptografi', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-10 09:08:04'),
-(5, '220211060323', '[PENGEMBANGAN GAME ] Demo 1 UAS', 'Demo 1 UAS, 9 Desember 2025, 15.00 wita.', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2025-12-09 06:53:22'),
-(6, '220211060242', '[PRAKTIKUM SISTEM MULTIMEDIA] Link Grup WA', 'untuk MK Praks. Sistem Multimedia kelas A, silahkan gabung & undang teman2 lainnya di grup ini', 'Matakuliah', 'BRAVE ANGKASA SUGIARSO ST', 'DOSEN MATAKULIAH', '2025-09-11 04:45:33'),
-(7, '220211060242', '[ETIKA PROFESI] Grup WA', 'Silakan masuk Grup WA', 'Matakuliah', 'YAULIE DEO Y RINDENGAN ST, M.Sc, MM', 'DOSEN MATAKULIAH', '2025-09-02 06:41:54'),
-(8, '220211060242', '[SISTEM MULTIMEDIA] Gabung WAG', 'https://chat.whatsapp.com/KJ8AxEclvvg0JvcdCpykg5', 'Matakuliah', 'ADE YUSUPA S.Pd, M.Kom', 'DOSEN MATAKULIAH', '2025-08-25 01:47:40'),
-(9, '220211060242', 'Selamat datang Mahasiswa Baru 2025', 'Selamat bergabung di keluarga besar Program Studi S1 Teknik Informatika, UNSRAT. Semoga perjalanan akademik kalian menyenangkan dan penuh prestasi!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2025-08-06 00:40:59'),
-(10, '220211060242', 'Kompetisi Bergengsi GEMASTIK 2024', 'CALLING ALL WARRIORS!!! Ajang PALING bergengsi sebagai Mahasiswa Teknik Informatika. GEMASTIK 2024 sudah dibuka! Ayo daftarkan timmu sekarang!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2024-04-18 09:04:09');
+(1, '220211060323', '[PENGEMBANGAN GAME ] Link Demo UAS', 'Demo UAS meet.google.com/zfy-suiy-bnn', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2025-12-16 04:01:26'),
+(2, '220211060323', '[REALITAS TERTAMBAH DAN REALITAS VIRTUAL]', '39SBJQ85', 'Matakuliah', 'WAHYUNI FITHRATUL ZALMI S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-15 17:59:10'),
+(3, '220211060323', '[KRIPTOGRAFI] Absensi UAS', '05HCHM85', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-11 19:03:27'),
+(4, '220211060323', '[KRIPTOGRAFI] UAS', 'Berikut saya lampirkan UAS Kriptografi', 'Matakuliah', 'RENDY SYAHPUTRA S.Kom., M.Kom', 'DOSEN MATAKULIAH', '2025-12-10 01:08:04'),
+(5, '220211060323', '[PENGEMBANGAN GAME ] Demo 1 UAS', 'Demo 1 UAS, 9 Desember 2025, 15.00 wita.', 'Matakuliah', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', 'DOSEN MATAKULIAH', '2025-12-08 22:53:22'),
+(6, '220211060242', '[PRAKTIKUM SISTEM MULTIMEDIA] Link Grup WA', 'untuk MK Praks. Sistem Multimedia kelas A, silahkan gabung & undang teman2 lainnya di grup ini', 'Matakuliah', 'BRAVE ANGKASA SUGIARSO ST', 'DOSEN MATAKULIAH', '2025-09-10 20:45:33'),
+(7, '220211060242', '[ETIKA PROFESI] Grup WA', 'Silakan masuk Grup WA', 'Matakuliah', 'YAULIE DEO Y RINDENGAN ST, M.Sc, MM', 'DOSEN MATAKULIAH', '2025-09-01 22:41:54'),
+(8, '220211060242', '[SISTEM MULTIMEDIA] Gabung WAG', 'https://chat.whatsapp.com/KJ8AxEclvvg0JvcdCpykg5', 'Matakuliah', 'ADE YUSUPA S.Pd, M.Kom', 'DOSEN MATAKULIAH', '2025-08-24 17:47:40'),
+(9, '220211060242', 'Selamat datang Mahasiswa Baru 2025', 'Selamat bergabung di keluarga besar Program Studi S1 Teknik Informatika, UNSRAT. Semoga perjalanan akademik kalian menyenangkan dan penuh prestasi!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2025-08-05 16:40:59'),
+(10, '220211060242', 'Kompetisi Bergengsi GEMASTIK 2024', 'CALLING ALL WARRIORS!!! Ajang PALING bergengsi sebagai Mahasiswa Teknik Informatika. GEMASTIK 2024 sudah dibuka! Ayo daftarkan timmu sekarang!', 'Prodi', 'VIRGINIA TULENAN S.Kom, MTI', 'KORPRODI', '2024-04-18 01:04:09');
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `perencanaan_studi`
+-- Table structure for table `perencanaan_studi`
 --
 
 CREATE TABLE `perencanaan_studi` (
@@ -333,10 +338,26 @@ CREATE TABLE `perencanaan_studi` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `perencanaan_studi`
+--
+
+INSERT INTO `perencanaan_studi` (`id`, `nim`, `kode_mk`, `created_at`) VALUES
+(27, '220211060323', 'TIK2072', '2026-01-16 09:14:44'),
+(31, '220211060323', 'TIK3122', '2026-01-16 09:15:25'),
+(32, '220211060323', 'TIK3142', '2026-01-16 09:15:28'),
+(36, '220211060323', 'TIK1062', '2026-01-16 10:31:11'),
+(37, '220211060323', 'TIK2042', '2026-01-16 10:31:13'),
+(38, '220211060323', 'TIK2032', '2026-01-16 10:31:13'),
+(39, '220211060323', 'TIK1092', '2026-01-16 10:31:14'),
+(41, '220211060323', 'TIK1042', '2026-01-16 10:31:16'),
+(42, '220211060323', 'TIK1052', '2026-01-16 10:33:36'),
+(43, '220211060323', 'TIK3012', '2026-01-16 10:35:36');
+
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `transkrip`
+-- Table structure for table `transkrip`
 --
 
 CREATE TABLE `transkrip` (
@@ -352,7 +373,7 @@ CREATE TABLE `transkrip` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data untuk tabel `transkrip`
+-- Dumping data for table `transkrip`
 --
 
 INSERT INTO `transkrip` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `nilai_huruf`, `bobot`, `semester`, `created_at`) VALUES
@@ -456,7 +477,7 @@ INSERT INTO `transkrip` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `nilai_huruf`
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -492,95 +513,116 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data untuk tabel `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `nim`, `password`, `nama`, `email`, `tempat_lahir`, `tanggal_lahir`, `tanggal_masuk`, `foto_profil`, `semester`, `tahun_akademik`, `periode`, `status`, `status_pddikti`, `angkatan`, `fakultas`, `prodi`, `jenjang`, `pembimbing_akademik`, `nip_pembimbing`, `masa_studi`, `sisa_masa_studi`, `ipk`, `sks_lulus`, `sks_diambil`, `has_academic_warning`, `warning_message`, `created_at`, `updated_at`) VALUES
-(1, '220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', NULL, NULL, NULL, '2022-08-01', 'assets/img/default-profile.jpg', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'MEICSY ELDAD ISRAEL NAJOAN ST, MT', '196705271995121001', 1, 14, 2.63, 82, 24, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44'),
-(2, '220211060242', '$2y$12$igUeo63omACWYKDF1vVRtefX2rFv4IXbKSLHFgZVYfVZIG/MqjA.C', 'ROMAL PUTRA LENGKONG', NULL, 'Manado', '2004-09-11', '2022-08-01', 'assets/img/default-profile.jpg', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'KENNETH YOSUA R PALILINGAN ST, MT', NULL, 1, 14, 3.31, 117, 0, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44');
+(1, '220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', NULL, NULL, NULL, '2022-08-01', 'assets/images/user_default.png', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'MEICSY ELDAD ISRAEL NAJOAN ST, MT', '196705271995121001', 1, 14, 2.63, 82, 24, 0, NULL, '2026-01-15 17:49:44', '2026-01-16 08:29:29'),
+(2, '220211060242', '$2y$12$igUeo63omACWYKDF1vVRtefX2rFv4IXbKSLHFgZVYfVZIG/MqjA.C', 'ROMAL PUTRA LENGKONG', NULL, 'Manado', '2004-09-11', '2022-08-01', 'assets/images/user_default.png', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'KENNETH YOSUA R PALILINGAN ST, MT', NULL, 1, 14, 3.31, 117, 0, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44');
 
 --
--- Indeks untuk tabel yang dibuang
+-- Indexes for dumped tables
 --
 
 --
--- Indeks untuk tabel `krs`
+-- Indexes for table `krs`
 --
 ALTER TABLE `krs`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeks untuk tabel `mata_kuliah`
+-- Indexes for table `mata_kuliah`
 --
 ALTER TABLE `mata_kuliah`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `kode_mk` (`kode_mk`);
 
 --
--- Indeks untuk tabel `pengumuman`
+-- Indexes for table `pengumuman`
 --
 ALTER TABLE `pengumuman`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeks untuk tabel `perencanaan_studi`
+-- Indexes for table `perencanaan_studi`
 --
 ALTER TABLE `perencanaan_studi`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_perencanaan` (`nim`,`kode_mk`);
 
 --
--- Indeks untuk tabel `transkrip`
+-- Indexes for table `transkrip`
 --
 ALTER TABLE `transkrip`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeks untuk tabel `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nim` (`nim`);
 
 --
--- AUTO_INCREMENT untuk tabel yang dibuang
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT untuk tabel `krs`
+-- AUTO_INCREMENT for table `krs`
 --
 ALTER TABLE `krs`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
--- AUTO_INCREMENT untuk tabel `mata_kuliah`
+-- AUTO_INCREMENT for table `mata_kuliah`
 --
 ALTER TABLE `mata_kuliah`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
--- AUTO_INCREMENT untuk tabel `pengumuman`
+-- AUTO_INCREMENT for table `pengumuman`
 --
 ALTER TABLE `pengumuman`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT untuk tabel `perencanaan_studi`
+-- AUTO_INCREMENT for table `perencanaan_studi`
 --
 ALTER TABLE `perencanaan_studi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
--- AUTO_INCREMENT untuk tabel `transkrip`
+-- AUTO_INCREMENT for table `transkrip`
 --
 ALTER TABLE `transkrip`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
--- AUTO_INCREMENT untuk tabel `users`
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Foreign Key Constraints
+--
+
+-- Note: Foreign keys are commented out to avoid import errors if tables are not in correct order
+-- Uncomment if you need referential integrity checks
+
+-- ALTER TABLE `krs`
+--   ADD CONSTRAINT `fk_krs_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ALTER TABLE `transkrip`
+--   ADD CONSTRAINT `fk_transkrip_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ALTER TABLE `perencanaan_studi`
+--   ADD CONSTRAINT `fk_perencanaan_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE,
+--   ADD CONSTRAINT `fk_perencanaan_kode_mk` FOREIGN KEY (`kode_mk`) REFERENCES `mata_kuliah` (`kode_mk`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ALTER TABLE `pengumuman`
+--   ADD CONSTRAINT `fk_pengumuman_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE SET NULL ON UPDATE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
