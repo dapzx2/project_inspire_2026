@@ -1,7 +1,11 @@
 <?php
+/**
+ * Login Page - Portal INSPIRE
+ */
+
 session_start();
 
-// kalo sudah login, redirect ke dashboard
+// udah login? langsung ke dashboard
 if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
     header('Location: dashboard.php');
     exit;
@@ -17,7 +21,6 @@ if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
 
     <title>INSPIRE Portal - Login</title>
 
-    <!-- Local CSS -->
     <link rel="icon" href="assets/images/logo.png" type="image/png">
     <link rel="stylesheet" href="assets/css/auth.bundle.css">
     <link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -101,7 +104,7 @@ if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
         </div>
     </nav>
 
-    <!-- content -->
+    <!-- Content -->
     <div class="page-header clear-filter" id="container_login" filter-color="orange">
         <div class="page-header-image"></div>
         <div class="content">
@@ -110,9 +113,8 @@ if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
                 <div class="col-md-4 ml-auto mr-auto">
                     <div class="card card-login card-plain">
                         <form action="auth.php" id="login-form" method="POST">
-                            <!-- CSRF token -->
                             <?php
-                            // generate CSRF token
+                            // bikin CSRF token biar aman
                             if (empty($_SESSION['csrf_token'])) {
                                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                             }
@@ -173,21 +175,5 @@ if (isset($_SESSION['nim']) && !empty($_SESSION['nim'])) {
     </div>
 
     <script src="assets/js/auth.bundle.js" type="text/javascript"></script>
-
-    <script>
-    $(document).ready(function() {
-        // clear pesan dari URL biar ga muncul pas refresh
-        if (window.location.search.includes('pesan=')) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-    });
-
-    $('.btn_pulse_1').on('click', function() {
-        $('#particles-js').hide();
-        $('#container_start').fadeOut(1000);
-        $('.btn_pulse_ket').fadeOut(500);
-        $('#container_login').fadeIn(1000);
-        $('.navbar').fadeIn(1000);
-    });
-    </script>
+    <script src="assets/js/script.js"></script>
 </body></html>

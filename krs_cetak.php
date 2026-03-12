@@ -25,7 +25,7 @@ $stmt->close();
 $krs_list = [];
 $total_sks = 0;
 
-$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = '20251' ORDER BY nama_mk ASC");
+$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = '20251' ORDER BY id ASC");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -69,17 +69,17 @@ $bulan_indo = [
 ];
 $tanggal_cetak = date('d') . ' ' . $bulan_indo[(int)date('m')] . ' ' . date('Y');
 
-// Extract angkatan from NIM (format: 22XXXXXXXXXX -> 2022)
+// ambil angkatan dari NIM (format: 22XXXXXXXXXX -> 2022)
 $angkatan = '20' . substr($nim, 0, 2);
 
-// Get dynamic data with fallbacks
+// ambil data dengan nilai default
 $prodi = $user_data['prodi'] ?? 'TEKNIK INFORMATIKA';
 $jenjang = $user_data['jenjang'] ?? 'S1';
 $dosen_pa = $user_data['pembimbing_akademik'] ?? '-';
 $tahun_akademik = $user_data['tahun_akademik'] ?? '2025/2026';
 $periode = $user_data['periode'] ?? 'Gasal';
 
-// Determine max SKS based on IP
+// tentukan maksimal SKS berdasarkan IP
 $max_sks = 24;
 if ($ip_sebelum >= 3.00) {
     $max_sks = 24;
@@ -429,7 +429,7 @@ if ($ip_sebelum >= 3.00) {
                     <tr>
                         <td class="no"><?php echo $no++; ?></td>
                         <td class="kode"><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
-                        <td class="matakuliah"><?php echo htmlspecialchars($mk['nama_mk']); ?></td>
+                        <td class="matakuliah"><?php echo strtoupper(htmlspecialchars($mk['nama_mk'])); ?></td>
                         <td class="sks"><?php echo $mk['sks']; ?></td>
                         <td class="kelas"><?php echo $mk['kelas']; ?></td>
                         <td class="dosen">

@@ -1,12 +1,15 @@
-<?php include 'layout/header.php'; ?>
-
 <?php
-// konstanta evaluasi studi
+/**
+ * Dashboard - Halaman Utama Portal INSPIRE
+ * Nampilin info akademik, pengumuman, dan warning evaluasi studi
+ */
+
+include 'layout/header.php';
+include 'config/database.php';
+
+// batas evaluasi studi
 define('MIN_IPK', 2.00);
 define('MAX_MASA_STUDI', 14);
-
-// include database hanya sekali karena header.php sudah include session
-include 'config/database.php';
 
 // init variabel
 $user_data = null;
@@ -20,7 +23,7 @@ $semester_target = 1;
 $semester_mahasiswa = 0;
 $pengumuman_list = [];
 
-// skip kalo belum login
+// cek login dulu
 if (!isset($_SESSION['nim'])) {
     header('Location: index.php');
     exit;
@@ -28,7 +31,7 @@ if (!isset($_SESSION['nim'])) {
 
 $nim = $_SESSION['nim'];
 
-// ambil data user dengan prepared statement
+// ambil data user
 $stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
@@ -39,19 +42,10 @@ if ($result && $result->num_rows > 0) {
 }
 $stmt->close();
 
-// ============================================
-// LOGIKA PERINGATAN EVALUASI STUDI BERTAHAP
-// Berdasarkan standar Universitas Indonesia:
-// Semester 1-2: SKS < 24 atau IPK < 2.00
-// Semester 3-4: SKS < 48 atau IPK < 2.00
-// Semester 5-6: SKS < 72 atau IPK < 2.00
-// Semester 7+:  SKS < 96 atau IPK < 2.00
-// ============================================
-
-// hitung SKS lulus (nilai selain D dan E)
+// hitung SKS lulus (yang nilainya bukan D/E/N)
 $stmt = $conn->prepare("SELECT COALESCE(SUM(sks), 0) as total_sks 
                         FROM transkrip 
-                        WHERE nim = ? AND nilai_huruf NOT IN ('D', 'E')");
+                        WHERE nim = ? AND nilai_huruf NOT IN ('D', 'E', 'N')");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -60,7 +54,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// hitung IPK: SUM(sks * bobot) / SUM(sks)
+// hitung IPK
 $stmt = $conn->prepare("SELECT 
                 CASE 
                     WHEN SUM(sks) > 0 THEN SUM(sks * bobot) / SUM(sks)
@@ -76,7 +70,7 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// tentukan batas SKS berdasarkan semester
+// batas SKS per semester (evaluasi studi)
 if ($semester_mahasiswa >= 7) {
     $min_sks_semester = 96;
     $semester_target = 8;
@@ -96,7 +90,7 @@ $bahaya_ipk = ($ipk < MIN_IPK);
 $bahaya_sks = ($sks_lulus < $min_sks_semester);
 $tampilkan_warning = ($bahaya_sks || $bahaya_ipk);
 
-// ambil pengumuman khusus user ini
+// ambil pengumuman
 $stmt = $conn->prepare("SELECT judul, isi, role, oleh, created_at 
                         FROM pengumuman 
                         WHERE nim = ? 
@@ -110,7 +104,7 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// helper: format tanggal ke bahasa Indonesia
+// helper: format tanggal indo
 function formatTanggalID($datetime) {
     $bulan = [
         1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -121,52 +115,10 @@ function formatTanggalID($datetime) {
     return date('d', $ts) . ' ' . $bulan[(int)date('n', $ts)] . ' ' . date('Y H:i:s', $ts);
 }
 
-// hitung masa studi
 $masa_studi = $semester_mahasiswa;
 $sisa_masa_studi = max(0, MAX_MASA_STUDI - $semester_mahasiswa);
-
-// ambil first name untuk greeting
 $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
 ?>
-
-<!-- CSS khusus dashboard -->
-<style>
-    .btn-peringatan {
-        background-color: #dc3545 !important;
-        border: 2px solid #fff !important;
-        color: #fff !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        transition: all 0.3s ease;
-    }
-    .btn-peringatan:hover {
-        background-color: #a71d2a !important;
-        color: #fff !important;
-    }
-    
-    /* Fix responsive calendar header untuk mobile */
-    @media (max-width: 576px) {
-        .fc .fc-toolbar {
-            flex-direction: column;
-            gap: 10px;
-        }
-        .fc .fc-toolbar-chunk {
-            display: flex;
-            justify-content: center;
-        }
-        .fc .fc-toolbar-title {
-            font-size: 1.2em !important;
-        }
-        .fc .fc-button {
-            padding: 0.3em 0.5em !important;
-            font-size: 0.85em !important;
-        }
-        .fc .fc-button-group {
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-    }
-</style>
 
 <!-- Content Wrapper -->
 <div class="content-wrapper" style="min-height: 799.031px;">
@@ -177,7 +129,7 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <!-- Welcome Section -->
+                <!-- Welcome -->
                 <div class="col-sm-12 col-md-12">
                     <div class="jumbotron bg-white mb-3">
                         <h2 class="display-6">Halo, <?php echo htmlspecialchars($first_name, ENT_QUOTES, 'UTF-8'); ?> !</h2>
@@ -195,38 +147,44 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
                     </div>
                 </div>
 
-                <!-- Academic Info Section -->
+                <!-- Info Akademik -->
                 <div class="col-sm-12 col-md-6">
-                    <!-- Perhatian - Selalu ditampilkan -->
-                    <div class="alert alert-danger alert-dismissible text-center">
+                    <?php 
+                    $batas_masa_studi_warning = ($semester_mahasiswa >= 8);
+                    if ($batas_masa_studi_warning): 
+                    ?>
+                    <div class="alert alert-warning alert-dismissible text-center">
                         <h5><i class="icon fas fa-exclamation-triangle"></i> Perhatian !</h5>
+                        <p>Saat ini Anda sedang menempuh batas minimal yang ditempuh, tersisa maksimal <?php echo $sisa_masa_studi; ?> semester yang harus diselesaikan sebelum DROP OUT</p>
+                        <p><i>Diharapkan untuk menyelesaikan studi sesegera mungkin</i></p>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ($tampilkan_warning): ?>
+                    <div class="alert alert-danger alert-dismissible text-center">
+                        <h5><i class="icon fas fa-exclamation-triangle"></i> Perhatian Akademik!</h5>
                         
-                        <?php if ($tampilkan_warning): ?>
-                            <?php if ($bahaya_sks && $bahaya_ipk): ?>
-                            <!-- keduanya kurang -->
+                        <?php if ($bahaya_sks && $bahaya_ipk): ?>
                             <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester <?php echo $semester_target; ?> Anda mengontrak dan lulus lebih banyak SKS.</p>
                             <p><i>Jika jumlah SKS lulus tidak mencapai <?php echo $min_sks_semester; ?> SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
                             <hr>
                             <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester <?php echo $semester_target; ?> Anda memperbaiki nilai mata kuliah.</p>
                             <p><i>Jika IPK tidak mencapai 2.00, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
                             
-                            <?php elseif ($bahaya_sks): ?>
-                            <!-- SKS kurang -->
+                        <?php elseif ($bahaya_sks): ?>
                             <p>Saat ini jumlah total SKS lulus anda adalah <?php echo $sks_lulus; ?> SKS, diharapkan untuk semester <?php echo $semester_target; ?> Anda mengontrak dan lulus lebih banyak SKS.</p>
                             <p><i>Jika jumlah SKS lulus tidak mencapai <?php echo $min_sks_semester; ?> SKS, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
                             
-                            <?php elseif ($bahaya_ipk): ?>
-                            <!-- IPK kurang -->
+                        <?php elseif ($bahaya_ipk): ?>
                             <p>Saat ini Indeks Prestasi Kumulatif (IPK) anda adalah <strong><?php echo number_format($ipk, 2); ?></strong>, diharapkan untuk semester <?php echo $semester_target; ?> Anda memperbaiki nilai mata kuliah.</p>
                             <p><i>Jika IPK tidak mencapai 2.00, maka akan diberikan sanksi maksimal diberhentikan sebagai mahasiswa karena alasan akademik.</i></p>
-                            <?php endif; ?>
-                            
-                            <a href="perencanaan.php" class="btn btn-sm mt-2 btn-peringatan">
-                                <i class="fas fa-list mr-1"></i> Lihat Perencanaan Studi
-                            </a>
                         <?php endif; ?>
-                        <!-- Jika tidak ada warning, alert tetap muncul tapi kosong -->
+                            
+                        <a href="perencanaan.php" class="btn btn-sm mt-2 btn-peringatan">
+                            <i class="fas fa-list mr-1"></i> Lihat Perencanaan Studi
+                        </a>
                     </div>
+                    <?php endif; ?>
 
                     <!-- Semester Info -->
                     <div class="callout callout-info">
@@ -243,14 +201,14 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
                         <?php endif; ?>
                     </div>
 
-                    <!-- IPK & SKS Info -->
+                    <!-- IPK & SKS -->
                     <div class="callout callout-info">
                         <label>IPK</label> : <?php echo number_format($ipk, 2); ?> <br>
                         <label>SKS Lulus</label> : <?php echo $sks_lulus; ?>
                     </div>
                 </div>
 
-                <!-- Pengumuman Section -->
+                <!-- Pengumuman -->
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header bg-danger">
@@ -289,7 +247,7 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
                 </div>
             </div>
 
-            <!-- Kegiatan Hari Ini & Calendar Row -->
+            <!-- Kegiatan & Kalender -->
             <div class="row">
                 <div class="col-sm-12 col-md-5 mt-3">
                     <div class="card">
@@ -308,7 +266,7 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
                 </div>
             </div>
 
-            <!-- Informasi Menu Section -->
+            <!-- Info Menu -->
             <div class="box-body">
                 <div class="row">
                     <div class="col-12">
@@ -393,25 +351,5 @@ $first_name = isset($nama) ? strtoupper(explode(' ', $nama)[0]) : 'USER';
         </div>
     </div>
 </div>
-
-<!-- FullCalendar Script -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    
-    if (calendarEl && typeof FullCalendar !== 'undefined') {
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                start: 'prev,next today',
-                center: 'title',
-                end: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            events: []
-        });
-        calendar.render();
-    }
-});
-</script>
 
 <?php include 'layout/footer.php'; ?>

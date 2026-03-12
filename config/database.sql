@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 17, 2026 at 06:00 AM
+-- Generation Time: Feb 01, 2026 at 08:21 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.4.11
 
@@ -23,20 +23,314 @@ SET time_zone = "+00:00";
 CREATE DATABASE IF NOT EXISTS `db_inspire_project` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `db_inspire_project`;
 
--- --------------------------------------------------------
--- Drop existing tables (in reverse order due to foreign keys)
--- --------------------------------------------------------
+-- Drop existing tables (untuk fresh install)
 DROP TABLE IF EXISTS `perencanaan_studi`;
-DROP TABLE IF EXISTS `transkrip`;
+DROP TABLE IF EXISTS `khs`;
 DROP TABLE IF EXISTS `krs`;
+DROP TABLE IF EXISTS `transkrip`;
 DROP TABLE IF EXISTS `pengumuman`;
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `kelas`;
 DROP TABLE IF EXISTS `mata_kuliah`;
+DROP TABLE IF EXISTS `users`;
+
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `mata_kuliah` (must be created first for FK references)
+-- Table structure for table `kelas`
+--
+
+CREATE TABLE `kelas` (
+  `id` int NOT NULL,
+  `kode_mk` varchar(20) NOT NULL,
+  `nama_mk` varchar(150) NOT NULL,
+  `sks` int NOT NULL DEFAULT '3',
+  `kelas` varchar(50) DEFAULT 'A',
+  `program` varchar(100) NOT NULL,
+  `urutan_program` int NOT NULL DEFAULT '1',
+  `dosen1` varchar(150) DEFAULT NULL,
+  `dosen2` varchar(150) DEFAULT NULL,
+  `dosen3` varchar(150) DEFAULT NULL,
+  `hari` varchar(20) DEFAULT NULL,
+  `jam_mulai` varchar(10) DEFAULT NULL,
+  `jam_selesai` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `kelas`
+--
+
+INSERT INTO `kelas` (`id`, `kode_mk`, `nama_mk`, `sks`, `kelas`, `program`, `urutan_program`, `dosen1`, `dosen2`, `dosen3`, `hari`, `jam_mulai`, `jam_selesai`) VALUES
+(1, 'PRODI', 'ADMINISTRASI PERKANTORAN DAN IT', 2, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'PRODI', 'ADMINISTRASI PERKANTORAN DAN IT', 2, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 'POL 3622', 'ANALISA POLITIK*', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 'POL 3622', 'ANALISA POLITIK*', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, 'POL 3472', 'DEMOKRASI & HAM', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'POL 3472', 'DEMOKRASI & HAM', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 'POL 3652', 'DIPLOMASI *', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(8, 'POL 3652', 'DIPLOMASI *', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(9, 'POL 3642', 'EKONOMI INTERNASIONAL *', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(10, 'POL 3642', 'EKONOMI INTERNASIONAL *', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(11, 'POL 3512', 'HUBUNGAN KEKUASAAN PUSAT DAN DAERAH', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(12, 'POL 3512', 'HUBUNGAN KEKUASAAN PUSAT DAN DAERAH', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(13, 'POL 3632', 'HUKUM INTERNASIONAL *', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(14, 'POL 3632', 'HUKUM INTERNASIONAL *', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(15, 'POL 3602', 'IT DAN POLITIK  *', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(16, 'POL 3602', 'IT DAN POLITIK  *', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(17, 'POL 3452', 'KEBIJAKAN PUBLIK', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(18, 'POL 3452', 'KEBIJAKAN PUBLIK', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(19, 'POL 3492', 'KEPEMIMPINAN POLITIK', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(20, 'POL 3492', 'KEPEMIMPINAN POLITIK', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(21, 'POL 4130', 'KULIAH KERJA TERPADU (KKT)', 4, 'GANJIL/GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(22, 'POL 3672', 'MAGANG', 20, 'GANJIL/GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(23, 'POL 3532', 'ORGANISASI DAN ADMINISTRASI INTERNASIONAL', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(24, 'POL 3532', 'ORGANISASI DAN ADMINISTRASI INTERNASIONAL', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(25, 'POL 3482', 'PENGELOLAAN WILAYAH PERBATASAN', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(26, 'POL 3482', 'PENGELOLAAN WILAYAH PERBATASAN', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(27, 'POL 3662', 'PENYELESAIAN SENGKETA INTERNASIONAL*', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(28, 'POL 3662', 'PENYELESAIAN SENGKETA INTERNASIONAL*', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(29, 'POL 3502', 'POLITIK DAN PEMERINTAHAN LOKAL', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(30, 'POL 3502', 'POLITIK DAN PEMERINTAHAN LOKAL', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(31, 'POL 3592', 'POLITIK GENDER *', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(32, 'POL 3592', 'POLITIK GENDER *', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(33, 'POL 3522', 'POLITIK INTERNASIONAL', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(34, 'POL 3522', 'POLITIK INTERNASIONAL', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(35, 'POL 3612', 'SISTEM KEUANGAN PUSAT & DAERAH*', 3, 'GANJIL', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(36, 'POL 3612', 'SISTEM KEUANGAN PUSAT & DAERAH*', 3, 'GENAP', 'Kampus Merdeka - ILMU POLITIK', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(37, 'TNH3632', 'AGROGEOWISATA', 2, 'TNH3632p-agrogeowisata', 'Kampus Merdeka - ILMU TANAH', 1, 'Prof.Dr. ZETLY ESTEFANUS TAMOD SP, M.Si', NULL, NULL, 'Kamis', '13:00', '14:45'),
+(38, 'TNH3642', 'EKONOMI SUMBERDAYA LAHAN', 2, 'TNH3642p-ekonomiSDL', 'Kampus Merdeka - ILMU TANAH', 1, 'Dr.Ir. OLLY ESRY HARRYANI LAOH MS', NULL, NULL, 'Kamis', '08:00', '09:45'),
+(39, 'TNH3592', 'KEWIRAUSAHAAN', 2, 'TNH3592w-kewirausahaan', 'Kampus Merdeka - ILMU TANAH', 1, 'RAFLI IRLAND KAWULUSAN SP, M.Si', NULL, NULL, 'Rabu', '13:00', '14:45'),
+(40, 'TNH3562', 'KONSERVASI TANAH & AIR', 3, 'TNH3562w-KTA', 'Kampus Merdeka - ILMU TANAH', 1, 'Prof.Dr. ZETLY ESTEFANUS TAMOD SP, M.Si', NULL, NULL, 'Rabu', '08:00', '11:45'),
+(41, 'TNH3582', 'PENGELOLAAN DAS', 3, 'TNH3582w-kelolaDAS', 'Kampus Merdeka - ILMU TANAH', 1, 'Ir. YANI EZRAH BARTOLOMEUS KAMAGI MP', NULL, NULL, 'Selasa', '08:00', '11:45'),
+(42, 'TNH3602', 'PENYERAPAN KARBON LAHAN', 2, 'TNH3602p-karbonLahan', 'Kampus Merdeka - ILMU TANAH', 1, 'Dr.Ir. JOKO PURBOPUSPITO M.Sc', NULL, NULL, 'Rabu', '15:00', '16:45'),
+(43, 'TNH3652', 'PERENCANAAN PENGEMBANGAN WILAYAH', 2, 'TNH3652p-rencbangwil', 'Kampus Merdeka - ILMU TANAH', 1, 'Prof.Dr. ZETLY ESTEFANUS TAMOD SP, M.Si', NULL, NULL, 'Selasa', '13:00', '14:45'),
+(44, 'TNH3612', 'PERTANIAN ORGANIK', 2, 'TNH3612p-pertanianOrganik', 'Kampus Merdeka - ILMU TANAH', 1, 'WIESJE JUNNIEKE NATHSUO KUMOLONTANG SP, MP', NULL, NULL, 'Kamis', '10:00', '11:45'),
+(45, 'TNH3622', 'REHABILITASI & REKLAMASI LAHAN', 2, 'TNH3622p-rehabLahan', 'Kampus Merdeka - ILMU TANAH', 1, 'Prof.Dr. ZETLY ESTEFANUS TAMOD SP, M.Si', NULL, NULL, 'Senin', '10:00', '11:45'),
+(46, 'TNH3552', 'SISTEM PERTANIAN BERKELANJUTAN', 2, 'TNH3552w-sistanlanjut', 'Kampus Merdeka - ILMU TANAH', 1, 'Dr.Ir. JOKO PURBOPUSPITO M.Sc', NULL, NULL, 'Senin', '15:00', '16:45'),
+(47, 'TNH3572', 'TATA RUANG DAN DAYA DUKUNG LAHAN', 2, 'TNH3572w-taru dayalahan', 'Kampus Merdeka - ILMU TANAH', 1, 'Ir. YANI EZRAH BARTOLOMEUS KAMAGI MP', NULL, NULL, 'Senin', '13:00', '14:45'),
+(48, 'TNH4930', 'KULIAH KERJA TEMATIK', 4, 'TNH4930w-KKT', 'Kampus Merdeka - ILMU TANAH', 1, 'Dr.Ir. JOKO PURBOPUSPITO M.Sc', NULL, NULL, 'Jumat', '13:30', '15:15'),
+(49, 'TNH4910', 'MAGANG', 3, 'TNH4910w-magang', 'Kampus Merdeka - ILMU TANAH', 1, 'Dr.Ir. JOKO PURBOPUSPITO M.Sc', NULL, NULL, 'Jumat', '08:00', '11:45'),
+(50, 'PRT3522', 'AKAROLOGI', 2, 'PRT3522-AKAROLOGI_KELAS A', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Ir. DAISY SANDRA KANDOWANGKO MS', 'Ir. NONI NORTJE WANTA MS', NULL, NULL, NULL, NULL),
+(51, 'PRT3522', 'AKAROLOGI', 2, 'PRT3522-AKAROLOGI_KELAS B', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Ir. CAROULUS SIMBALIS RANTE MS', NULL, NULL, NULL, NULL, NULL),
+(52, 'PRT3552', 'ARTHTROPODA TANAH', 2, 'PRT3552-ARTHTROPODA TANAH', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr. Ir. SHERLIJ DUMALANG M.Si', 'Dr.Ir. REITY ANNASTASSIE GRACE ENGKA M.Si', 'Prof.Dr.Ir. REDSWAY TRUMAN DOUGLAS MARAMIS MS', NULL, NULL, NULL),
+(53, 'PRT3512', 'BIOMETRIKA DALAM PROTEKSI TANAMAN', 2, 'PRT3512-BIOMETRIKA DALAM PROTEKSI TANAMAN', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Ir. CAROULUS SIMBALIS RANTE MS', 'Dr FRANGKY HENDRA RORONG S.P., M.Si.', NULL, NULL, NULL, NULL),
+(54, 'PRT3592', 'BIOTEKNOLOGI PROTEKSI TANAMAN', 2, 'PRT3592-BIOTEKNOLOGI PROTEKSI TANAMAN', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Prof.Dr.Ir. CHRISTINA LETA SALAKI MS', 'Prof. Dr. Ir. JIMMY RIMBING MP', 'Ir. ELISABETH RITA MARLIEN MERAY MS', NULL, NULL, NULL),
+(55, 'PRT3562', 'ENTOMOLOGI PERKOTAAN', 2, 'PRT3562-ENTOMOLOGI PERKOTAAN', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr.Ir. MAXI LENGKONG MS', 'Prof.Dr.Ir. REDSWAY TRUMAN DOUGLAS MARAMIS MS', 'Dr. Ir. Wilson Marthin Moniaga, MS', NULL, NULL, NULL),
+(56, 'PRT3572', 'EPIDEMIOLOGI PENYAKIT TUMBUHAN', 2, 'PRT3572-EPIDEMIOLOGI PENYAKIT TUMBUHAN', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Ir. HENNY VIANNE GRETHA MAKAL M.Si', 'MEISYE HELMIE BETTIE PARUNTU SP, M.Si', 'Anugrawati Abidin S.SI.,M.Si', NULL, NULL, NULL),
+(57, 'PRT3532', 'HAMA DAN PENYAKIT TANAMAN PANGAN', 3, 'PRT3532-HAMA DAN PENYAKIT TANAMAN PANGAN_KELAS A', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr.Ir. MAXI LENGKONG MS', 'Dr.Ir. JULIET MERRY EVA MAMAHIT M.Si', NULL, NULL, NULL, NULL),
+(58, 'PRT3532', 'HAMA DAN PENYAKIT TANAMAN PANGAN', 3, 'PRT3532-HAMA DAN PENYAKIT TANAMAN PANGAN_KELAS B', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr.Ir. BETSY AGUSTINA NAOMI PINARIA MS', 'Ir. NONI NORTJE WANTA MS', 'MEISYE HELMIE BETTIE PARUNTU SP, M.Si', NULL, NULL, NULL),
+(59, 'PRT3542', 'HAMA DAN PENYAKIT TANAMAN PERKEBUNAN', 3, 'PRT3542-HAMA DAN PENYAKIT TANAMAN PERKEBUNAN', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr.Ir. DANTJE TARORE MS', 'Dr.Ir. VIVI BERNADETH MONTONG M.Si', 'Prof.Dr.Ir. REDSWAY TRUMAN DOUGLAS MARAMIS MS', NULL, NULL, NULL),
+(60, 'PRT3582', 'PENGELOLAAN GULMA', 2, 'PRT3582-PENGELOLAAN GULMA', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Ir. DAISY SANDRA KANDOWANGKO MS', 'Prof. Dr. Ir. JIMMY RIMBING MP', NULL, NULL, NULL, NULL),
+(61, 'PRT4670', 'PRAKTEK KERJA LAPANGAN', 3, 'PRT4670-PRAKTEK KERJA LAPANGAN', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr.Ir. VIVI BERNADETH MONTONG M.Si', NULL, NULL, NULL, NULL, NULL),
+(62, 'PRTKM02', 'PROGRAM MAGANG BERSERTIFIKAT', 20, 'PRTKM02-PROGRAM MAGANG BERSERTIFIKAT', 'Kampus Merdeka - PROTEKSI TANAMAN', 1, 'Dr.Ir. VIVI BERNADETH MONTONG M.Si', NULL, NULL, NULL, NULL, NULL),
+(63, 'BIO 3452', 'BIOLOGI KONSERVASI', 3, 'Biologi Konservasi (A)', 'Kampus Merdeka - BIOLOGI', 1, 'Dr. Drs. SAROYO M.Si', 'PIENCE VERALYN MAABUAT S.Si.,M.Si', 'Dr. REGINA ROSITA BUTARBUTAR SP, M.Si', 'Kamis', '08:00', '10:00'),
+(64, 'BIO 3452', 'BIOLOGI KONSERVASI', 3, 'Biologi Konservasi (B)', 'Kampus Merdeka - BIOLOGI', 1, 'Dr. Drs. SAROYO M.Si', 'PIENCE VERALYN MAABUAT S.Si.,M.Si', 'Dr. REGINA ROSITA BUTARBUTAR SP, M.Si', 'Kamis', '08:00', '10:00'),
+(65, 'BIO 3412', 'BIOLOGI LAUT', 3, 'Biologi Laut (A)', 'Kampus Merdeka - BIOLOGI', 1, 'Dr.rer.nat. ADELFIA PAPU M.Si', 'Dr. MARINA FLORA OKTAVINE SINGKOH S.Pi, M.Si', 'Dr. REGINA ROSITA BUTARBUTAR SP, M.Si', 'Selasa', '10:00', '12:00'),
+(66, 'BIO 3412', 'BIOLOGI LAUT', 3, 'Biologi Laut (B)', 'Kampus Merdeka - BIOLOGI', 1, 'Dr.rer.nat. ADELFIA PAPU M.Si', 'Dr. MARINA FLORA OKTAVINE SINGKOH S.Pi, M.Si', 'PIENCE VERALYN MAABUAT S.Si.,M.Si', 'Selasa', '10:00', '12:00'),
+(67, 'BIO 3252', 'BIOLOGI MOLEKULER', 3, 'Biologi Molekuler (A)', 'Kampus Merdeka - BIOLOGI', 1, 'BEIVY JONATHAN KOLONDAM S.Si, M.Si, MS', 'Prof. Dr. TRINA EKAWATI TALLEI', 'Ir. FEKY RECKY MANTIRI M.Sc, Ph.D', 'Senin', '08:00', '10:00'),
+(68, 'BIO 3252', 'BIOLOGI MOLEKULER', 3, 'Biologi Molekuler (B)', 'Kampus Merdeka - BIOLOGI', 1, 'BEIVY JONATHAN KOLONDAM S.Si, M.Si, MS', 'Prof. Dr. TRINA EKAWATI TALLEI', 'Ir. FEKY RECKY MANTIRI M.Sc, Ph.D', 'Senin', '08:00', '10:00'),
+(69, 'BIO 3262', 'BIOTEKNOLOGI', 2, 'Bioteknologi (A)', 'Kampus Merdeka - BIOLOGI', 1, 'Ir. MARHAENUS JOHANIS RUMONDOR M.Si', 'Pingkan Krista Mantiri S.Pd.,M.Sc', NULL, 'Selasa', '08:00', '10:00'),
+(70, 'BIO 3262', 'BIOTEKNOLOGI', 2, 'Bioteknologi (B)', 'Kampus Merdeka - BIOLOGI', 1, 'Ir. MARHAENUS JOHANIS RUMONDOR M.Si', 'Pingkan Krista Mantiri S.Pd.,M.Sc', NULL, 'Selasa', '08:00', '10:00'),
+(71, 'BIO 3262', 'BIOTEKNOLOGI', 2, 'Bioteknologi (KM)', 'Kampus Merdeka - BIOLOGI', 1, 'BEIVY JONATHAN KOLONDAM S.Si, M.Si, MS', 'Prof. Dr. TRINA EKAWATI TALLEI', NULL, 'Rabu', '15:00', '16:40'),
+(72, 'BIO 3422', 'ILMU LINGKUNGAN', 2, 'Ilmu Lingkungan (A)', 'Kampus Merdeka - BIOLOGI', 1, 'Dr. SENDY B RONDONUWU M.Si', 'Dr. FARHA NORMA JOSEFIN DAPAS S.Si, MEnvStud', NULL, 'Senin', '13:00', '15:00'),
+(73, 'BIO 3422', 'ILMU LINGKUNGAN', 2, 'Ilmu Lingkungan (B)', 'Kampus Merdeka - BIOLOGI', 1, 'Dr. SENDY B RONDONUWU M.Si', 'Dr. FARHA NORMA JOSEFIN DAPAS S.Si, MEnvStud', NULL, 'Senin', '13:00', '15:00'),
+(74, 'BIO 3812', 'METODOLOGI PENELITIAN BIOLOGI', 2, 'Metodologi Penelitian (A)', 'Kampus Merdeka - BIOLOGI', 1, 'Prof. Dra. NIO SONG AI M.Si., Ph.D', 'Prof. Dr. RONI KONERI S.Pd., M.Si', NULL, 'Jumat', '08:00', '10:00'),
+(75, 'BIO 3812', 'METODOLOGI PENELITIAN BIOLOGI', 2, 'Metodologi Penelitian (B)', 'Kampus Merdeka - BIOLOGI', 1, 'Prof. Dra. NIO SONG AI M.Si., Ph.D', 'Prof. Dr. RONI KONERI S.Pd., M.Si', NULL, 'Jumat', '08:00', '10:00'),
+(76, 'BSI 3472', 'GENDER DALAM SASTRA', 3, 'BSI 3472', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'Irene Pabuntang M.Hum', 'Nadia Mawar Janah M.A', NULL, 'Senin', '14:30', '16:00'),
+(77, 'BSI 2372', 'KOMPOSISI JURNALISTIK', 3, 'BSI 2372', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'Dr. MARIAM LIDIA MYTTY PANDEAN SS, M.Hum', 'STELLA S M KAROUW SS, M.Hum', 'MAXI KOJONG S.Pd, M.Hum', 'Rabu', '08:00', '10:30'),
+(78, 'BSI 1302', 'KORESPONDENSI INDONESIA', 3, 'BSI 1302', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'Dr.Dra. DJEINNIE IMBANG M.Hum', 'TATIANA STARY CLAUDIA S.S, M.Pd', NULL, 'Rabu', '11:40', '14:20'),
+(79, 'BSI 3462', 'LINGUISTIK HISTORIS KOMPARATIF DAN LINGUISTIK KONTRASTIF', 3, 'BSI 3462', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'Dr.Dra. DJEINNIE IMBANG M.Hum', 'MAXI KOJONG S.Pd, M.Hum', NULL, 'Senin', '11:40', '14:20'),
+(80, 'BSI 3442', 'PSIKOLINGUISTIK', 2, 'BSI 3442', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'Dr. MARIAM LIDIA MYTTY PANDEAN SS, M.Hum', 'ANATJE TINNEKE PALIT S.Pd, M.Hum', NULL, 'Selasa', '08:00', '09:40'),
+(81, 'BSI 3512', 'SOSIOLOGI SASTRA', 3, 'BSI 3512', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'CHRISTO RILCO PUA S.S, M.Hum', 'Dewinda Christin Maraya M.Hum', NULL, 'Senin', '08:00', '10:30'),
+(82, 'BSI 3312', 'TEORI DAN TERJEMAHAN', 4, 'BSI 3312', 'Kampus Merdeka - SASTRA INDONESIA', 1, 'MAXI KOJONG S.Pd, M.Hum', 'DINA CHATRINA MAGDALENA ROTTIE S.Pd, M.Hum', 'TATIANA STARY CLAUDIA S.S, M.Pd', 'Selasa', '13:30', '15:20'),
+(83, 'SEJ 3532', 'JURNALISME SEJARAH', 4, 'Jurnalisme Sejarah', 'Kampus Merdeka - ILMU SEJARAH', 1, 'DR IVAN ROBERT BERNADUS KAUNANG SS, M.Hum', 'Dharyanto Tito Wardani S.Pd., M.Hum', NULL, 'Selasa', '11:45', '13:30'),
+(84, 'BUD 4140', 'MAGANG', 3, 'Magang', 'Kampus Merdeka - ILMU SEJARAH', 1, 'MEITY JANE WOWOR SS, M.Si', 'ILKE JANEMRALINA MONIUNG S.Pd, M.Hum', NULL, NULL, NULL, NULL),
+(85, 'SEJ 3322', 'METODE DAN TEKNIK PENELITIAN SEJARAH', 3, 'Metode dan Teknik Penelitian Sejarah', 'Kampus Merdeka - ILMU SEJARAH', 1, 'DR IVAN ROBERT BERNADUS KAUNANG SS, M.Hum', 'A. Fadhilah Utami Ilmi Rifai S.Pd., M.A', NULL, 'Senin', '13:45', '15:30'),
+(86, 'SEJ 3261', 'SEJARAH INDONESIA KONTEMPORER', 3, 'Sejarah Indonesia Kontemporer', 'Kampus Merdeka - ILMU SEJARAH', 1, 'MEITY JANE WOWOR SS, M.Si', 'Khaerul Amri M.Hum', NULL, 'Rabu', '13:45', '15:30'),
+(87, 'SEJ 1371', 'SEJARAH LOKAL', 3, 'Sejarah Lokal', 'Kampus Merdeka - ILMU SEJARAH', 1, 'DR IVAN ROBERT BERNADUS KAUNANG SS, M.Hum', 'ILKE JANEMRALINA MONIUNG S.Pd, M.Hum', NULL, 'Senin', '09:45', '12:00'),
+(88, 'SEJ 3512', 'VISUALISASI SEJARAH', 4, 'Visualisasi Sejarah', 'Kampus Merdeka - ILMU SEJARAH', 1, 'ROGER ALLAN CRISTIAN KEMBUAN SS, MA', 'Wins Senor M.Hum', NULL, 'Kamis', '13:45', '15:30'),
+(89, 'EJKM05', 'PROGRAM INDONESIAN INTERNATIONAL MOBILITY STUDENT AWARDS', 20, 'IISMA', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(90, 'EJKM06', 'PROGRAM KEWIRAUSAHAAN KAMPUS MERDEKA', 20, 'Kewirausahaan KM', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(91, 'EJKM09', 'PROGRAM PEMBANGUNAN DESA KAMPUS MERDEKA', 20, 'Pembangunan Desa KM', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(92, 'EJKM07', 'PROGRAM PENELITIAN KAMPUS MERDEKA', 20, 'Penelitian KM', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(93, 'EJKM03', 'PROGRAM STUDI INDEPENDEN BERSERTIFIKAT KAMPUS MERDEKA', 20, 'Studi Independen KM', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(94, 'BUD 4130', 'KULIAH KERJA TERPADU (KKT)', 4, 'Kuliah Kerja Terpadu (KKT)', 'Kampus Merdeka - ILMU SEJARAH', 1, 'ILKE JANEMRALINA MONIUNG S.Pd, M.Hum', NULL, NULL, NULL, NULL, NULL),
+(95, 'EJKM01', 'PROGRAM KAMPUS MENGAJAR', 20, 'Kampus Mengajar', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(96, 'EJKM08', 'PROGRAM KEMANUSIAAN KAMPUS MERDEKA', 20, 'Kemanusiaan KM', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(97, 'EJKM02', 'PROGRAM MAGANG BERSERTIFIKAT KAMPUS MERDEKA', 20, 'Magang Bersertifikat KM', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(98, 'EJKM04', 'PROGRAM PERTUKARAN MAHASISWA MERDEKA', 20, 'Pertukaran Mahasiswa', 'Kampus Merdeka - ILMU SEJARAH', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(99, 'AGR 6092', 'MASALAH KHUSUS GULMA', 2, 'Masalah Gulma', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(100, 'AGR 606', 'METODOLOGI PENELITIAN', 3, 'Metlit', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(101, 'AGR 604', 'PENYULUHAN PERTANIAN', 2, 'Penyuluhan A', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(102, 'AGR 604', 'PENYULUHAN PERTANIAN', 2, 'Penyuluhan B', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(103, 'AGR 6082', 'REKAYASA GENETIK', 2, 'RekGen', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(104, 'AGR 608', 'SEMINAR 1', 1, 'Seminar', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(105, 'AGR 603', 'TEKNIK BUDIDAYA AREN DAN PALMA LAIN', 3, 'TBT Aren A', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(106, 'AGR 603', 'TEKNIK BUDIDAYA AREN DAN PALMA LAIN', 3, 'TBT Aren B', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(107, 'AGR 6102', 'TEKNIK BUDIDAYA TANAMAN PENGHASIL SERAT', 2, 'TBT Serat', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(108, 'AGR 602', 'TEKNIK BUDIDAYA TANAMAN PENYEGAR', 3, 'TBT Penyegar A', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(109, 'AGR 602', 'TEKNIK BUDIDAYA TANAMAN PENYEGAR', 3, 'TBT Penyegar B', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(110, 'AGR703a', 'TEKNIK KHUSUS PEMULIAAN TANAMAN', 2, 'Teknik Khusus Pemuliaan', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(111, 'AGR7061', 'FISIOLOGI STRES TANAMAN', 2, 'Fisiologi Stress', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(112, 'AGR7071', 'PENGELOLAAN AIR', 2, 'Pengelolaan air', 'Kampus Merdeka - AGRONOMI', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(113, 'PWK3360', 'MK-KERJA PRAKTEK', 3, 'T', 'Kampus Merdeka - PERENCANAAN WILAYAH DAN KOTA', 1, 'FELA WAROUW ST, M.Eng, Ph.D', 'RAYMOND DEYVEN CHRISTMA TARORE ST, MT', NULL, NULL, NULL, NULL),
+(114, 'JER 3502', 'POKOK DAN TOKOH SASTRA (PILIHAN)', 2, 'SASJER (Kur.2020/2021)', 'Kampus Merdeka - SASTRA JERMAN', 1, 'Dra. ROSIJANIH ARBIE M.Hum', NULL, NULL, 'Kamis', '11:40', '13:20'),
+(115, 'JER 3492', 'PSIKOLINGUISTIK (PILIHAN)', 2, 'SASJER (Kur.2020/2021)', 'Kampus Merdeka - SASTRA JERMAN', 1, 'VANY KAMU S.Pd, M.Hum', 'Dr VIVI NANSY TUMUJU SS, M.Hum', NULL, 'Jumat', '08:00', '09:40'),
+(116, 'JER 3482', 'SEMIOTIK (PILIHAN)', 2, 'SASJER (Kur.2020/2021)', 'Kampus Merdeka - SASTRA JERMAN', 1, 'NOVA OLVIE MANDOLANG S.S, M.Hum', NULL, NULL, 'Kamis', '09:50', '11:30'),
+(117, 'TSL4120', 'PRAKTIK KERJA TEKNIK SIPIL', 13, 'PKTS', 'Kampus Merdeka - TEKNIK SIPIL', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(118, 'TSL4050', 'KULIAH KERJA TERPADU', 4, 'KKT', 'Kampus Merdeka - TEKNIK SIPIL', 1, 'Dr.Eng. CINDY JEANE SUPIT ST, M.Si', NULL, NULL, NULL, NULL, NULL),
+(119, 'FIS 4750', 'MAGANG', 3, 'MAGANG', 'Kampus Merdeka - FISIKA', 1, 'Dr. HANNY FRANS SANGIAN S.Pd., M.Si', 'GUNTUR PASAU S.Si, M.Si', NULL, 'Jumat', '09:00', '11:00'),
+(120, 'SKA9800', 'Rumah Sakit Jejaring - 2', 3, 'RSBK-B', 'Kampus Merdeka - ILMU KESEHATAN ANAK', 1, 'Prof. Dr.dr. JEANETTE IRENE C H MANOPPO Sp.A(K)', NULL, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `khs`
+--
+
+CREATE TABLE `khs` (
+  `id` int NOT NULL,
+  `nim` varchar(20) NOT NULL,
+  `kode_mk` varchar(20) NOT NULL,
+  `nama_mk` varchar(100) NOT NULL,
+  `kelas` varchar(20) DEFAULT 'A',
+  `sks` int NOT NULL DEFAULT '3',
+  `nilai_huruf` varchar(5) DEFAULT NULL,
+  `bobot` decimal(3,2) DEFAULT '0.00',
+  `semester` int DEFAULT '1',
+  `tahun_akademik` varchar(20) DEFAULT NULL,
+  `periode` varchar(10) DEFAULT NULL,
+  `dosen1` varchar(100) DEFAULT NULL,
+  `nilai_dosen1` decimal(5,2) DEFAULT NULL,
+  `dosen2` varchar(100) DEFAULT NULL,
+  `nilai_dosen2` decimal(5,2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `khs`
+--
+
+INSERT INTO `khs` (`id`, `nim`, `kode_mk`, `nama_mk`, `kelas`, `sks`, `nilai_huruf`, `bobot`, `semester`, `tahun_akademik`, `periode`, `dosen1`, `nilai_dosen1`, `dosen2`, `nilai_dosen2`, `created_at`) VALUES
+(1, '220211060323', 'TIK1101', 'Pendidikan Agama Kristen Protestan', 'TIK1101A', 2, 'B', 3.00, 1, '2022/2023', 'Gasal', 'Ferta Dina Pontoh', 70.00, 'ALWIN MELKIE SAMBUL', 70.00, '2026-02-01 05:40:10'),
+(2, '220211060323', 'TIK1021', 'Pancasila', 'TIK1021C', 2, 'B+', 3.50, 1, '2022/2023', 'Gasal', 'PINROLINVIC DUADELFRI KURNIALIMKI MANEMBU', 83.00, 'MARKUS KARAMOY UMBOH', 72.00, '2026-02-01 05:40:10'),
+(3, '220211060323', 'TIK1031', 'Bahasa Indonesia', 'TIK1031C', 2, 'A', 4.00, 1, '2022/2023', 'Gasal', 'DRINGHUZEN JEKKE MAMAHIT', 95.00, NULL, NULL, '2026-02-01 05:40:10'),
+(4, '220211060323', 'TIK1041', 'Kewarganegaraan', 'TIK1041B', 2, 'D', 1.00, 1, '2022/2023', 'Gasal', 'VIRGINIA TULENAN', 50.00, 'BRAVE ANGKASA SUGIARSO', 50.00, '2026-02-01 05:40:10'),
+(5, '220211060323', 'TIK1051', 'Matematika Diskrit', 'TIK1051C', 3, 'E', 0.00, 1, '2022/2023', 'Gasal', 'PINROLINVIC DUADELFRI KURNIALIMKI MANEMBU', 40.40, NULL, NULL, '2026-02-01 05:40:10'),
+(6, '220211060323', 'TIK1061', 'Kalkulus', 'TIK1061C', 3, 'C+', 2.50, 1, '2022/2023', 'Gasal', 'DANIEL FEBRIAN SENGKEY', 68.69, NULL, NULL, '2026-02-01 05:40:10'),
+(7, '220211060323', 'TIK1071', 'Probabilitas Dan Statistika', 'TIK1071C', 2, 'E', 0.00, 1, '2022/2023', 'Gasal', 'DANIEL FEBRIAN SENGKEY', 0.00, NULL, NULL, '2026-02-01 05:40:10'),
+(8, '220211060323', 'TIK1081', 'Algoritma Dan Pemrograman Komputer', 'TIK1081C', 4, 'C+', 2.50, 1, '2022/2023', 'Gasal', 'RIZAL SENGKEY', 66.00, NULL, NULL, '2026-02-01 05:40:10'),
+(9, '220211060323', 'TIK1091', 'Prak. Algoritma Dan Pemrograman Komputer', 'TIK1091A', 1, 'C+', 2.50, 1, '2022/2023', 'Gasal', 'SHERWIN REINALDO U ALDO SOMPIE', 69.00, NULL, NULL, '2026-02-01 05:40:10'),
+(10, '220211060323', 'TIK1012', 'Bahasa Inggris', 'C', 2, 'C', 2.00, 2, '2022/2023', 'Genap', 'REINHARD KOMANSILAN', 62.00, NULL, NULL, '2026-02-01 05:40:10'),
+(11, '220211060323', 'TIK1022', 'Pengetahuan Kepasifikan', 'C', 2, 'A', 4.00, 2, '2022/2023', 'Genap', 'HENRY VALENTINO FLORENSIUS KAINDE', 82.00, NULL, NULL, '2026-02-01 05:40:10'),
+(12, '220211060323', 'TIK1032', 'Pengantar Teknik Informatika', 'C', 2, 'C', 2.00, 2, '2022/2023', 'Genap', 'HANS FREDRIK WOWOR', 62.00, NULL, NULL, '2026-02-01 05:40:10'),
+(13, '220211060323', 'TIK1042', 'Aljabar Linear', 'C', 2, 'E', 0.00, 2, '2022/2023', 'Genap', 'ARIE SALMON MATIUS LUMENTA', 19.58, NULL, NULL, '2026-02-01 05:40:10'),
+(14, '220211060323', 'TIK1052', 'Metode Numerik', 'C', 3, 'E', 0.00, 2, '2022/2023', 'Genap', 'ARIE SALMON MATIUS LUMENTA', 45.71, NULL, NULL, '2026-02-01 05:40:10'),
+(15, '220211060323', 'TIK1072', 'Komputer Dan Masyarakat', 'C', 2, 'B+', 3.50, 2, '2022/2023', 'Genap', 'NANCY JEANE TUTUROONG', 77.50, NULL, NULL, '2026-02-01 05:40:10'),
+(16, '220211060323', 'TIK1082', 'Basis Data', 'C', 3, 'B', 3.00, 2, '2022/2023', 'Genap', 'HANS FREDRIK WOWOR', 75.00, NULL, NULL, '2026-02-01 05:40:10'),
+(17, '220211060323', 'TIK1092', 'Praktikum Basis Data', 'C', 1, 'E', 0.00, 2, '2022/2023', 'Genap', 'HANS FREDRIK WOWOR', 4.60, NULL, NULL, '2026-02-01 05:40:10'),
+(18, '220211060323', 'TIK1071', 'Probabilitas Dan Statistika', 'E', 2, 'C', 2.00, 3, '2023/2024', 'Gasal', 'KENNETH YOSUA R PALILINGAN', 50.00, NULL, NULL, '2026-02-01 05:40:10'),
+(19, '220211060323', 'TIK2011', 'Sistem Informasi', 'H', 3, 'B', 3.00, 3, '2023/2024', 'Gasal', 'FRANSISCA JOANET PONTOH', 70.00, NULL, NULL, '2026-02-01 05:40:10'),
+(20, '220211060323', 'TIK2021', 'Arsitektur Dan Organisasi Komputer', 'H', 3, 'A', 4.00, 3, '2023/2024', 'Gasal', 'HARNI SEVEN ADINATA', 85.20, NULL, NULL, '2026-02-01 05:40:10'),
+(21, '220211060323', 'TIK2031', 'Sistem Operasi', 'H', 3, 'B', 3.00, 3, '2023/2024', 'Gasal', 'BERNAD JUMADI DEHOTMAN SITOMPUL', 68.23, NULL, NULL, '2026-02-01 05:40:10'),
+(22, '220211060323', 'TIK2051', 'Rekayasa Perangkat Lunak', 'H', 3, 'A', 4.00, 3, '2023/2024', 'Gasal', 'REINHARD KOMANSILAN', 91.00, NULL, NULL, '2026-02-01 05:40:10'),
+(23, '220211060323', 'TIK2061', 'Teknologi Basis Data', 'A', 3, 'A', 4.00, 3, '2023/2024', 'Gasal', 'DIRKO GUSTAAFIANO SETYADHARMAPUTRA RUINDUNGAN', 82.00, NULL, NULL, '2026-02-01 05:40:10'),
+(24, '220211060323', 'TIK2012', 'Interaksi Manusia Dan Komputer', 'G', 4, 'A', 4.00, 4, '2023/2024', 'Genap', 'VIRGINIA TULENAN', 80.00, NULL, NULL, '2026-02-01 05:40:10'),
+(25, '220211060323', 'TIK2022', 'Kecerdasan Buatan', 'G', 2, 'A', 4.00, 4, '2023/2024', 'Genap', 'MUHAMAD DWISNANTO PUTRO', 81.00, 'RENDY SYAHPUTRA', 81.00, '2026-02-01 05:40:10'),
+(26, '220211060323', 'TIK2032', 'Pemrograman Web', 'G', 3, 'D', 1.00, 4, '2023/2024', 'Genap', 'SHERWIN REINALDO U ALDO SOMPIE', 54.59, 'VICTOR TARIGAN', 54.69, '2026-02-01 05:40:10'),
+(27, '220211060323', 'TIK2042', 'Pemodelan Dan Simulasi Komputer', 'G', 3, 'D', 1.00, 4, '2023/2024', 'Genap', 'OKTAVIAN ABRAHAM LANTANG', 56.55, 'WAHYUNI FITHRATUL ZALMI', 56.50, '2026-02-01 05:40:10'),
+(28, '220211060323', 'TIK2052', 'Pengolahan Citra Digital', 'G', 3, 'B+', 3.50, 4, '2023/2024', 'Genap', 'ARTHUR MOURITS RUMAGIT', 76.00, 'PUJO HARI SAPUTRO', 76.00, '2026-02-01 05:40:10'),
+(29, '220211060323', 'TIK2062', 'Jaringan Dan Komunikasi Data', 'G', 3, 'A', 4.00, 4, '2023/2024', 'Genap', 'SALVIUS PAULUS LENGKONG', 80.00, NULL, NULL, '2026-02-01 05:40:10'),
+(30, '220211060323', 'TIK2072', 'Praktikum Jaringan Dan Komunikasi Data', 'G', 1, 'E', 0.00, 4, '2023/2024', 'Genap', 'SALVIUS PAULUS LENGKONG', 40.00, NULL, NULL, '2026-02-01 05:40:10'),
+(31, '220211060323', 'TIK1041', 'Kewarganegaraan', 'D', 2, 'B+', 3.50, 5, '2024/2025', 'Gasal', 'ADE YUSUPA', 78.00, NULL, NULL, '2026-02-01 05:40:10'),
+(32, '220211060323', 'TIK2041', 'Struktur Data', 'A', 3, 'A', 4.00, 5, '2024/2025', 'Gasal', 'ALWIN MELKIE SAMBUL', 100.00, 'VICTOR TARIGAN', 72.00, '2026-02-01 05:40:10'),
+(33, '220211060323', 'TIK3011', 'Pembelajaran Mesin', 'B', 3, 'D', 1.00, 5, '2024/2025', 'Gasal', 'SHERWIN REINALDO U ALDO SOMPIE', 53.20, NULL, NULL, '2026-02-01 05:40:10'),
+(34, '220211060323', 'TIK3021', 'Pengembangan Game', 'E', 3, 'E', 0.00, 5, '2024/2025', 'Gasal', 'ADE YUSUPA', 3.00, NULL, NULL, '2026-02-01 05:40:10'),
+(35, '220211060323', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 'B', 3, 'E', 0.00, 5, '2024/2025', 'Gasal', 'JIMMY REAGEN ROBOT', 0.00, NULL, NULL, '2026-02-01 05:40:10'),
+(36, '220211060323', 'TIK3041', 'Komputasi Awan', 'D', 2, 'B', 3.00, 5, '2024/2025', 'Gasal', 'ARTHUR MOURITS RUMAGIT', 73.00, 'PUJO HARI SAPUTRO', 73.00, '2026-02-01 05:40:10'),
+(37, '220211060323', 'TIK3051', 'Sistem Multimedia', 'B', 3, 'B+', 3.50, 5, '2024/2025', 'Gasal', 'JIMMY REAGEN ROBOT', 79.00, NULL, NULL, '2026-02-01 05:40:10'),
+(38, '220211060323', 'TIK3061', 'Praktikum Sistem Multimedia', 'B', 1, 'B+', 3.50, 5, '2024/2025', 'Gasal', 'JIMMY REAGEN ROBOT', 79.00, NULL, NULL, '2026-02-01 05:40:10'),
+(39, '220211060323', 'TIK3022', 'Riset Informatika', 'A', 3, 'C', 2.00, 6, '2024/2025', 'Genap', 'JIMMY REAGEN ROBOT', 60.00, NULL, NULL, '2026-02-01 05:40:10'),
+(40, '220211060323', 'TIK3032', 'Kewirausahaan', 'F', 2, 'A', 4.00, 6, '2024/2025', 'Genap', 'ARTHUR MOURITS RUMAGIT', 84.00, NULL, NULL, '2026-02-01 05:40:10'),
+(41, '220211060323', 'TIK3042', 'Topik Khusus Teknik Informatika', 'E', 2, 'B+', 3.50, 6, '2024/2025', 'Genap', 'KENNETH YOSUA R PALILINGAN', 78.00, NULL, NULL, '2026-02-01 05:40:10'),
+(42, '220211060323', 'TIK3052', 'Kecakapan Antar Personal', 'D', 2, 'A', 4.00, 6, '2024/2025', 'Genap', 'ADE YUSUPA', 88.00, NULL, NULL, '2026-02-01 05:40:10'),
+(43, '220211060323', 'TIK3062', 'Keamanan Siber', 'B', 3, 'A', 4.00, 6, '2024/2025', 'Genap', 'HEILBERT ARMANDO MAPALY', 90.00, NULL, NULL, '2026-02-01 05:40:10'),
+(44, '220211060323', 'TIK3072', 'Praktikum Keamanan Siber', 'B', 1, 'B+', 3.50, 6, '2024/2025', 'Genap', 'HEILBERT ARMANDO MAPALY', 76.00, NULL, NULL, '2026-02-01 05:40:10'),
+(45, '220211060323', 'TIK3132', 'Data Mining', 'A', 2, 'A', 4.00, 6, '2024/2025', 'Genap', 'OKTAVIAN ABRAHAM LANTANG', 90.00, NULL, NULL, '2026-02-01 05:40:10'),
+(46, '220211060323', 'TIK3182', 'Pengembangan Aplikasi Desktop', 'A', 2, 'A', 4.00, 6, '2024/2025', 'Genap', 'DIRKO GUSTAAFIANO SETYADHARMAPUTRA RUINDUNGAN', 82.00, NULL, NULL, '2026-02-01 05:40:10'),
+(47, '220211060323', 'TIK3192', 'Pengembangan Aplikasi Web Berbasis Framework', 'A', 2, 'C', 2.00, 6, '2024/2025', 'Genap', 'XAVERIUS B.N. NAJOAN', 60.10, NULL, NULL, '2026-02-01 05:40:10'),
+(48, '220211060323', 'TIK2071', 'Praktikum Teknologi Basis Data', 'A', 1, 'A', 4.00, 7, '2025/2026', 'Gasal', 'DIRKO GUSTAAFIANO SETYADHARMAPUTRA RUINDUNGAN ST, M.Eng', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(49, '220211060323', 'TIK3011', 'Pembelajaran Mesin', 'C', 3, 'A', 4.00, 7, '2025/2026', 'Gasal', 'OKTAVIAN ABRAHAM LANTANG ST, MTI, Ph.D', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(50, '220211060323', 'TIK3021', 'Pengembangan Game', 'C', 3, 'A', 4.00, 7, '2025/2026', 'Gasal', 'Ir. SUMENGE TANGKAWAROUW GODION KAUNANG MT, Ph.D', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(51, '220211060323', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 'C', 3, 'A', 4.00, 7, '2025/2026', 'Gasal', 'BRAVE ANGKASA SUGIARSO ST', NULL, 'WAHYUNI FITHRATUL ZALMI S.Kom., M.Kom', NULL, '2026-02-01 05:40:10'),
+(52, '220211060323', 'TIK4030', 'Seminar Dan Praktek Profesional', 'B', 3, 'A', 4.00, 7, '2025/2026', 'Gasal', 'ALWIN MELKIE SAMBUL ST, M.Eng, Ph.D.', NULL, 'VICTOR TARIGAN M.Kom', NULL, '2026-02-01 05:40:10'),
+(53, '220211060323', 'TIK4041', 'Grafika Komputer', 'B', 2, 'A', 4.00, 7, '2025/2026', 'Gasal', 'RIZAL SENGKEY ST, MT', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(54, '220211060323', 'TIK4051', 'Etika Profesi', 'B', 2, 'A', 4.00, 7, '2025/2026', 'Gasal', 'DRINGHUZEN JEKKE MAMAHIT ST, MT', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(55, '220211060323', 'TIK4061', 'Kriptografi', 'B', 2, 'A', 4.00, 7, '2025/2026', 'Gasal', 'RENDY SYAHPUTRA S.Kom., M.Kom', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(56, '220211060323', 'TIK1071', 'Probabilitas Dan Statistika', 'A', 2, 'A', 4.00, 7, '2025/2026', 'Gasal', 'KENNETH YOSUA R PALILINGAN ST, MT', NULL, NULL, NULL, '2026-02-01 05:40:10'),
+(57, '220211060323', 'TIK1051', 'Matematika Diskrit', 'A', 3, 'B', 3.00, 7, '2025/2026', 'Gasal', 'Dr.Eng. SARY DIANE EKAWATI PATURUSI ST, M.Eng', NULL, 'PUJO HARI SAPUTRO S.Kom., M.T', NULL, '2026-02-01 05:40:10'),
+(58, '220211060242', 'TIK1101', 'Pendidikan Agama Kristen Protestan', 'A', 2, 'A', 4.00, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(59, '220211060242', 'TIK1021', 'Pancasila', 'A', 2, 'A', 4.00, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(60, '220211060242', 'TIK1031', 'Bahasa Indonesia', 'A', 2, 'A', 4.00, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(61, '220211060242', 'TIK1041', 'Kewarganegaraan', 'A', 2, 'B+', 3.50, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(62, '220211060242', 'TIK1051', 'Matematika Diskrit', 'A', 3, 'C', 2.00, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(63, '220211060242', 'TIK1061', 'Kalkulus', 'A', 3, 'B+', 3.50, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(64, '220211060242', 'TIK1071', 'Probabilitas Dan Statistika', 'A', 2, 'C', 2.00, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(65, '220211060242', 'TIK1081', 'Algoritma Dan Pemrograman Komputer', 'A', 4, 'C+', 2.50, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(66, '220211060242', 'TIK1091', 'Prak. Algoritma Dan Pemrograman Komputer', 'A', 1, 'A', 4.00, 1, '2022/2023', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(67, '220211060242', 'TIK1012', 'Bahasa Inggris', 'A', 2, 'B', 3.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(68, '220211060242', 'TIK1022', 'Pengetahuan Kepasifikan', 'A', 2, 'A', 4.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(69, '220211060242', 'TIK1032', 'Pengantar Teknik Informatika', 'A', 2, 'A', 4.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(70, '220211060242', 'TIK1042', 'Aljabar Linear', 'A', 2, 'B+', 3.50, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(71, '220211060242', 'TIK1052', 'Metode Numerik', 'A', 3, 'E', 0.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(72, '220211060242', 'TIK1062', 'Teori Bahasa Dan Automata', 'A', 3, 'A', 4.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(73, '220211060242', 'TIK1072', 'Komputer Dan Masyarakat', 'A', 2, 'B', 3.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(74, '220211060242', 'TIK1082', 'Basis Data', 'A', 3, 'B', 3.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(75, '220211060242', 'TIK1092', 'Praktikum Basis Data', 'A', 1, 'A', 4.00, 2, '2022/2023', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(76, '220211060242', 'TIK2011', 'Sistem Informasi', 'A', 3, 'B', 3.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(77, '220211060242', 'TIK2021', 'Arsitektur Dan Organisasi Komputer', 'A', 3, 'A', 4.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(78, '220211060242', 'TIK2031', 'Sistem Operasi', 'A', 3, 'B', 3.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(79, '220211060242', 'TIK2041', 'Struktur Data', 'A', 3, 'A', 4.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(80, '220211060242', 'TIK2051', 'Rekayasa Perangkat Lunak', 'A', 3, 'A', 4.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(81, '220211060242', 'TIK2061', 'Teknologi Basis Data', 'A', 3, 'C', 2.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(82, '220211060242', 'TIK2071', 'Praktikum Teknologi Basis Data', 'A', 1, 'A', 4.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(83, '220211060242', 'TIK3041', 'Komputasi Awan', 'A', 2, 'A', 4.00, 3, '2023/2024', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(84, '220211060242', 'TIK2012', 'Interaksi Manusia Dan Komputer', 'A', 4, 'A', 4.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(85, '220211060242', 'TIK2022', 'Kecerdasan Buatan', 'A', 2, 'A', 4.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(86, '220211060242', 'TIK2032', 'Pemrograman Web', 'A', 3, 'B', 3.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(87, '220211060242', 'TIK2042', 'Pemodelan Dan Simulasi Komputer', 'A', 3, 'A', 4.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(88, '220211060242', 'TIK3032', 'Kewirausahaan', 'A', 2, 'A', 4.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(89, '220211060242', 'TIK2052', 'Pengolahan Citra Digital', 'A', 3, 'A', 4.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(90, '220211060242', 'TIK2062', 'Jaringan Dan Komunikasi Data', 'A', 3, 'B+', 3.50, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(91, '220211060242', 'TIK2072', 'Praktikum Jaringan Dan Komunikasi Data', 'A', 1, 'B', 3.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(92, '220211060242', 'TIK3052', 'Kecakapan Antar Personal', 'A', 2, 'A', 4.00, 4, '2023/2024', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(93, '220211060242', 'TIK3151', 'Teknik Perutean Jaringan', 'A', 2, 'A', 4.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(94, '220211060242', 'TIK3161', 'Teknik Administrasi Server', 'A', 2, 'D', 1.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(95, '220211060242', 'TIK4041', 'Grafika Komputer', 'A', 2, 'A', 4.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(96, '220211060242', 'TIK4061', 'Kriptografi', 'A', 2, 'A', 4.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(97, '220211060242', 'TIK3011', 'Pembelajaran Mesin', 'A', 3, 'B+', 3.50, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(98, '220211060242', 'TIK3021', 'Pengembangan Game', 'A', 3, 'A', 4.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(99, '220211060242', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 'A', 3, 'B+', 3.50, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(100, '220211060242', 'TIK3051', 'Sistem Multimedia', 'A', 3, 'D', 1.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(101, '220211060242', 'TIK3061', 'Praktikum Sistem Multimedia', 'A', 1, 'E', 0.00, 5, '2024/2025', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(102, '220211060242', 'TIK3012', 'Bioinformatika', 'A', 3, 'B+', 3.50, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(103, '220211060242', 'TIK3022', 'Riset Informatika', 'A', 3, 'C', 2.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(104, '220211060242', 'TIK3162', 'Pemrograman Jaringan', 'A', 2, 'B', 3.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(105, '220211060242', 'TIK1052', 'Metode Numerik', 'A', 3, 'C', 2.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(106, '220211060242', 'TIK3042', 'Topik Khusus Teknik Informatika', 'A', 2, 'A', 4.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(107, '220211060242', 'TIK3062', 'Keamanan Siber', 'A', 3, 'A', 4.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(108, '220211060242', 'TIK3072', 'Praktikum Keamanan Siber', 'A', 1, 'A', 4.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(109, '220211060242', 'TIK4030', 'Seminar Dan Praktek Profesional', 'A', 3, 'B', 3.00, 6, '2024/2025', 'Genap', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(110, '220211060242', 'TIK3051', 'Sistem Multimedia', 'A', 3, 'D', 1.00, 7, '2025/2026', 'Gasal', 'YURI VANLI AKAY', 53.00, NULL, NULL, '2026-02-01 08:48:00'),
+(111, '220211060242', 'TIK3061', 'Praktikum Sistem Multimedia', 'A', 1, 'C', 2.00, 7, '2025/2026', 'Gasal', 'YURI VANLI AKAY', 60.00, NULL, NULL, '2026-02-01 08:48:00'),
+(112, '220211060242', 'TIK4010', 'Kkt', 'A', 4, 'A', 4.00, 7, '2025/2026', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(113, '220211060242', 'TIK4020', 'Magang', 'A', 3, 'N', 0.00, 7, '2025/2026', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00'),
+(114, '220211060242', 'TIK4051', 'Etika Profesi', 'A', 2, 'A', 4.00, 7, '2025/2026', 'Gasal', NULL, NULL, NULL, NULL, '2026-02-01 08:48:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `krs`
 --
 
 CREATE TABLE `krs` (
@@ -215,7 +509,7 @@ INSERT INTO `mata_kuliah` (`id`, `kode_mk`, `nama_mk`, `sks`, `semester`, `jenis
 (10, 'TIK1012', 'Bahasa Inggris', 2, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
 (11, 'TIK1022', 'Pengetahuan Kepasifikan', 2, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
 (12, 'TIK1032', 'Pengantar Teknik Informatika', 2, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
-(13, 'TIK1042', 'Aljabar Linier', 2, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
+(13, 'TIK1042', 'Aljabar Linear', 2, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
 (14, 'TIK1052', 'Metode Numerik', 3, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
 (15, 'TIK1062', 'Teori Bahasa dan Automata', 3, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
 (16, 'TIK1072', 'Komputer dan Masyarakat', 2, 2, 'wajib', NULL, '2026-01-15 17:49:44'),
@@ -290,7 +584,8 @@ INSERT INTO `mata_kuliah` (`id`, `kode_mk`, `nama_mk`, `sks`, `semester`, `jenis
 (85, 'TIK3182', 'Pengembangan Aplikasi Desktop', 2, 6, 'pilihan', 'Software Development', '2026-01-15 17:49:44'),
 (86, 'TIK3192', 'Pengembangan Aplikasi Web Berbasis Framework', 2, 6, 'pilihan', 'Software Development', '2026-01-15 17:49:44'),
 (87, 'TIK4141', 'Manajemen Proyek Perangkat Lunak', 2, 7, 'pilihan', 'Software Development', '2026-01-15 17:49:44'),
-(88, 'TIK4151', 'Kualitas Perangkat Lunak', 2, 7, 'pilihan', 'Software Development', '2026-01-15 17:49:44');
+(88, 'TIK4151', 'Kualitas Perangkat Lunak', 2, 7, 'pilihan', 'Software Development', '2026-01-15 17:49:44'),
+(89, 'TIK1101', 'Pendidikan Agama Kristen Protestan', 2, 1, 'wajib', NULL, '2026-02-01 07:51:34');
 
 -- --------------------------------------------------------
 
@@ -343,16 +638,16 @@ CREATE TABLE `perencanaan_studi` (
 --
 
 INSERT INTO `perencanaan_studi` (`id`, `nim`, `kode_mk`, `created_at`) VALUES
-(27, '220211060323', 'TIK2072', '2026-01-16 09:14:44'),
-(31, '220211060323', 'TIK3122', '2026-01-16 09:15:25'),
-(32, '220211060323', 'TIK3142', '2026-01-16 09:15:28'),
-(36, '220211060323', 'TIK1062', '2026-01-16 10:31:11'),
-(37, '220211060323', 'TIK2042', '2026-01-16 10:31:13'),
-(38, '220211060323', 'TIK2032', '2026-01-16 10:31:13'),
-(39, '220211060323', 'TIK1092', '2026-01-16 10:31:14'),
-(41, '220211060323', 'TIK1042', '2026-01-16 10:31:16'),
-(42, '220211060323', 'TIK1052', '2026-01-16 10:33:36'),
-(43, '220211060323', 'TIK3012', '2026-01-16 10:35:36');
+(69, '220211060323', 'TIK1042', '2026-02-01 07:33:50'),
+(70, '220211060323', 'TIK1052', '2026-02-01 07:33:50'),
+(71, '220211060323', 'TIK1092', '2026-02-01 07:33:51'),
+(72, '220211060323', 'TIK2032', '2026-02-01 07:33:52'),
+(73, '220211060323', 'TIK2042', '2026-02-01 07:33:52'),
+(74, '220211060323', 'TIK2072', '2026-02-01 07:33:52'),
+(75, '220211060323', 'TIK1062', '2026-02-01 07:34:00'),
+(76, '220211060323', 'TIK3012', '2026-02-01 07:34:01'),
+(77, '220211060323', 'TIK4020', '2026-02-01 07:34:03'),
+(78, '220211060323', 'TIK3142', '2026-02-01 07:34:07');
 
 -- --------------------------------------------------------
 
@@ -381,9 +676,9 @@ INSERT INTO `transkrip` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `nilai_huruf`
 (2, '220211060323', 'TIK1021', 'Pancasila', 2, 'B+', 3.50, 1, '2026-01-15 17:49:44'),
 (3, '220211060323', 'TIK1031', 'Bahasa Indonesia', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
 (4, '220211060323', 'TIK1041', 'Kewarganegaraan', 2, 'B+', 3.50, 1, '2026-01-15 17:49:44'),
-(5, '220211060323', 'TIK1051', 'Matematika Diskrit', 3, 'E', 0.00, 1, '2026-01-15 17:49:44'),
+(5, '220211060323', 'TIK1051', 'Matematika Diskrit', 3, 'B', 3.00, 1, '2026-01-15 17:49:44'),
 (6, '220211060323', 'TIK1061', 'Kalkulus', 3, 'C+', 2.50, 1, '2026-01-15 17:49:44'),
-(7, '220211060323', 'TIK1071', 'Probabilitas Dan Statistika', 2, 'D', 1.00, 1, '2026-01-15 17:49:44'),
+(7, '220211060323', 'TIK1071', 'Probabilitas Dan Statistika', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
 (8, '220211060323', 'TIK1081', 'Algoritma Dan Pemrograman Komputer', 4, 'C+', 2.50, 1, '2026-01-15 17:49:44'),
 (9, '220211060323', 'TIK1091', 'Prak. Algoritma Dan Pemrograman Komputer', 1, 'C+', 2.50, 1, '2026-01-15 17:49:44'),
 (10, '220211060323', 'TIK1012', 'Bahasa Inggris', 2, 'C', 2.00, 2, '2026-01-15 17:49:44'),
@@ -407,9 +702,9 @@ INSERT INTO `transkrip` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `nilai_huruf`
 (28, '220211060323', 'TIK2052', 'Pengolahan Citra Digital', 3, 'B+', 3.50, 4, '2026-01-15 17:49:44'),
 (29, '220211060323', 'TIK2062', 'Jaringan Dan Komunikasi Data', 3, 'A', 4.00, 4, '2026-01-15 17:49:44'),
 (30, '220211060323', 'TIK2072', 'Praktikum Jaringan Dan Komunikasi Data', 1, 'E', 0.00, 4, '2026-01-15 17:49:44'),
-(31, '220211060323', 'TIK3011', 'Pembelajaran Mesin', 3, 'D', 1.00, 5, '2026-01-15 17:49:44'),
-(32, '220211060323', 'TIK3021', 'Pengembangan Game', 3, 'E', 0.00, 5, '2026-01-15 17:49:44'),
-(33, '220211060323', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 3, 'E', 0.00, 5, '2026-01-15 17:49:44'),
+(31, '220211060323', 'TIK3011', 'Pembelajaran Mesin', 3, 'A', 4.00, 5, '2026-01-15 17:49:44'),
+(32, '220211060323', 'TIK3021', 'Pengembangan Game', 3, 'A', 4.00, 5, '2026-01-15 17:49:44'),
+(33, '220211060323', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 3, 'A', 4.00, 5, '2026-01-15 17:49:44'),
 (34, '220211060323', 'TIK3041', 'Komputasi Awan', 2, 'B', 3.00, 5, '2026-01-15 17:49:44'),
 (35, '220211060323', 'TIK3051', 'Sistem Multimedia', 3, 'B+', 3.50, 5, '2026-01-15 17:49:44'),
 (36, '220211060323', 'TIK3061', 'Praktikum Sistem Multimedia', 1, 'B+', 3.50, 5, '2026-01-15 17:49:44'),
@@ -422,57 +717,65 @@ INSERT INTO `transkrip` (`id`, `nim`, `kode_mk`, `nama_mk`, `sks`, `nilai_huruf`
 (43, '220211060323', 'TIK3132', 'Data Mining', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
 (44, '220211060323', 'TIK3182', 'Pengembangan Aplikasi Desktop', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
 (45, '220211060323', 'TIK3192', 'Pengembangan Aplikasi Web Berbasis Framework', 2, 'C', 2.00, 6, '2026-01-15 17:49:44'),
-(46, '220211060242', 'TIK1021', 'Pancasila', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
-(47, '220211060242', 'TIK1031', 'Bahasa Indonesia', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
-(48, '220211060242', 'TIK1041', 'Kewarganegaraan', 2, 'B+', 3.50, 1, '2026-01-15 17:49:44'),
-(49, '220211060242', 'TIK1051', 'Matematika Diskrit', 3, 'C', 2.00, 1, '2026-01-15 17:49:44'),
-(50, '220211060242', 'TIK1061', 'Kalkulus', 3, 'B+', 3.50, 1, '2026-01-15 17:49:44'),
-(51, '220211060242', 'TIK1071', 'Probabilitas Dan Statistika', 2, 'C', 2.00, 1, '2026-01-15 17:49:44'),
-(52, '220211060242', 'TIK1081', 'Algoritma Dan Pemrograman Komputer', 4, 'C+', 2.50, 1, '2026-01-15 17:49:44'),
-(53, '220211060242', 'TIK1091', 'Prak. Algoritma Dan Pemrograman Komputer', 1, 'A', 4.00, 1, '2026-01-15 17:49:44'),
-(54, '220211060242', 'TIK1101', 'Pendidikan Agama Kristen Protestan', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
-(55, '220211060242', 'TIK1012', 'Bahasa Inggris', 2, 'B', 3.00, 2, '2026-01-15 17:49:44'),
-(56, '220211060242', 'TIK1022', 'Pengetahuan Kepasifikan', 2, 'A', 4.00, 2, '2026-01-15 17:49:44'),
-(57, '220211060242', 'TIK1032', 'Pengantar Teknik Informatika', 2, 'A', 4.00, 2, '2026-01-15 17:49:44'),
-(58, '220211060242', 'TIK1042', 'Aljabar Linear', 2, 'B+', 3.50, 2, '2026-01-15 17:49:44'),
-(59, '220211060242', 'TIK1052', 'Metode Numerik', 3, 'C', 2.00, 2, '2026-01-15 17:49:44'),
-(60, '220211060242', 'TIK1062', 'Teori Bahasa Dan Automata', 3, 'A', 4.00, 2, '2026-01-15 17:49:44'),
-(61, '220211060242', 'TIK1072', 'Komputer Dan Masyarakat', 2, 'B', 3.00, 2, '2026-01-15 17:49:44'),
-(62, '220211060242', 'TIK1082', 'Basis Data', 3, 'B', 3.00, 2, '2026-01-15 17:49:44'),
-(63, '220211060242', 'TIK1092', 'Praktikum Basis Data', 1, 'A', 4.00, 2, '2026-01-15 17:49:44'),
-(64, '220211060242', 'TIK2011', 'Sistem Informasi', 3, 'B', 3.00, 3, '2026-01-15 17:49:44'),
-(65, '220211060242', 'TIK2021', 'Arsitektur Dan Organisasi Komputer', 3, 'A', 4.00, 3, '2026-01-15 17:49:44'),
-(66, '220211060242', 'TIK2031', 'Sistem Operasi', 3, 'B', 3.00, 3, '2026-01-15 17:49:44'),
-(67, '220211060242', 'TIK2041', 'Struktur Data', 3, 'A', 4.00, 3, '2026-01-15 17:49:44'),
-(68, '220211060242', 'TIK2051', 'Rekayasa Perangkat Lunak', 3, 'A', 4.00, 3, '2026-01-15 17:49:44'),
-(69, '220211060242', 'TIK2061', 'Teknologi Basis Data', 3, 'C', 2.00, 3, '2026-01-15 17:49:44'),
-(70, '220211060242', 'TIK2071', 'Praktikum Teknologi Basis Data', 1, 'A', 4.00, 3, '2026-01-15 17:49:44'),
-(71, '220211060242', 'TIK2012', 'Interaksi Manusia Dan Komputer', 4, 'A', 4.00, 4, '2026-01-15 17:49:44'),
-(72, '220211060242', 'TIK2022', 'Kecerdasan Buatan', 2, 'A', 4.00, 4, '2026-01-15 17:49:44'),
-(73, '220211060242', 'TIK2032', 'Pemrograman Web', 3, 'B', 3.00, 4, '2026-01-15 17:49:44'),
-(74, '220211060242', 'TIK2042', 'Pemodelan Dan Simulasi Komputer', 3, 'A', 4.00, 4, '2026-01-15 17:49:44'),
-(75, '220211060242', 'TIK2052', 'Pengolahan Citra Digital', 3, 'A', 4.00, 4, '2026-01-15 17:49:44'),
-(76, '220211060242', 'TIK2062', 'Jaringan Dan Komunikasi Data', 3, 'B+', 3.50, 4, '2026-01-15 17:49:44'),
-(77, '220211060242', 'TIK2072', 'Praktikum Jaringan Dan Komunikasi Data', 1, 'B', 3.00, 4, '2026-01-15 17:49:44'),
-(78, '220211060242', 'TIK3011', 'Pembelajaran Mesin', 3, 'B+', 3.50, 5, '2026-01-15 17:49:44'),
-(79, '220211060242', 'TIK3021', 'Pengembangan Game', 3, 'A', 4.00, 5, '2026-01-15 17:49:44'),
-(80, '220211060242', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 3, 'B+', 3.50, 5, '2026-01-15 17:49:44'),
-(81, '220211060242', 'TIK3041', 'Komputasi Awan', 2, 'A', 4.00, 5, '2026-01-15 17:49:44'),
-(82, '220211060242', 'TIK3051', 'Sistem Multimedia', 3, 'D', 1.00, 5, '2026-01-15 17:49:44'),
-(83, '220211060242', 'TIK3061', 'Praktikum Sistem Multimedia', 1, 'E', 0.00, 5, '2026-01-15 17:49:44'),
-(84, '220211060242', 'TIK3151', 'Teknik Perutean Jaringan', 2, 'A', 4.00, 5, '2026-01-15 17:49:44'),
-(85, '220211060242', 'TIK3161', 'Teknik Administrasi Server', 2, 'D', 1.00, 5, '2026-01-15 17:49:44'),
-(86, '220211060242', 'TIK3012', 'Bioinformatika', 3, 'B+', 3.50, 6, '2026-01-15 17:49:44'),
-(87, '220211060242', 'TIK3022', 'Riset Informatika', 3, 'C', 2.00, 6, '2026-01-15 17:49:44'),
-(88, '220211060242', 'TIK3032', 'Kewirausahaan', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
-(89, '220211060242', 'TIK3042', 'Topik Khusus Teknik Informatika', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
-(90, '220211060242', 'TIK3052', 'Kecakapan Antar Personal', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
-(91, '220211060242', 'TIK3062', 'Keamanan Siber', 3, 'A', 4.00, 6, '2026-01-15 17:49:44'),
-(92, '220211060242', 'TIK3072', 'Praktikum Keamanan Siber', 1, 'A', 4.00, 6, '2026-01-15 17:49:44'),
-(93, '220211060242', 'TIK3162', 'Pemrograman Jaringan', 2, 'B', 3.00, 6, '2026-01-15 17:49:44'),
-(94, '220211060242', 'TIK4030', 'Seminar Dan Praktek Profesional', 3, 'B', 3.00, 7, '2026-01-15 17:49:44'),
-(95, '220211060242', 'TIK4041', 'Grafika Komputer', 2, 'A', 4.00, 7, '2026-01-15 17:49:44'),
-(96, '220211060242', 'TIK4061', 'Kriptografi', 2, 'A', 4.00, 7, '2026-01-15 17:49:44');
+(46, '220211060323', 'TIK2071', 'Praktikum Teknologi Basis Data', 1, 'A', 4.00, 3, '2026-01-15 17:49:44'),
+(47, '220211060323', 'TIK4030', 'Seminar Dan Praktek Profesional', 3, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(48, '220211060323', 'TIK4041', 'Grafika Komputer', 2, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(49, '220211060323', 'TIK4051', 'Etika Profesi', 2, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(50, '220211060323', 'TIK4061', 'Kriptografi', 2, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(51, '220211060242', 'TIK1021', 'Pancasila', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
+(52, '220211060242', 'TIK1031', 'Bahasa Indonesia', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
+(53, '220211060242', 'TIK1041', 'Kewarganegaraan', 2, 'B+', 3.50, 1, '2026-01-15 17:49:44'),
+(54, '220211060242', 'TIK1051', 'Matematika Diskrit', 3, 'C', 2.00, 1, '2026-01-15 17:49:44'),
+(55, '220211060242', 'TIK1061', 'Kalkulus', 3, 'B+', 3.50, 1, '2026-01-15 17:49:44'),
+(56, '220211060242', 'TIK1071', 'Probabilitas Dan Statistika', 2, 'C', 2.00, 1, '2026-01-15 17:49:44'),
+(57, '220211060242', 'TIK1081', 'Algoritma Dan Pemrograman Komputer', 4, 'C+', 2.50, 1, '2026-01-15 17:49:44'),
+(58, '220211060242', 'TIK1091', 'Prak. Algoritma Dan Pemrograman Komputer', 1, 'A', 4.00, 1, '2026-01-15 17:49:44'),
+(59, '220211060242', 'TIK1101', 'Pendidikan Agama Kristen Protestan', 2, 'A', 4.00, 1, '2026-01-15 17:49:44'),
+(60, '220211060242', 'TIK1012', 'Bahasa Inggris', 2, 'B', 3.00, 2, '2026-01-15 17:49:44'),
+(61, '220211060242', 'TIK1022', 'Pengetahuan Kepasifikan', 2, 'A', 4.00, 2, '2026-01-15 17:49:44'),
+(62, '220211060242', 'TIK1032', 'Pengantar Teknik Informatika', 2, 'A', 4.00, 2, '2026-01-15 17:49:44'),
+(63, '220211060242', 'TIK1042', 'Aljabar Linear', 2, 'B+', 3.50, 2, '2026-01-15 17:49:44'),
+(64, '220211060242', 'TIK1052', 'Metode Numerik', 3, 'C', 2.00, 2, '2026-01-15 17:49:44'),
+(65, '220211060242', 'TIK1062', 'Teori Bahasa Dan Automata', 3, 'A', 4.00, 2, '2026-01-15 17:49:44'),
+(66, '220211060242', 'TIK1072', 'Komputer Dan Masyarakat', 2, 'B', 3.00, 2, '2026-01-15 17:49:44'),
+(67, '220211060242', 'TIK1082', 'Basis Data', 3, 'B', 3.00, 2, '2026-01-15 17:49:44'),
+(68, '220211060242', 'TIK1092', 'Praktikum Basis Data', 1, 'A', 4.00, 2, '2026-01-15 17:49:44'),
+(69, '220211060242', 'TIK2011', 'Sistem Informasi', 3, 'B', 3.00, 3, '2026-01-15 17:49:44'),
+(70, '220211060242', 'TIK2021', 'Arsitektur Dan Organisasi Komputer', 3, 'A', 4.00, 3, '2026-01-15 17:49:44'),
+(71, '220211060242', 'TIK2031', 'Sistem Operasi', 3, 'B', 3.00, 3, '2026-01-15 17:49:44'),
+(72, '220211060242', 'TIK2041', 'Struktur Data', 3, 'A', 4.00, 3, '2026-01-15 17:49:44'),
+(73, '220211060242', 'TIK2051', 'Rekayasa Perangkat Lunak', 3, 'A', 4.00, 3, '2026-01-15 17:49:44'),
+(74, '220211060242', 'TIK2061', 'Teknologi Basis Data', 3, 'C', 2.00, 3, '2026-01-15 17:49:44'),
+(75, '220211060242', 'TIK2071', 'Praktikum Teknologi Basis Data', 1, 'A', 4.00, 3, '2026-01-15 17:49:44'),
+(76, '220211060242', 'TIK2012', 'Interaksi Manusia Dan Komputer', 4, 'A', 4.00, 4, '2026-01-15 17:49:44'),
+(77, '220211060242', 'TIK2022', 'Kecerdasan Buatan', 2, 'A', 4.00, 4, '2026-01-15 17:49:44'),
+(78, '220211060242', 'TIK2032', 'Pemrograman Web', 3, 'B', 3.00, 4, '2026-01-15 17:49:44'),
+(79, '220211060242', 'TIK2042', 'Pemodelan Dan Simulasi Komputer', 3, 'A', 4.00, 4, '2026-01-15 17:49:44'),
+(80, '220211060242', 'TIK2052', 'Pengolahan Citra Digital', 3, 'A', 4.00, 4, '2026-01-15 17:49:44'),
+(81, '220211060242', 'TIK2062', 'Jaringan Dan Komunikasi Data', 3, 'B+', 3.50, 4, '2026-01-15 17:49:44'),
+(82, '220211060242', 'TIK2072', 'Praktikum Jaringan Dan Komunikasi Data', 1, 'B', 3.00, 4, '2026-01-15 17:49:44'),
+(83, '220211060242', 'TIK3011', 'Pembelajaran Mesin', 3, 'B+', 3.50, 5, '2026-01-15 17:49:44'),
+(84, '220211060242', 'TIK3021', 'Pengembangan Game', 3, 'A', 4.00, 5, '2026-01-15 17:49:44'),
+(85, '220211060242', 'TIK3031', 'Realitas Tertambah Dan Realitas Maya', 3, 'B+', 3.50, 5, '2026-01-15 17:49:44'),
+(86, '220211060242', 'TIK3041', 'Komputasi Awan', 2, 'A', 4.00, 5, '2026-01-15 17:49:44'),
+(87, '220211060242', 'TIK3051', 'Sistem Multimedia', 3, 'D', 1.00, 5, '2026-01-15 17:49:44'),
+(88, '220211060242', 'TIK3061', 'Praktikum Sistem Multimedia', 1, 'C', 2.00, 5, '2026-01-15 17:49:44'),
+(89, '220211060242', 'TIK3151', 'Teknik Perutean Jaringan', 2, 'A', 4.00, 5, '2026-01-15 17:49:44'),
+(90, '220211060242', 'TIK3161', 'Teknik Administrasi Server', 2, 'D', 1.00, 5, '2026-01-15 17:49:44'),
+(91, '220211060242', 'TIK3012', 'Bioinformatika', 3, 'B+', 3.50, 6, '2026-01-15 17:49:44'),
+(92, '220211060242', 'TIK3022', 'Riset Informatika', 3, 'C', 2.00, 6, '2026-01-15 17:49:44'),
+(93, '220211060242', 'TIK3032', 'Kewirausahaan', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
+(94, '220211060242', 'TIK3042', 'Topik Khusus Teknik Informatika', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
+(95, '220211060242', 'TIK3052', 'Kecakapan Antar Personal', 2, 'A', 4.00, 6, '2026-01-15 17:49:44'),
+(96, '220211060242', 'TIK3062', 'Keamanan Siber', 3, 'A', 4.00, 6, '2026-01-15 17:49:44'),
+(97, '220211060242', 'TIK3072', 'Praktikum Keamanan Siber', 1, 'A', 4.00, 6, '2026-01-15 17:49:44'),
+(98, '220211060242', 'TIK3162', 'Pemrograman Jaringan', 2, 'B', 3.00, 6, '2026-01-15 17:49:44'),
+(99, '220211060242', 'TIK4010', 'Kkt', 4, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(100, '220211060242', 'TIK4020', 'Magang', 3, 'N', 0.00, 7, '2026-01-15 17:49:44'),
+(101, '220211060242', 'TIK4030', 'Seminar Dan Praktek Profesional', 3, 'B', 3.00, 7, '2026-01-15 17:49:44'),
+(102, '220211060242', 'TIK4041', 'Grafika Komputer', 2, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(103, '220211060242', 'TIK4051', 'Etika Profesi', 2, 'A', 4.00, 7, '2026-01-15 17:49:44'),
+(104, '220211060242', 'TIK4061', 'Kriptografi', 2, 'A', 4.00, 7, '2026-01-15 17:49:44');
 
 -- --------------------------------------------------------
 
@@ -504,6 +807,7 @@ CREATE TABLE `users` (
   `masa_studi` int DEFAULT '1',
   `sisa_masa_studi` int DEFAULT '14',
   `ipk` decimal(3,2) DEFAULT '0.00',
+  `ip_semester` decimal(3,2) DEFAULT '0.00',
   `sks_lulus` int DEFAULT '0',
   `sks_diambil` int DEFAULT '0',
   `has_academic_warning` tinyint(1) DEFAULT '0',
@@ -516,13 +820,25 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `nim`, `password`, `nama`, `email`, `tempat_lahir`, `tanggal_lahir`, `tanggal_masuk`, `foto_profil`, `semester`, `tahun_akademik`, `periode`, `status`, `status_pddikti`, `angkatan`, `fakultas`, `prodi`, `jenjang`, `pembimbing_akademik`, `nip_pembimbing`, `masa_studi`, `sisa_masa_studi`, `ipk`, `sks_lulus`, `sks_diambil`, `has_academic_warning`, `warning_message`, `created_at`, `updated_at`) VALUES
-(1, '220211060323', '$2y$12$VZclEMIjVHn2PmQAbJ8oO.vlh.zv3rFq9bNoed2BQRtOSg.gcodvq', 'DAVA OKTAVITO JOSUA L. ULUS', NULL, NULL, NULL, '2022-08-01', 'assets/images/user_default.png', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'MEICSY ELDAD ISRAEL NAJOAN ST, MT', '196705271995121001', 1, 14, 2.63, 82, 24, 0, NULL, '2026-01-15 17:49:44', '2026-01-16 08:29:29'),
-(2, '220211060242', '$2y$12$igUeo63omACWYKDF1vVRtefX2rFv4IXbKSLHFgZVYfVZIG/MqjA.C', 'ROMAL PUTRA LENGKONG', NULL, 'Manado', '2004-09-11', '2022-08-01', 'assets/images/user_default.png', 7, '2025/2026', 'Gasal', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'KENNETH YOSUA R PALILINGAN ST, MT', NULL, 1, 14, 3.31, 117, 0, 0, NULL, '2026-01-15 17:49:44', '2026-01-15 17:49:44');
+INSERT INTO `users` (`id`, `nim`, `password`, `nama`, `email`, `tempat_lahir`, `tanggal_lahir`, `tanggal_masuk`, `foto_profil`, `semester`, `tahun_akademik`, `periode`, `status`, `status_pddikti`, `angkatan`, `fakultas`, `prodi`, `jenjang`, `pembimbing_akademik`, `nip_pembimbing`, `masa_studi`, `sisa_masa_studi`, `ipk`, `ip_semester`, `sks_lulus`, `sks_diambil`, `has_academic_warning`, `warning_message`, `created_at`, `updated_at`) VALUES
+(1, '220211060323', '$2y$12$DXU/cb..M/7Ac8rl/cylwOgq95kRcTLsMIyYffTu.6RDWBdntesaq', 'Dava Oktavito Josua L. Ulus', NULL, NULL, NULL, '2022-08-01', 'assets/images/user_default.png', 8, '2025/2026', 'Genap', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'MEICSY ELDAD ISRAEL NAJOAN ST, MT', '196705271995121001', 8, 6, 3.15, 3.88, 119, 24, 0, NULL, '2026-01-15 17:49:44', '2026-02-01 07:58:02'),
+(2, '220211060242', '$2y$12$NNW7.2wuVcVTc0HT9PXav.sDi9giqcYilNqFcoLFQ3fprRbTKz0qK', 'ROMAL PUTRA LENGKONG', NULL, 'Manado', '2004-09-11', '2022-08-01', 'assets/images/user_default.png', 8, '2025/2026', 'Genap', 'Aktif', 'Aktif', '2022', 'Teknik', 'Teknik Informatika', 'S1', 'KENNETH YOSUA R PALILINGAN ST, MT', '199212052019031012', 8, 6, 3.28, 2.23, 124, 0, 0, NULL, '2026-01-15 17:49:44', '2026-02-01 10:16:00');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `kelas`
+--
+ALTER TABLE `kelas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `khs`
+--
+ALTER TABLE `khs`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `krs`
@@ -568,6 +884,18 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `kelas`
+--
+ALTER TABLE `kelas`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
+
+--
+-- AUTO_INCREMENT for table `khs`
+--
+ALTER TABLE `khs`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
+
+--
 -- AUTO_INCREMENT for table `krs`
 --
 ALTER TABLE `krs`
@@ -577,7 +905,7 @@ ALTER TABLE `krs`
 -- AUTO_INCREMENT for table `mata_kuliah`
 --
 ALTER TABLE `mata_kuliah`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT for table `pengumuman`
@@ -589,40 +917,19 @@ ALTER TABLE `pengumuman`
 -- AUTO_INCREMENT for table `perencanaan_studi`
 --
 ALTER TABLE `perencanaan_studi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `transkrip`
 --
 ALTER TABLE `transkrip`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- Foreign Key Constraints
---
-
--- Note: Foreign keys are commented out to avoid import errors if tables are not in correct order
--- Uncomment if you need referential integrity checks
-
--- ALTER TABLE `krs`
---   ADD CONSTRAINT `fk_krs_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- ALTER TABLE `transkrip`
---   ADD CONSTRAINT `fk_transkrip_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- ALTER TABLE `perencanaan_studi`
---   ADD CONSTRAINT `fk_perencanaan_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE CASCADE ON UPDATE CASCADE,
---   ADD CONSTRAINT `fk_perencanaan_kode_mk` FOREIGN KEY (`kode_mk`) REFERENCES `mata_kuliah` (`kode_mk`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- ALTER TABLE `pengumuman`
---   ADD CONSTRAINT `fk_pengumuman_nim` FOREIGN KEY (`nim`) REFERENCES `users` (`nim`) ON DELETE SET NULL ON UPDATE CASCADE;
-
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

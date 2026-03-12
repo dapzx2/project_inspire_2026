@@ -28,35 +28,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 	<link rel="stylesheet" href="assets/css/dashboard.bundle.css">
+	<link rel="stylesheet" href="assets/css/style.css">
 	<link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-	<style>
-		#navbar-title {
-			font-family: 'Philosopher', sans-serif !important;
-		}
-		
-		/* dropdown arrow position */
-		.nav-sidebar .nav-link > .right,
-		.nav-sidebar .nav-link > p > .right {
-			position: absolute;
-			right: 1rem;
-			top: 0.7rem;
-		}
-		
-		/* hide sidebar scrollbar */
-		.sidebar {
-			-ms-overflow-style: none;
-			scrollbar-width: none;
-			padding-bottom: 2rem;
-		}
-		.sidebar::-webkit-scrollbar {
-			display: none;
-		}
-		
-		/* flat look tanpa shadow */
-		.sidebar-light-danger .nav-sidebar > .nav-item > .nav-link.active {
-			box-shadow: none !important;
-		}
-	</style>
 
 </head>
 

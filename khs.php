@@ -1,6 +1,5 @@
-<?php include 'layout/header.php'; ?>
-
 <?php
+include 'layout/header.php';
 include 'config/database.php';
 
 $user_data = null;
@@ -14,7 +13,6 @@ $semesters = [];
 
 $nim = $_SESSION['nim'] ?? '';
 
-// ambil data user
 $stmt = $conn->prepare("SELECT * FROM users WHERE nim = ?");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
@@ -24,20 +22,22 @@ if ($result && $result->num_rows > 0) {
 }
 $stmt->close();
 
-// ambil daftar semester dari KRS
-$stmt = $conn->prepare("SELECT DISTINCT semester_krs FROM krs WHERE nim = ? ORDER BY semester_krs ASC");
+$stmt = $conn->prepare("SELECT DISTINCT semester, tahun_akademik, periode FROM khs WHERE nim = ? ORDER BY semester ASC");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
-    $semesters[] = $row['semester_krs'];
+    $semesters[] = [
+        'semester' => $row['semester'],
+        'tahun_akademik' => $row['tahun_akademik'],
+        'periode' => $row['periode']
+    ];
 }
 $stmt->close();
 
-// kalo semester dipilih, ambil data KHS
 if ($selected_semester !== '') {
-    $stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = ? ORDER BY id ASC");
-    $stmt->bind_param("ss", $nim, $selected_semester);
+    $stmt = $conn->prepare("SELECT * FROM khs WHERE nim = ? AND semester = ? ORDER BY id ASC");
+    $stmt->bind_param("si", $nim, $selected_semester);
     $stmt->execute();
     $result = $stmt->get_result();
     while ($row = $result->fetch_assoc()) {
@@ -48,18 +48,24 @@ if ($selected_semester !== '') {
     }
     $stmt->close();
     
-    // hitung IPS
     $ips = ($total_sks > 0) ? round($total_bobot / $total_sks, 2) : 0;
 }
 
-// helper: format semester
-function formatSemester($code) {
-    if (strlen($code) < 5) return htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
-    $year = substr($code, 0, 4);
-    $period = substr($code, 4, 1);
-    $nextYear = (int) $year + 1;
-    $periodName = ($period === '1') ? 'Gasal' : 'Genap';
-    return "$year / $nextYear $periodName";
+function formatSemesterKHS($tahun_akademik, $periode) {
+    if (empty($tahun_akademik)) return '-';
+    return "$tahun_akademik $periode";
+}
+
+$selected_tahun_akademik = '';
+$selected_periode = '';
+if ($selected_semester !== '') {
+    foreach ($semesters as $sem) {
+        if ((string)$sem['semester'] === (string)$selected_semester) {
+            $selected_tahun_akademik = $sem['tahun_akademik'];
+            $selected_periode = $sem['periode'];
+            break;
+        }
+    }
 }
 ?>
 
@@ -87,8 +93,8 @@ function formatSemester($code) {
                                         <select name="semester" class="form-control" required>
                                             <option value="">-- Pilih Semester --</option>
                                             <?php foreach ($semesters as $sem): ?>
-                                            <option value="<?php echo htmlspecialchars($sem, ENT_QUOTES, 'UTF-8'); ?>" <?php echo ($selected_semester === $sem) ? 'selected' : ''; ?>>
-                                                <?php echo formatSemester($sem); ?>
+                                            <option value="<?php echo (int) $sem['semester']; ?>" <?php echo ((string)$selected_semester === (string)$sem['semester']) ? 'selected' : ''; ?>>
+                                                Semester <?php echo (int) $sem['semester']; ?> - <?php echo formatSemesterKHS($sem['tahun_akademik'], $sem['periode']); ?>
                                             </option>
                                             <?php endforeach; ?>
                                         </select>
@@ -122,7 +128,7 @@ function formatSemester($code) {
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                                     <label>Semester</label><br>
-                                    <?php echo formatSemester($selected_semester); ?>
+                                    <?php echo formatSemesterKHS($selected_tahun_akademik, $selected_periode); ?>
                                 </div>
                                 <div class="col-md-4 col-sm-12 col-xs-12 mb-2">
                                     <label>Jumlah SKS Diambil</label><br>
@@ -152,15 +158,11 @@ function formatSemester($code) {
                                 <div class="card card-default">
                                     <div class="card-header" data-toggle="collapse" href="#collapse-<?php echo $index; ?>" style="cursor: pointer;">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <h6><?php echo htmlspecialchars($khs['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></h6>
+                                            <h6><?php echo strtoupper(htmlspecialchars($khs['nama_mk'], ENT_QUOTES, 'UTF-8')); ?></h6>
                                             <div class="text-right">
                                                 <?php if (!empty($khs['nilai_huruf'])): ?>
-                                                <?php 
-                                                $bobot = (float) ($khs['bobot'] ?? 0);
-                                                $badge_class = ($bobot >= 3) ? 'success' : (($bobot >= 2) ? 'warning' : 'danger');
-                                                ?>
-                                                <span class="badge badge-<?php echo $badge_class; ?> mr-2">
-                                                    <?php echo htmlspecialchars($khs['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?>
+                                                <span class="text-dark mr-2">
+                                                    <b><?php echo htmlspecialchars($khs['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></b>
                                                 </span>
                                                 <?php endif; ?>
                                                 <a href="#" class="btn btn-flat btn-xs btn-primary">
@@ -170,7 +172,7 @@ function formatSemester($code) {
                                         </div>
                                         <small>
                                             <?php echo htmlspecialchars($khs['kode_mk'], ENT_QUOTES, 'UTF-8'); ?> • 
-                                            Kelas <?php echo htmlspecialchars($khs['kelas'], ENT_QUOTES, 'UTF-8'); ?> • 
+                                            Kelas <?php echo htmlspecialchars($khs['kelas'] ?? 'A', ENT_QUOTES, 'UTF-8'); ?> • 
                                             <?php echo (int) $khs['sks']; ?> SKS 
                                         </small>
                                     </div>
@@ -198,6 +200,9 @@ function formatSemester($code) {
                                                     <strong><label class="badge badge-warning">belum isi</label></strong>
                                                     <?php endif; ?>
                                                 </li>
+                                                <?php endif; ?>
+                                                <?php if (empty($khs['dosen1']) && empty($khs['dosen2'])): ?>
+                                                <li>Data dosen belum tersedia</li>
                                                 <?php endif; ?>
                                             </ol>
                                         </div>

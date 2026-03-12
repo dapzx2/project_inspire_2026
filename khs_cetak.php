@@ -27,36 +27,38 @@ if ($result && $result->num_rows > 0) {
 }
 $stmt->close();
 
-// ambil data KHS dari tabel KRS
+// ambil data KHS dari tabel khs
 $khs_data = [];
 $total_sks = 0;
 $total_nilai_sks = 0;
+$tahun_akademik = '';
+$periode = '';
 
-$stmt = $conn->prepare("SELECT * FROM krs WHERE nim = ? AND semester_krs = ? ORDER BY id ASC");
-$stmt->bind_param("ss", $nim, $selected_semester);
+$stmt = $conn->prepare("SELECT * FROM khs WHERE nim = ? AND semester = ? ORDER BY id ASC");
+$stmt->bind_param("si", $nim, $selected_semester);
 $stmt->execute();
 $result = $stmt->get_result();
 while ($row = $result->fetch_assoc()) {
     $khs_data[] = $row;
     $total_sks += (int) $row['sks'];
     $total_nilai_sks += (int) $row['sks'] * (float) ($row['bobot'] ?? 0);
+    if (empty($tahun_akademik)) {
+        $tahun_akademik = $row['tahun_akademik'];
+        $periode = $row['periode'];
+    }
 }
 $stmt->close();
 
-// Calculate IPS
+// hitung IPS (semua SKS termasuk N dihitung dalam pembagi)
 $ips = ($total_sks > 0) ? round($total_nilai_sks / $total_sks, 2) : 0;
 
-// Get IPK from user data
+// ambil IPK dari data user
 $ipk = isset($user_data['ipk']) ? $user_data['ipk'] : 0;
 
-// Format semester
-function formatSemester($code) {
-    if (strlen($code) < 5) return $code;
-    $year = substr($code, 0, 4);
-    $period = substr($code, 4, 1);
-    $nextYear = intval($year) + 1;
-    $periodName = ($period == '1') ? 'Gasal' : 'Genap';
-    return "$year / $nextYear $periodName";
+// format semester dari tabel KHS
+function formatSemesterKHS($tahun_akademik, $periode) {
+    if (empty($tahun_akademik)) return '-';
+    return "$tahun_akademik $periode";
 }
 
 // Format tanggal dalam Bahasa Indonesia
@@ -67,13 +69,13 @@ $bulan_indo = [
 ];
 $tanggal_cetak = date('d') . ' ' . $bulan_indo[(int)date('m')] . ' ' . date('Y');
 
-// Extract data
+// ambil data dari user
 $prodi = isset($user_data['prodi']) ? $user_data['prodi'] : 'Teknik Informatika';
 $jenjang = isset($user_data['jenjang']) ? $user_data['jenjang'] : 'S1';
 $angkatan = isset($user_data['angkatan']) ? $user_data['angkatan'] : '2022';
 $pembimbing = isset($user_data['pembimbing_akademik']) ? $user_data['pembimbing_akademik'] : '-';
 
-// Calculate max SKS for next semester based on IPS
+// hitung maksimal SKS semester depan berdasarkan IPS
 $max_sks = 24;
 if ($ips >= 3.00) $max_sks = 24;
 elseif ($ips >= 2.50) $max_sks = 22;
@@ -85,7 +87,7 @@ else $max_sks = 18;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KHS <?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?> - <?php echo formatSemester($selected_semester); ?></title>
+    <title>KHS <?php echo htmlspecialchars($nim, ENT_QUOTES, 'UTF-8'); ?> - Semester <?php echo (int)$selected_semester; ?></title>
     <link rel="icon" href="https://inspire.unsrat.ac.id/resources/img/logo-unsrat.png">
     <style>
         @page {
@@ -337,7 +339,7 @@ else $max_sks = 18;
         <!-- Title -->
         <div class="title-section">
             <h1>KARTU HASIL STUDI</h1>
-            <p>Semester: <?php echo formatSemester($selected_semester); ?></p>
+            <p>Semester: <?php echo formatSemesterKHS($tahun_akademik, $periode); ?></p>
         </div>
 
         <!-- Info Section -->
@@ -401,7 +403,7 @@ else $max_sks = 18;
                 <tr>
                     <td class="center"><?php echo $no++; ?></td>
                     <td><?php echo htmlspecialchars($khs['kode_mk']); ?></td>
-                    <td><?php echo htmlspecialchars($khs['nama_mk']); ?></td>
+                    <td><?php echo strtoupper(htmlspecialchars($khs['nama_mk'])); ?></td>
                     <td class="center"><?php echo $khs['sks']; ?></td>
                     <td class="center"><?php echo $nilai; ?></td>
                     <td class="center"><?php echo number_format($bobot, 2); ?></td>

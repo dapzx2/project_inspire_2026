@@ -37,8 +37,8 @@ while ($row = $result->fetch_assoc()) {
     }
     $transkrip_data[$semester][] = $row;
     $total_sks += (int) $row['sks'];
-    // SKS lulus = tidak menghitung D dan E
-    if (!in_array($row['nilai_huruf'], ['D', 'E'], true)) {
+    // SKS lulus = tidak menghitung D, E, dan N
+    if (!in_array($row['nilai_huruf'], ['D', 'E', 'N'], true)) {
         $sks_lulus += (int) $row['sks'];
     }
 }
@@ -63,10 +63,10 @@ $bulan_indo = [
 ];
 $tanggal_cetak = date('d') . ' ' . $bulan_indo[(int)date('m')] . ' ' . date('Y');
 
-// Extract angkatan from NIM (format: 22XXXXXXXXXX -> 2022)
+// ambil angkatan dari NIM (format: 22XXXXXXXXXX -> 2022)
 $angkatan = '20' . substr($nim, 0, 2);
 
-// Get dynamic data with fallbacks
+// ambil data dengan nilai default
 $tempat_lahir = isset($user_data['tempat_lahir']) ? $user_data['tempat_lahir'] : 'Manado';
 $tanggal_lahir_db = isset($user_data['tanggal_lahir']) ? $user_data['tanggal_lahir'] : '2004-10-02';
 $prodi = isset($user_data['prodi']) ? $user_data['prodi'] : 'Teknik Informatika';
@@ -432,7 +432,7 @@ $tanggal_masuk = '01 Agustus ' . $angkatan;
                         <tr>
                             <td class="no"><?php echo $no++; ?></td>
                             <td class="kode"><?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td class="nama"><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td class="nama"><?php echo strtoupper(htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8')); ?></td>
                             <td class="sks"><?php echo $mk['sks']; ?></td>
                             <td class="nilai"><?php echo htmlspecialchars($mk['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
@@ -470,7 +470,7 @@ $tanggal_masuk = '01 Agustus ' . $angkatan;
                         <tr>
                             <td class="no"><?php echo $no++; ?></td>
                             <td class="kode"><?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td class="nama"><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td class="nama"><?php echo strtoupper(htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8')); ?></td>
                             <td class="sks"><?php echo $mk['sks']; ?></td>
                             <td class="nilai"><?php echo htmlspecialchars($mk['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>

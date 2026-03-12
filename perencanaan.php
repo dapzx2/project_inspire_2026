@@ -1,8 +1,8 @@
 <?php
-// Form processing BEFORE any output (header include)
+// proses form dulu sebelum nampilkan halaman
 include 'config/database.php';
 
-// Session already started in header.php, get nim for processing
+// mulai session kalo belum
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -11,7 +11,7 @@ $nim = $_SESSION['nim'] ?? '';
 $message = '';
 $message_type = '';
 
-// Handle form actions
+// proses aksi dari form
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($nim)) {
     if (isset($_POST['action'])) {
         if ($_POST['action'] === 'add' && isset($_POST['kode_mk'])) {
@@ -27,73 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($nim)) {
                 $stmt->bind_param("ss", $nim, $kode_mk);
                 $stmt->execute();
                 $stmt->close();
-                $message = 'Mata kuliah berhasil ditambahkan ke perencanaan!';
+                $message = 'Mata Kuliah berhasil ditambahkan ke Perencanaan!';
                 $message_type = 'success';
             } else {
-                $message = 'Mata kuliah sudah ada dalam perencanaan!';
+                $message = 'Mata Kuliah sudah ada dalam Perencanaan!';
                 $message_type = 'warning';
             }
         }
-        
-        // Tambah langsung ke KRS
-        if ($_POST['action'] === 'add_krs' && isset($_POST['kode_mk'])) {
-            $kode_mk = $_POST['kode_mk'];
-            
-            // Cek apakah sudah ada di KRS
-            $stmt = $conn->prepare("SELECT id FROM krs WHERE nim = ? AND kode_mk = ?");
-            $stmt->bind_param("ss", $nim, $kode_mk);
-            $stmt->execute();
-            $check_krs = $stmt->get_result();
-            
-            if ($check_krs->num_rows == 0) {
-                $stmt->close();
-                
-                // Ambil info MK dari transkrip atau mata_kuliah
-                $stmt = $conn->prepare("SELECT t.nama_mk, t.sks, m.jenis 
-                             FROM transkrip t 
-                             LEFT JOIN mata_kuliah m ON t.kode_mk = m.kode_mk 
-                             WHERE t.kode_mk = ? AND t.nim = ? 
-                             LIMIT 1");
-                $stmt->bind_param("ss", $kode_mk, $nim);
-                $stmt->execute();
-                $result_mk = $stmt->get_result();
-                
-                if ($result_mk && $mk_data = $result_mk->fetch_assoc()) {
-                    $nama_mk = strtoupper($mk_data['nama_mk']);
-                    $sks = (int)$mk_data['sks'];
-                    $jenis = ucfirst($mk_data['jenis'] ?? 'Wajib');
-                    
-                    // Default values
-                    $kelas = 'A';
-                    $dosen1 = 'Dosen Pengampu';
-                    $hari = 'Senin';
-                    $jam_mulai = '08:00';
-                    $jam_selesai = '10:30';
-                    $stmt->close();
-                    
-                    $stmt = $conn->prepare("INSERT INTO krs (nim, kode_mk, nama_mk, sks, jenis, kelas, dosen1, hari, jam_mulai, jam_selesai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sssissssss", $nim, $kode_mk, $nama_mk, $sks, $jenis, $kelas, $dosen1, $hari, $jam_mulai, $jam_selesai);
-                    
-                    if ($stmt->execute()) {
-                        $message = 'Mata kuliah berhasil ditambahkan ke KRS! <a href="krs.php" class="alert-link">Lihat KRS</a>';
-                        $message_type = 'success';
-                    } else {
-                        $message = 'Gagal menambahkan ke KRS. Silakan coba lagi.';
-                        $message_type = 'danger';
-                        error_log('KRS Insert Error: ' . $stmt->error);
-                    }
-                    $stmt->close();
-                } else {
-                    $message = 'Data mata kuliah tidak ditemukan!';
-                    $message_type = 'danger';
-                    $stmt->close();
-                }
-            } else {
-                $message = 'Mata kuliah sudah ada di KRS!';
-                $message_type = 'warning';
-                $stmt->close();
-            }
-        }
+
         
         if ($_POST['action'] === 'delete' && isset($_POST['kode_mk'])) {
             $kode_mk = $_POST['kode_mk'];
@@ -101,113 +42,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($nim)) {
             $stmt->bind_param("ss", $nim, $kode_mk);
             $stmt->execute();
             $stmt->close();
-            $message = 'Mata kuliah berhasil dihapus dari perencanaan!';
+            $message = 'Mata Kuliah berhasil dihapus dari Perencanaan!';
             $message_type = 'info';
         }
         
-        // Delete all planned courses
+        // hapus semua rencana MK
         if ($_POST['action'] === 'delete_all') {
             $stmt = $conn->prepare("DELETE FROM perencanaan_studi WHERE nim = ?");
             $stmt->bind_param("s", $nim);
             $stmt->execute();
             $deleted_count = $stmt->affected_rows;
             $stmt->close();
-            $message = "$deleted_count mata kuliah berhasil dihapus dari perencanaan!";
+            $message = "$deleted_count Mata Kuliah berhasil dihapus dari Perencanaan!";
             $message_type = 'info';
         }
-        
-        // Transfer semua perencanaan ke KRS
-        if ($_POST['action'] === 'transfer_all_krs') {
-            // Ambil semua perencanaan
-            $stmt = $conn->prepare("SELECT p.kode_mk, m.nama_mk, m.sks, m.jenis 
-                           FROM perencanaan_studi p 
-                           JOIN mata_kuliah m ON p.kode_mk = m.kode_mk 
-                           WHERE p.nim = ?");
-            $stmt->bind_param("s", $nim);
-            $stmt->execute();
-            $result_plans = $stmt->get_result();
-            
-            $success_count = 0;
-            $skip_count = 0;
-            
-            // Prepare statements untuk loop
-            $stmt_check = $conn->prepare("SELECT id FROM krs WHERE nim = ? AND kode_mk = ?");
-            $stmt_insert = $conn->prepare("INSERT INTO krs (nim, kode_mk, nama_mk, sks, jenis, kelas, dosen1, hari, jam_mulai, jam_selesai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            
-            // Default values
-            $kelas = 'A';
-            $dosen1 = 'Dosen Pengampu';
-            $hari = 'Senin';
-            $jam_mulai = '08:00';
-            $jam_selesai = '10:30';
-            
-            if ($result_plans && $result_plans->num_rows > 0) {
-                while ($plan = $result_plans->fetch_assoc()) {
-                    // Cek apakah sudah ada di KRS
-                    $stmt_check->bind_param("ss", $nim, $plan['kode_mk']);
-                    $stmt_check->execute();
-                    $check_result = $stmt_check->get_result();
-                    
-                    if ($check_result->num_rows == 0) {
-                        $nama_mk = strtoupper($plan['nama_mk']);
-                        $sks = (int)$plan['sks'];
-                        $jenis = ucfirst($plan['jenis'] ?? 'Wajib');
-                        
-                        $stmt_insert->bind_param("sssissssss", $nim, $plan['kode_mk'], $nama_mk, $sks, $jenis, $kelas, $dosen1, $hari, $jam_mulai, $jam_selesai);
-                        
-                        if ($stmt_insert->execute()) {
-                            $success_count++;
-                        }
-                    } else {
-                        $skip_count++;
-                    }
-                }
-                
-                if ($success_count > 0) {
-                    $message = "$success_count mata kuliah berhasil ditransfer ke KRS!";
-                    if ($skip_count > 0) {
-                        $message .= " ($skip_count sudah ada di KRS)";
-                    }
-                    $message .= ' <a href="krs.php" class="alert-link">Lihat KRS</a>';
-                    $message_type = 'success';
-                } else {
-                    $message = 'Semua mata kuliah sudah ada di KRS!';
-                    $message_type = 'warning';
-                }
-            } else {
-                $message = 'Tidak ada mata kuliah yang direncanakan!';
-                $message_type = 'warning';
-            }
-            $stmt_check->close();
-            $stmt_insert->close();
-            $stmt->close();
-        }
+
     }
     
-    // Store message in session for display after redirect
+    // simpan pesan ke session buat ditampilin setelah redirect
     if (!empty($message)) {
         $_SESSION['flash_message'] = $message;
         $_SESSION['flash_message_type'] = $message_type;
     }
     
-    // Check if AJAX request - don't redirect, let JS handle the response
+    // cek apakah request dari AJAX
     $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     
     if ($isAjax) {
-        // AJAX request - continue to render the page, JS will handle the response
-        // Don't redirect, just continue
+        // kalo AJAX, lanjut render halaman aja
+        // gak perlu redirect
     } else {
-        // Regular form submission - redirect to prevent "Confirm Form Resubmission"
+        // kalo bukan AJAX, redirect biar gak muncul "Confirm Form Resubmission"
         header('Location: perencanaan.php#rencana-studi');
         exit;
+        
     }
 }
 
-// Include header AFTER form processing (so redirect works)
+// include header setelah proses form (biar redirect bisa jalan)
 include 'layout/header.php';
 
 // ============================================
-// GET USER'S CURRENT SEMESTER
+// AMBIL SEMESTER MAHASISWA SEKARANG
 // ============================================
 $current_semester = 8; // default
 $stmt_user_sem = $conn->prepare("SELECT semester FROM users WHERE nim = ?");
@@ -219,23 +95,42 @@ if ($result_user_semester && $row_sem = mysqli_fetch_assoc($result_user_semester
 }
 
 // ============================================
-// PLANNING FOR NEXT SEMESTER
+// HITUNG MKP (MATA KULIAH PILIHAN) YANG LULUS
 // ============================================
-// Always plan for next semester (current + 1)
-// User wants to prepare for semester 8 while currently in semester 7
-$planning_semester = $current_semester + 1;
+// Rule: 6 MKP total (2 per semester di sem 5,6,7)
+$mkp_lulus = 0;
+$mkp_required = 6;
+$stmt_mkp = $conn->prepare("SELECT COUNT(DISTINCT t.kode_mk) as total_mkp 
+                            FROM transkrip t
+                            JOIN mata_kuliah mk ON t.kode_mk = mk.kode_mk
+                            WHERE t.nim = ? 
+                            AND mk.jenis = 'pilihan'
+                            AND t.nilai_huruf NOT IN ('D', 'E', 'N')");
+$stmt_mkp->bind_param("s", $nim);
+$stmt_mkp->execute();
+$result_mkp = $stmt_mkp->get_result();
+if ($result_mkp && $row_mkp = $result_mkp->fetch_assoc()) {
+    $mkp_lulus = (int) $row_mkp['total_mkp'];
+}
+$stmt_mkp->close();
 
 // ============================================
-// SEMESTER TYPE VARIABLES
+// PERENCANAAN UNTUK SEMESTER INI
+// ============================================
+// rencanakan MK semester ini (tampilkan MK sesuai tipe semester)
+$planning_semester = $current_semester;
+
+// ============================================
+// VARIABEL TIPE SEMESTER
 // ============================================
 
-// Current semester type (for "Status Matakuliah yang Sudah Dikontrak")
+// tipe semester sekarang (buat "Status Matakuliah yang Sudah Dikontrak")
 $is_current_ganjil = ($current_semester % 2 == 1);
 $current_semester_label = $is_current_ganjil ? 'Ganjil' : 'Genap';
 $current_semester_icon = $is_current_ganjil ? 'fa-calendar-alt' : 'fa-calendar-check';
 $current_semester_color = $is_current_ganjil ? 'primary' : 'success';
 
-// Planning semester type (for recommendations and planning next semester)
+// tipe semester untuk perencanaan (buat rekomendasi)
 $is_semester_ganjil = ($planning_semester % 2 == 1);
 $semester_type_label = $is_semester_ganjil ? 'Ganjil' : 'Genap';
 $semester_type_icon = $is_semester_ganjil ? 'fa-calendar-alt' : 'fa-calendar-check';
@@ -257,7 +152,7 @@ $stmt_transkrip = $conn->prepare("SELECT t.*, m.nama_mk as mk_nama
                     FROM transkrip t 
                     LEFT JOIN mata_kuliah m ON t.kode_mk = m.kode_mk
                     WHERE t.nim = ? 
-                    ORDER BY t.semester ASC, t.kode_mk ASC");
+                    ORDER BY t.semester ASC, t.id ASC");
 $stmt_transkrip->bind_param("s", $nim);
 $stmt_transkrip->execute();
 $result_transkrip = $stmt_transkrip->get_result();
@@ -289,19 +184,19 @@ $mk_tidak_lulus_genap = array_filter($mk_tidak_lulus, function($mk) { return $mk
 $mk_tidak_lulus_ganjil = array_filter($mk_tidak_lulus, function($mk) { return $mk['semester'] % 2 == 1; });
 
 // ============================================
-// FETCH DATA UNTUK PERENCANAAN (existing logic)
+// AMBIL DATA UNTUK PERENCANAAN
 // ============================================
 
-// Fetch available mata kuliah
+// ambil semua matakuliah
 $mata_kuliah_list = [];
-$result_mk = $conn->query("SELECT * FROM mata_kuliah ORDER BY semester ASC, kode_mk ASC");
+$result_mk = $conn->query("SELECT * FROM mata_kuliah ORDER BY semester ASC, id ASC");
 if ($result_mk) {
     while ($row = mysqli_fetch_assoc($result_mk)) {
         $mata_kuliah_list[] = $row;
     }
 }
 
-// Fetch user's planned courses
+// ambil MK yang direncanakan user
 $perencanaan_list = [];
 $total_sks = 0;
 $mk_wajib = 0;
@@ -311,7 +206,7 @@ $stmt_plan = $conn->prepare("SELECT p.*, m.nama_mk, m.sks, m.jenis, m.kategori, 
                FROM perencanaan_studi p 
                JOIN mata_kuliah m ON p.kode_mk = m.kode_mk 
                WHERE p.nim = ? 
-               ORDER BY m.jenis DESC, m.semester ASC, m.kode_mk ASC");
+               ORDER BY p.id ASC");
 $stmt_plan->bind_param("s", $nim);
 $stmt_plan->execute();
 $result_plan = $stmt_plan->get_result();
@@ -327,7 +222,7 @@ if ($result_plan) {
     }
 }
 
-// Get already planned kode_mk for filtering dropdown
+// ambil kode MK yang sudah direncanakan buat filter dropdown
 $planned_codes = array_column($perencanaan_list, 'kode_mk');
 
 // ============================================
@@ -337,9 +232,11 @@ $ipk_awal = 0;
 $sks_awal = 0;
 
 $stmt_ipk = $conn->prepare("SELECT 
-    CASE WHEN SUM(sks) > 0 THEN ROUND(SUM(sks * bobot) / SUM(sks), 2) ELSE 0 END as ipk,
-    COALESCE(SUM(CASE WHEN nilai_huruf NOT IN ('D', 'E') THEN sks ELSE 0 END), 0) as sks_lulus
-    FROM transkrip WHERE nim = ?");
+    CASE WHEN SUM(mk.sks) > 0 THEN ROUND(SUM(mk.sks * t.bobot) / SUM(mk.sks), 2) ELSE 0 END as ipk,
+    COALESCE(SUM(CASE WHEN t.nilai_huruf NOT IN ('D', 'E') THEN mk.sks ELSE 0 END), 0) as sks_lulus
+    FROM transkrip t
+    JOIN mata_kuliah mk ON t.kode_mk = mk.kode_mk
+    WHERE t.nim = ?");
 $stmt_ipk->bind_param("s", $nim);
 $stmt_ipk->execute();
 $result_ipk = $stmt_ipk->get_result();
@@ -353,7 +250,7 @@ $stmt_ipk->close();
 // FETCH MK YANG BELUM DIKONTRAK (GANJIL & GENAP)
 // ============================================
 
-// Get all kode_mk that have been contracted (in transkrip)
+// ambil semua kode_mk yang sudah pernah dikontrak (ada di transkrip)
 $contracted_codes = [];
 $stmt_contracted = $conn->prepare("SELECT DISTINCT kode_mk FROM transkrip WHERE nim = ?");
 $stmt_contracted->bind_param("s", $nim);
@@ -365,13 +262,20 @@ if ($result_contracted) {
     }
 }
 
-// Get MK that haven't been contracted
+// cari MK yang belum pernah dikontrak
 $mk_belum_kontrak_ganjil = [];
 $mk_belum_kontrak_genap = [];
 
+// MK khusus yang bisa dikontrak di semester Ganjil maupun Genap
+$mk_special_codes = ['TIK4010', 'TIK4020', 'TIK4040']; // KKT, Magang, Skripsi
+
 foreach ($mata_kuliah_list as $mk) {
     if (!in_array($mk['kode_mk'], $contracted_codes)) {
-        if ($mk['semester'] % 2 == 1) {
+        // MK khusus masuk ke dua-duanya (ganjil & genap)
+        if (in_array($mk['kode_mk'], $mk_special_codes)) {
+            $mk_belum_kontrak_ganjil[] = $mk;
+            $mk_belum_kontrak_genap[] = $mk;
+        } elseif ($mk['semester'] % 2 == 1) {
             $mk_belum_kontrak_ganjil[] = $mk;
         } else {
             $mk_belum_kontrak_genap[] = $mk;
@@ -380,163 +284,19 @@ foreach ($mata_kuliah_list as $mk) {
 }
 
 // ============================================
-// SORTING LOGIC: SEMESTER (ASC) -> JENIS (WAJIB > PILIHAN)
+// FUNGSI PENGURUTAN: BERDASARKAN ID (URUTAN PORTAL)
 // ============================================
 $sort_function = function($a, $b) {
-    // 1. Sort by Jenis (Wajib before Pilihan)
-    // Normalize to lowercase for comparison
-    $jenis_a = strtolower($a['jenis'] ?? 'wajib');
-    $jenis_b = strtolower($b['jenis'] ?? 'wajib');
+    // urutkan berdasarkan ID (urutan portal)
+    $id_a = $a['id'] ?? 0;
+    $id_b = $b['id'] ?? 0;
     
-    if ($jenis_a != $jenis_b) {
-        // 'wajib' should come before 'pilihan'
-        return ($jenis_a === 'wajib') ? -1 : 1;
+    if ($id_a != $id_b) {
+        return $id_a - $id_b;
     }
-
-    // 2. Sort by Semester ASC
-    if ($a['semester'] != $b['semester']) {
-        return $a['semester'] - $b['semester'];
-    }
-    
-    return 0; // Equal
+    return 0;
 };
 ?>
-
-<!-- Responsive Styles for Mobile -->
-<style>
-/* Mobile responsive styles */
-@media (max-width: 576px) {
-    /* Hide breadcrumb on small screens */
-    .breadcrumb {
-        display: none !important;
-    }
-    
-    /* Smaller title */
-    .content-header h1 {
-        font-size: 1.25rem;
-    }
-    
-    /* Card title smaller */
-    .card-header .card-title {
-        font-size: 0.85rem;
-    }
-    
-    /* Hide badge in card tools on mobile */
-    .card-header .card-tools {
-        display: none;
-    }
-    
-    /* ========================================== */
-    /* TRANSFORM TABLE TO CARD LAYOUT ON MOBILE  */
-    /* ========================================== */
-    
-    /* Disable table-responsive scroll */
-    .table-responsive {
-        overflow: visible !important;
-    }
-    
-    /* Hide table headers */
-    .table-mobile thead {
-        display: none !important;
-    }
-    
-    /* Hide tfoot on mobile */
-    .table-mobile tfoot {
-        display: none !important;
-    }
-    
-    /* Reset table styles */
-    .table-mobile {
-        border: none !important;
-    }
-    
-    .table-mobile tbody {
-        display: block;
-    }
-    
-    /* Make each row a card */
-    .table-mobile tbody tr {
-        display: block !important;
-        background: #fff !important;
-        border: 1px solid #ddd !important;
-        border-radius: 10px !important;
-        margin-bottom: 12px !important;
-        padding: 12px 15px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-    
-    .table-mobile tbody tr.table-danger {
-        background: #f8d7da !important;
-        border: 2px solid #dc3545 !important;
-        border-left: 5px solid #dc3545 !important;
-    }
-    
-    /* Stack cells vertically */
-    .table-mobile tbody td {
-        display: block !important;
-        text-align: left !important;
-        padding: 8px 0 !important;
-        border: none !important;
-        border-bottom: 1px solid rgba(0,0,0,0.08) !important;
-        font-size: 0.9rem;
-        width: 100% !important;
-        background: transparent !important;
-    }
-    
-    .table-mobile tbody td:last-child {
-        border-bottom: none !important;
-        text-align: center !important;
-        padding-top: 12px !important;
-    }
-    
-    /* Label styling */
-    .table-mobile tbody td::before {
-        content: attr(data-label);
-        display: inline-block;
-        font-weight: 700;
-        color: #495057;
-        font-size: 0.8rem;
-        min-width: 80px;
-        margin-right: 10px;
-    }
-    
-    .table-mobile tbody td:last-child::before {
-        display: none;
-    }
-    
-    /* Button styling for mobile */
-    .btn-add-mobile {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 16px !important;
-        font-size: 0.85rem !important;
-        border-radius: 6px;
-    }
-    
-    .btn-add-mobile .btn-text-mobile {
-        display: inline !important;
-        margin-left: 5px;
-    }
-    
-    /* Badge adjustments */
-    .table-mobile .badge {
-        font-size: 0.75rem;
-        padding: 4px 8px;
-    }
-    
-    /* Card body padding reduction */
-    .card-body {
-        padding: 0.75rem !important;
-    }
-    
-    /* Alert smaller */
-    .alert {
-        font-size: 0.8rem;
-        padding: 0.5rem 0.75rem;
-    }
-}
-</style>
 
 <!-- Content Wrapper -->
 <div class="content-wrapper" style="min-height: 799.031px;">
@@ -547,7 +307,7 @@ $sort_function = function($a, $b) {
     <div class="content">
         <div class="container-fluid">
             <?php 
-            // Read flash message from session
+            // baca pesan flash dari session
             if (isset($_SESSION['flash_message'])) {
                 $message = $_SESSION['flash_message'];
                 $message_type = $_SESSION['flash_message_type'];
@@ -559,21 +319,11 @@ $sort_function = function($a, $b) {
             <?php if ($message): ?>
             <!-- Toast Notification (Fixed Position) -->
             <div id="toast-notification" class="alert alert-<?php echo $message_type; ?> alert-dismissible fade show" 
-                 style="position: fixed; top: 70px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                 style="position: fixed; top: 70px; right: 20px; z-index: 9999; min-width: 280px; max-width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding-right: 2.5rem;">
+                <button type="button" class="close" data-dismiss="alert" style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); padding: 0; font-size: 1.2rem;">&times;</button>
                 <i class="fas fa-<?php echo $message_type === 'success' ? 'check-circle' : ($message_type === 'danger' ? 'exclamation-circle' : ($message_type === 'warning' ? 'exclamation-triangle' : 'info-circle')); ?> mr-2"></i>
                 <?php echo $message; ?>
             </div>
-            <script>
-                // Auto-hide toast after 5 seconds
-                setTimeout(function() {
-                    var toast = document.getElementById('toast-notification');
-                    if (toast) {
-                        toast.classList.remove('show');
-                        setTimeout(function() { toast.remove(); }, 150);
-                    }
-                }, 5000);
-            </script>
             <?php endif; ?>
 
             <!-- ============================================ -->
@@ -600,7 +350,7 @@ $sort_function = function($a, $b) {
                             ?>
                             
                             <?php if (count($transkrip_aktif) > 0): 
-                                // Group by semester
+                                // kelompokkan berdasarkan semester
                                 $grouped_transkrip = [];
                                 foreach ($transkrip_aktif as $mk) {
                                     $sem = $mk['semester'];
@@ -609,38 +359,36 @@ $sort_function = function($a, $b) {
                                     }
                                     $grouped_transkrip[$sem][] = $mk;
                                 }
-                                // Sort by semester
+                                // urutkan berdasarkan semester
                                 ksort($grouped_transkrip);
                             ?>
                                 <?php foreach ($grouped_transkrip as $semester_num => $mk_list): ?>
-                                <h6 class="mt-3 mb-2 text-<?php echo $semester_type_color; ?>"><strong>Semester <?php echo $semester_num; ?></strong></h6>
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm table-bordered table-striped table-mobile">
+                                <h6 class="mt-3 mb-2 text-<?php echo $semester_type_color; ?> semester-heading"><strong>Semester <?php echo $semester_num; ?></strong></h6>
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-bordered table-striped table-mobile table-sm mb-0" style="min-width: 600px; width: 100%;">
                                         <thead class="bg-<?php echo $semester_type_color; ?> text-white">
                                             <tr>
-                                                <th width="90">Kode MK</th>
-                                                <th>Nama Matakuliah</th>
-                                                <th width="50">SKS</th>
-                                                <th width="60">Nilai</th>
-                                                <th width="100">Status</th>
+                                                <th style="width: 90px;">Kode MK</th>
+                                                <th style="width: auto;">Nama Matakuliah</th>
+                                                <th style="width: 50px;" class="text-center">SKS</th>
+                                                <th style="width: 60px;" class="text-center">Nilai</th>
+                                                <th style="width: 100px;" class="text-center">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach ($mk_list as $mk): ?>
                                             <tr class="<?php echo !$mk['is_lulus'] ? 'table-danger' : ''; ?>">
-                                                <td data-label="Kode MK"><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
-                                                <td data-label="Nama MK"><?php echo htmlspecialchars($mk['display_nama']); ?></td>
-                                                <td data-label="SKS" class="text-center"><?php echo $mk['sks']; ?></td>
-                                                <td data-label="Nilai" class="text-center">
-                                                    <span class="badge badge-<?php echo $mk['is_lulus'] ? 'success' : 'danger'; ?>">
-                                                        <?php echo $mk['nilai_huruf']; ?>
-                                                    </span>
+                                                <td><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
+                                                <td><?php echo strtoupper(htmlspecialchars($mk['display_nama'])); ?></td>
+                                                <td class="text-center"><?php echo $mk['sks']; ?></td>
+                                                <td class="text-center">
+                                                    <?php echo $mk['nilai_huruf']; ?>
                                                 </td>
-                                                <td data-label="Status" class="text-center">
+                                                <td class="text-center text-nowrap">
                                                     <?php if ($mk['is_lulus']): ?>
-                                                        <span class="text-success"><i class="fas fa-check-circle"></i> Lulus</span>
+                                                        <span class="text-success"><i class="fas fa-check-circle"></i><span class="status-text"> Lulus</span></span>
                                                     <?php else: ?>
-                                                        <span class="text-danger"><i class="fas fa-times-circle"></i> Tidak Lulus</span>
+                                                        <span class="text-danger"><i class="fas fa-times-circle"></i><span class="status-text"> Gagal</span></span>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -663,13 +411,18 @@ $sort_function = function($a, $b) {
             <!-- SECTION: REKOMENDASI KONTRAK (MK TIDAK LULUS) -->
             <!-- ============================================ -->
             <?php if (count($mk_tidak_lulus) > 0): 
-                // Use the planning_semester that was already calculated above
+                // pakai planning_semester yang sudah dihitung diatas
                 // planning_semester is already set to either current_semester or current_semester + 1
                 $is_planning_ganjil = ($planning_semester % 2 == 1);
                 
-                // Filter mk_tidak_lulus based on planning semester type
+                // filter MK tidak lulus berdasarkan tipe semester perencanaan
                 // If planning semester is ganjil, show ganjil MK. If planning is genap, show genap MK.
-                $rekomendasi_aktif = array_filter($mk_tidak_lulus, function($mk) use ($is_planning_ganjil) {
+                // Special courses (KKT, Magang, Skripsi) always shown
+                $rekomendasi_aktif = array_filter($mk_tidak_lulus, function($mk) use ($is_planning_ganjil, $mk_special_codes) {
+                    // Special courses always shown
+                    if (in_array($mk['kode_mk'], $mk_special_codes)) {
+                        return true;
+                    }
                     $is_mk_ganjil = ($mk['semester'] % 2 == 1);
                     return $is_mk_ganjil == $is_planning_ganjil;
                 });
@@ -698,7 +451,7 @@ $sort_function = function($a, $b) {
                             </div>
                             
                             <?php if (count($rekomendasi_aktif) > 0): 
-                                // Group by semester
+                                // kelompokkan berdasarkan semester
                                 $grouped_rekomendasi = [];
                                 foreach ($rekomendasi_aktif as $mk) {
                                     $sem = $mk['semester'];
@@ -712,37 +465,39 @@ $sort_function = function($a, $b) {
                                 <?php foreach ($grouped_rekomendasi as $semester_num => $mk_list): ?>
                                 <h6 class="mt-3 mb-2 text-danger"><strong>Semester <?php echo $semester_num; ?></strong></h6>
                                 <div class="table-responsive mb-4">
-                                    <table class="table table-bordered table-striped table-mobile">
+                                    <table class="table table-bordered table-striped table-mobile table-sm" style="min-width: 600px; width: 100%;">
                                         <thead class="bg-<?php echo $semester_color; ?> text-white">
                                             <tr>
-                                                <th width="100">Kode MK</th>
-                                                <th>Nama Matakuliah</th>
-                                                <th width="60">SKS</th>
-                                                <th width="70">Nilai</th>
-                                                <th width="150">Aksi</th>
+                                                <th style="width: 90px;">Kode MK</th>
+                                                <th style="width: auto;">Nama Matakuliah</th>
+                                                <th style="width: 50px;" class="text-center">SKS</th>
+                                                <th style="width: 60px;" class="text-center">Nilai</th>
+                                                <th style="width: 160px;" class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach ($mk_list as $mk): ?>
                                             <tr class="table-danger">
                                                 <td data-label="Kode MK"><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
-                                                <td data-label="Nama MK"><?php echo htmlspecialchars($mk['display_nama']); ?></td>
+                                                 <td data-label="Nama MK"><?php echo strtoupper(htmlspecialchars($mk['display_nama'])); ?></td>
                                                 <td data-label="SKS" class="text-center"><?php echo $mk['sks']; ?></td>
                                                 <td data-label="Nilai" class="text-center">
-                                                    <span class="badge badge-danger"><?php echo $mk['nilai_huruf']; ?></span>
+                                                    <span class="text-dark"><b><?php echo $mk['nilai_huruf']; ?></b></span>
                                                 </td>
-                                                <td data-label="" class="text-center">
+                                                <td data-label="Aksi" class="text-center">
                                                     <?php if (!in_array($mk['kode_mk'], $planned_codes)): ?>
                                                     <form method="POST" style="display:inline;">
                                                         <input type="hidden" name="action" value="add">
                                                         <input type="hidden" name="source" value="rekomendasi">
-                                                        <input type="hidden" name="kode_mk" value="<?php echo $mk['kode_mk']; ?>">
-                                                        <button type="submit" class="btn btn-warning btn-sm btn-add-mobile">
-                                                            <i class="fas fa-plus"></i> <span class="btn-text-mobile">Tambah ke Rencana</span>
+                                                        <input type="hidden" name="kode_mk" value="<?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <button type="submit" class="btn btn-warning btn-sm" style="width: 140px; font-weight: 500;">
+                                                            <i class="fas fa-plus mr-1"></i> TAMBAH
                                                         </button>
                                                     </form>
                                                     <?php else: ?>
-                                                    <span class="badge badge-info"><i class="fas fa-check"></i> Sudah Direncanakan</span>
+                                                    <button class="btn btn-info btn-sm disabled" style="width: 140px; cursor: default; opacity: 1; font-weight: 500;">
+                                                        <i class="fas fa-check mr-1"></i> TERENCANA
+                                                    </button>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -815,35 +570,37 @@ $sort_function = function($a, $b) {
                                 <?php if (count($mk_wajib_list) > 0): ?>
                                 <h5 class="mb-3"><i class="fas fa-book mr-2"></i>Matakuliah Wajib</h5>
                                 <?php foreach ($grouped_wajib as $semester_num => $mk_list): ?>
-                                <h6 class="mt-3 mb-2 text-<?php echo $semester_type_color; ?>"><strong>Semester <?php echo $semester_num; ?></strong></h6>
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm table-bordered table-striped table-mobile">
+                                <h6 class="mt-3 mb-2 text-<?php echo $semester_type_color; ?> semester-heading"><strong>Semester <?php echo $semester_num; ?></strong></h6>
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-bordered table-striped table-mobile table-sm mb-0" style="min-width: 600px; width: 100%;">
                                         <thead class="bg-<?php echo $semester_type_color; ?> text-white">
                                             <tr>
-                                                <th width="90">Kode MK</th>
-                                                <th>Nama Matakuliah</th>
-                                                <th width="50">SKS</th>
-                                                <th width="150">Aksi</th>
+                                                <th style="width: 90px;">Kode MK</th>
+                                                <th style="width: auto;">Nama Matakuliah</th>
+                                                <th style="width: 50px;" class="text-center">SKS</th>
+                                                <th style="width: 160px;" class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach ($mk_list as $mk): ?>
                                             <tr>
-                                                <td data-label="Kode MK"><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
-                                                <td data-label="Nama MK"><?php echo htmlspecialchars($mk['nama_mk']); ?></td>
-                                                <td data-label="SKS" class="text-center"><?php echo $mk['sks']; ?></td>
-                                                <td data-label="" class="text-center">
+                                                <td><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
+                                                <td><?php echo strtoupper(htmlspecialchars($mk['nama_mk'])); ?></td>
+                                                <td class="text-center"><?php echo $mk['sks']; ?></td>
+                                                <td class="text-center text-nowrap">
                                                     <?php if (!in_array($mk['kode_mk'], $planned_codes)): ?>
                                                     <form method="POST" style="display:inline;">
                                                         <input type="hidden" name="action" value="add">
                                                         <input type="hidden" name="source" value="mk-belum-kontrak">
-                                                        <input type="hidden" name="kode_mk" value="<?php echo $mk['kode_mk']; ?>">
-                                                        <button type="submit" class="btn btn-warning btn-sm btn-add-mobile">
-                                                            <i class="fas fa-plus"></i> <span class="btn-text-mobile">Tambah</span>
+                                                        <input type="hidden" name="kode_mk" value="<?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <button type="submit" class="btn btn-warning btn-sm" style="width: 140px; font-weight: 500;">
+                                                            <i class="fas fa-plus mr-1"></i> TAMBAH
                                                         </button>
                                                     </form>
                                                     <?php else: ?>
-                                                    <span class="badge badge-info"><i class="fas fa-check"></i> Sudah</span>
+                                                    <button class="btn btn-info btn-sm disabled" style="width: 140px; cursor: default; opacity: 1; font-weight: 500;">
+                                                        <i class="fas fa-check mr-1"></i> TERENCANA
+                                                    </button>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -857,39 +614,44 @@ $sort_function = function($a, $b) {
                                 <!-- MK PILIHAN (PER KATEGORI MKP) -->
                                 <?php if (count($mk_pilihan_list) > 0): ?>
                                 <hr class="my-4">
-                                <h5 class="mb-3"><i class="fas fa-cubes mr-2"></i>Paket Matakuliah Pilihan (MKP)</h5>
+                                <h5 class="mb-3 d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-cubes mr-2"></i>Paket Matakuliah Pilihan (MKP)</span>
+                                    <span class="badge badge-<?php echo ($mkp_lulus >= $mkp_required) ? 'success' : 'warning'; ?>">MKP Lulus: <?php echo $mkp_lulus; ?>/<?php echo $mkp_required; ?></span>
+                                </h5>
                                 <?php foreach ($grouped_pilihan as $kategori => $mk_list): ?>
-                                <h6 class="mt-3 mb-2 text-info"><strong><i class="fas fa-layer-group mr-1"></i><?php echo htmlspecialchars($kategori); ?></strong></h6>
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm table-bordered table-striped table-mobile">
+                                <h6 class="mt-3 mb-2 text-info semester-heading"><strong><i class="fas fa-layer-group mr-1"></i><?php echo htmlspecialchars($kategori); ?></strong></h6>
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-bordered table-striped table-mobile table-sm mb-0" style="min-width: 600px; width: 100%;">
                                         <thead class="bg-info text-white">
                                             <tr>
-                                                <th width="90">Kode MK</th>
-                                                <th>Nama Matakuliah</th>
-                                                <th width="50">SKS</th>
-                                                <th width="60">Sem</th>
-                                                <th width="150">Aksi</th>
+                                                <th style="width: 90px;">Kode MK</th>
+                                                <th style="width: auto;">Nama Matakuliah</th>
+                                                <th style="width: 50px;" class="text-center">Sem</th>
+                                                <th style="width: 50px;" class="text-center">SKS</th>
+                                                <th style="width: 160px;" class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php foreach ($mk_list as $mk): ?>
                                             <tr>
-                                                <td data-label="Kode MK"><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
-                                                <td data-label="Nama MK"><?php echo htmlspecialchars($mk['nama_mk']); ?></td>
-                                                <td data-label="SKS" class="text-center"><?php echo $mk['sks']; ?></td>
-                                                <td data-label="Semester" class="text-center"><?php echo $mk['semester']; ?></td>
-                                                <td data-label="" class="text-center">
+                                                <td><?php echo htmlspecialchars($mk['kode_mk']); ?></td>
+                                                <td><?php echo strtoupper(htmlspecialchars($mk['nama_mk'])); ?></td>
+                                                <td class="text-center"><?php echo $mk['semester']; ?></td>
+                                                <td class="text-center"><?php echo $mk['sks']; ?></td>
+                                                <td class="text-center text-nowrap">
                                                     <?php if (!in_array($mk['kode_mk'], $planned_codes)): ?>
                                                     <form method="POST" style="display:inline;">
                                                         <input type="hidden" name="action" value="add">
                                                         <input type="hidden" name="source" value="mk-belum-kontrak">
-                                                        <input type="hidden" name="kode_mk" value="<?php echo $mk['kode_mk']; ?>">
-                                                        <button type="submit" class="btn btn-warning btn-sm btn-add-mobile">
-                                                            <i class="fas fa-plus"></i> <span class="btn-text-mobile">Tambah</span>
+                                                        <input type="hidden" name="kode_mk" value="<?php echo htmlspecialchars($mk['kode_mk'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                        <button type="submit" class="btn btn-warning btn-sm" style="width: 140px; font-weight: 500;">
+                                                            <i class="fas fa-plus mr-1"></i> TAMBAH
                                                         </button>
                                                     </form>
                                                     <?php else: ?>
-                                                    <span class="badge badge-info"><i class="fas fa-check"></i> Sudah</span>
+                                                    <button class="btn btn-info btn-sm disabled" style="width: 140px; cursor: default; opacity: 1; font-weight: 500;">
+                                                        <i class="fas fa-check mr-1"></i> TERENCANA
+                                                    </button>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -923,112 +685,105 @@ $sort_function = function($a, $b) {
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-8">
-                                    <h5 class="mb-3">Rencana Mata Kuliah Semester <?php echo $planning_semester; ?></h5>
-                                    <table class="table table-bordered table-striped mb-0">
-                                                <thead class="bg-light">
+                                <div class="col-12 col-md-8 mb-3">
+                                    <h5 class="mb-3 semester-heading">Rencana Mata Kuliah Semester <?php echo $planning_semester; ?></h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-mobile table-sm table-rencana mb-0" style="min-width: 700px; width: 100%;">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th style="width: 40px;" class="text-center">No</th>
+                                                    <th style="width: 90px;">Kode MK</th>
+                                                    <th style="width: auto;">Nama Matakuliah</th>
+                                                    <th style="width: 50px;" class="text-center">SKS</th>
+                                                    <th style="width: 70px;" class="text-center">Jenis</th>
+                                                    <th style="width: 100px;" class="text-center">Prediksi</th>
+                                                    <th style="width: 60px;" class="text-center">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (count($perencanaan_list) > 0): ?>
+                                                    <?php $no = 1; foreach ($perencanaan_list as $plan): ?>
                                                     <tr>
-                                                        <th width="50">No</th>
-                                                        <th width="100">Kode MK</th>
-                                                        <th>Nama Mata Kuliah</th>
-                                                        <th width="60">SKS</th>
-                                                        <th width="80">Jenis</th>
-                                                        <th width="120">Prediksi Nilai</th>
-                                                        <th width="80">Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if (count($perencanaan_list) > 0): ?>
-                                                        <?php $no = 1; foreach ($perencanaan_list as $plan): ?>
-                                                        <tr>
-                                                            <td class="text-center"><?php echo $no++; ?></td>
-                                                            <td><?php echo htmlspecialchars($plan['kode_mk']); ?></td>
-                                                            <td><?php echo htmlspecialchars($plan['nama_mk']); ?></td>
-                                                            <td class="text-center"><?php echo $plan['sks']; ?></td>
-                                                            <td class="text-center">
-                                                                <?php if ($plan['jenis'] === 'wajib'): ?>
-                                                                <span class="badge badge-primary">Wajib</span>
-                                                                <?php else: ?>
-                                                                <span class="badge badge-info" title="<?php echo htmlspecialchars($plan['kategori'] ?? 'Pilihan'); ?>">
-                                                                    <?php echo htmlspecialchars($plan['kategori'] ?? 'Pilihan'); ?>
-                                                                </span>
-                                                                <?php endif; ?>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <select class="form-control form-control-sm prediksi-nilai" 
-                                                                        data-sks="<?php echo (int) $plan['sks']; ?>" 
-                                                                        onchange="hitungSimulasi()">
-                                                                    <option value="">-</option>
-                                                                    <option value="4.00">A</option>
-                                                                    <option value="3.50">B+</option>
-                                                                    <option value="3.00">B</option>
-                                                                    <option value="2.50">C+</option>
-                                                                    <option value="2.00">C</option>
-                                                                    <option value="1.00">D</option>
-                                                                    <option value="0.00">E</option>
-                                                                </select>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <form method="POST" style="display:inline;">
-                                                                    <input type="hidden" name="action" value="delete">
-                                                                    <input type="hidden" name="source" value="rencana-studi">
-                                                                    <input type="hidden" name="kode_mk" value="<?php echo $plan['kode_mk']; ?>">
-                                                                    <button type="submit" class="btn btn-danger btn-sm" data-confirm="Hapus mata kuliah ini?">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="7" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                                                Belum ada mata kuliah yang direncanakan
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="bg-light">
-                                                        <td colspan="4" class="text-center">
-                                                            <strong>Total SKS Yang Di Rencanakan: <?php echo $total_sks; ?></strong>
+                                                        <td class="text-center"><?php echo $no++; ?></td>
+                                                        <td class="text-nowrap"><?php echo htmlspecialchars($plan['kode_mk']); ?></td>
+                                                        <td><?php echo strtoupper(htmlspecialchars($plan['nama_mk'])); ?></td>
+                                                        <td class="text-center"><?php echo $plan['sks']; ?></td>
+                                                        <td class="text-center text-nowrap">
+                                                            <?php echo $plan['jenis'] === 'wajib' ? 'Wajib' : 'Pilihan'; ?>
                                                         </td>
-                                                        <td colspan="3" class="text-center">
-                                                            <?php if (count($perencanaan_list) > 0): ?>
-                                                            <form method="POST" style="display:inline; width:100%;">
-                                                                <input type="hidden" name="action" value="delete_all">
+                                                        <td class="text-center">
+                                                            <select class="form-control form-control-sm prediksi-nilai" 
+                                                                    data-sks="<?php echo (int) $plan['sks']; ?>" 
+                                                                    onchange="hitungSimulasi()" style="min-width:50px;">
+                                                                <option value="">-</option>
+                                                                <option value="4.00">A</option>
+                                                                <option value="3.50">B+</option>
+                                                                <option value="3.00">B</option>
+                                                                <option value="2.50">C+</option>
+                                                                <option value="2.00">C</option>
+                                                                <option value="1.00">D</option>
+                                                                <option value="0.00">E</option>
+                                                            </select>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <form method="POST" style="display:inline;">
+                                                                <input type="hidden" name="action" value="delete">
                                                                 <input type="hidden" name="source" value="rencana-studi">
-                                                                <button type="submit" class="btn btn-outline-danger btn-sm btn-block" data-confirm="Hapus SEMUA mata kuliah yang direncanakan?">
-                                                                    <i class="fas fa-trash-alt mr-1"></i>Hapus Semua
+                                                                <input type="hidden" name="kode_mk" value="<?php echo htmlspecialchars($plan['kode_mk'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <button type="submit" class="btn btn-danger btn-xs" data-confirm="Hapus Mata Kuliah ini?">
+                                                                    <i class="fas fa-trash"></i>
                                                                 </button>
                                                             </form>
-                                                            <?php endif; ?>
                                                         </td>
                                                     </tr>
-                                                </tfoot>
-                                            </table>
-
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="7" class="text-center text-muted py-3">
+                                                            <i class="fas fa-inbox mb-1 d-block"></i>
+                                                            Belum ada MK direncanakan
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="bg-light">
+                                                    <td colspan="3"><strong>Total SKS: <?php echo $total_sks; ?></strong></td>
+                                                    <td colspan="4" class="text-right">
+                                                        <?php if (count($perencanaan_list) > 0): ?>
+                                                        <form method="POST" style="display:inline;">
+                                                            <input type="hidden" name="action" value="delete_all">
+                                                            <input type="hidden" name="source" value="rencana-studi">
+                                                            <button type="submit" class="btn btn-outline-danger btn-xs" data-confirm="Hapus SEMUA?">
+                                                                <i class="fas fa-trash-alt mr-1"></i>Hapus Semua
+                                                            </button>
+                                                        </form>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <h5 class="mb-3">Ringkasan</h5>
-                                            <table class="table table-bordered mb-0">
-                                                <tr>
-                                                    <td>Mata Kuliah Wajib</td>
-                                                    <td class="text-center" width="60"><?php echo $mk_wajib; ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Mata Kuliah Pilihan</td>
-                                                    <td class="text-center"><?php echo $mk_pilihan; ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><strong>Total MK Direncanakan</strong></td>
-                                                    <td class="text-center"><strong><?php echo $mk_wajib + $mk_pilihan; ?></strong></td>
-                                                </tr>
-                                            </table>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <h5 class="mb-3 semester-heading">Ringkasan</h5>
+                                    <table class="table table-sm table-bordered table-compact table-ringkasan mb-0">
+                                        <tr>
+                                            <td>MK Wajib</td>
+                                            <td class="text-center" width="50"><?php echo $mk_wajib; ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td>MK Pilihan</td>
+                                            <td class="text-center"><?php echo $mk_pilihan; ?></td>
+                                        </tr>
+                                        <tr class="bg-light">
+                                            <td><strong>Total MK</strong></td>
+                                            <td class="text-center"><strong><?php echo $mk_wajib + $mk_pilihan; ?></strong></td>
+                                        </tr>
+                                    </table>
                                             
                                             <!-- SIMULASI IPK -->
-                                            <div class="card card-outline card-primary mt-3 mb-0">
+                                            <div class="card card-primary mt-3 mb-0 card-simulasi">
                                                 <div class="card-header bg-primary py-2">
                                                     <h6 class="card-title text-white mb-0">
                                                         <i class="fas fa-calculator mr-2"></i>Simulasi IPK
@@ -1037,20 +792,56 @@ $sort_function = function($a, $b) {
                                                 <div class="card-body p-2">
                                                     <table class="table table-sm table-borderless mb-0">
                                                         <tr>
-                                                            <td class="py-1">IPK Saat Ini</td>
+                                                            <td class="py-1 text-nowrap">IPK Saat Ini</td>
                                                             <td class="text-right py-1"><strong><?php echo number_format($ipk_awal, 2); ?></strong></td>
                                                         </tr>
                                                         <tr>
-                                                            <td class="py-1">SKS Lulus</td>
+                                                            <td class="py-1 text-nowrap">SKS Lulus</td>
                                                             <td class="text-right py-1"><strong><?php echo $sks_awal; ?></strong></td>
                                                         </tr>
                                                         <tr class="border-top">
-                                                            <td class="py-1"><strong>Estimasi IPS</strong></td>
-                                                            <td class="text-right py-1"><strong id="estimasi-ips" class="text-info">0.00</strong></td>
+                                                            <td class="py-1 text-nowrap"><strong>Estimasi IPS</strong></td>
+                                                            <td class="text-right py-1"><strong id="estimasi-ips">0.00</strong></td>
                                                         </tr>
+                                                        <tr>
+                                                            <td class="py-1 text-nowrap"><strong>Estimasi IPK Akhir</strong></td>
+                                                            <td class="text-right py-1"><strong id="estimasi-ipk">0.00</strong></td>
+                                                        </tr>
+                                                        <?php 
+                                                        $estimasi_sks = $sks_awal + $total_sks;
+                                                        
+                                                        // Target SKS kumulatif berdasarkan kurikulum TI UNSRAT
+                                                        $target_per_semester = [
+                                                            1 => 21,   // Semester 1: 21
+                                                            2 => 41,   // Semester 2: 21+20 = 41
+                                                            3 => 60,   // Semester 3: 41+19 = 60
+                                                            4 => 79,   // Semester 4: 60+19 = 79
+                                                            5 => 98,   // Semester 5: 79+19 = 98
+                                                            6 => 118,  // Semester 6: 98+20 = 118
+                                                            7 => 138,  // Semester 7: 118+20 = 138
+                                                            8 => 144   // Semester 8: 138+6 = 144
+                                                        ];
+                                                        
+                                                        // Batas minimum SKS untuk menghindari sanksi DO
+                                                        $min_sks_semester = [
+                                                            1 => 12, 2 => 24, 3 => 36, 4 => 48,
+                                                            5 => 60, 6 => 72, 7 => 84, 8 => 96
+                                                        ];
+                                                        
+                                                        $target_sks = $target_per_semester[$planning_semester] ?? 144;
+                                                        $min_sks = $min_sks_semester[$planning_semester] ?? 96;
+                                                        $target_lulus = 144;
+                                                        
+                                                        // Warna hanya merah jika di bawah batas minimum (risiko DO)
+                                                        $sks_color = ($estimasi_sks < $min_sks) ? 'danger' : '';
+                                                        ?>
                                                         <tr class="bg-light">
-                                                            <td class="py-2"><strong>Estimasi IPK Akhir</strong></td>
-                                                            <td class="text-right py-2"><strong id="estimasi-ipk" class="text-primary" style="font-size: 1.2em;">0.00</strong></td>
+                                                            <td class="py-2 text-nowrap"><strong>Estimasi SKS Lulus</strong></td>
+                                                            <td class="text-right py-2">
+                                                                <strong id="estimasi-sks" <?php echo $sks_color ? 'class="text-'.$sks_color.'"' : ''; ?>>
+                                                                    <?php echo $estimasi_sks; ?> / <?php echo $target_lulus; ?>
+                                                                </strong>
+                                                            </td>
                                                         </tr>
                                                     </table>
                                                     <small class="text-muted d-block mt-2">
@@ -1062,7 +853,7 @@ $sort_function = function($a, $b) {
                                             <?php if ($total_sks > 24): ?>
                                             <div class="alert alert-warning mt-3 mb-0">
                                                 <i class="fas fa-exclamation-triangle mr-1"></i>
-                                                SKS melebihi batas maksimal (24 SKS)!
+                                                Melebihi batas maks SKS
                                             </div>
                                             <?php elseif ($total_sks > 0): ?>
                                             <div class="alert alert-success mt-3 mb-3">
@@ -1070,30 +861,6 @@ $sort_function = function($a, $b) {
                                                 Perencanaan dalam batas wajar.
                                             </div>
                                             
-                                            <!-- Tombol Transfer ke KRS -->
-                                            <?php 
-                                            // Check if in KRS filling period (for now, set to false - not in period)
-                                            $dalam_periode_krs = false; // Set true when KRS period is open
-                                            ?>
-                                            
-                                            <?php if ($dalam_periode_krs): ?>
-                                            <form method="POST">
-                                                <input type="hidden" name="action" value="transfer_all_krs">
-                                                <button type="submit" class="btn btn-success btn-block" data-confirm="Tambahkan semua mata kuliah yang direncanakan ke KRS?">
-                                                    <i class="fas fa-paper-plane mr-2"></i>
-                                                    Tambahkan Semua ke KRS
-                                                </button>
-                                            </form>
-                                            <?php else: ?>
-                                            <button type="button" class="btn btn-secondary btn-block" disabled>
-                                                <i class="fas fa-lock mr-2"></i>
-                                                Tambahkan Semua ke KRS
-                                            </button>
-                                            <small class="text-muted d-block mt-2 text-center">
-                                                <i class="fas fa-info-circle mr-1"></i>
-                                                Tidak dalam periode pengisian KRS
-                                            </small>
-                                            <?php endif; ?>
                                             <?php endif; ?>
 
                                 </div>
@@ -1164,7 +931,7 @@ $sort_function = function($a, $b) {
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Parse the response HTML
+                    // parse response HTML-nya
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, 'text/html');
                     
@@ -1206,7 +973,7 @@ $sort_function = function($a, $b) {
                             }
                         }
                         
-                        // Show toast if exists in new content
+                        // tampilkan toast kalo ada di konten baru
                         var toast = document.getElementById('toast-notification');
                         if (toast) {
                             setTimeout(function() {

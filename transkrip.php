@@ -1,6 +1,9 @@
-<?php include 'layout/header.php'; ?>
-
 <?php
+/**
+ * Transkrip - Nilai Akademik Keseluruhan
+ */
+
+include 'layout/header.php';
 include 'config/database.php';
 
 $user_data = null;
@@ -21,7 +24,7 @@ if ($result && $result->num_rows > 0) {
 }
 $stmt->close();
 
-// ambil data transkrip grouped by semester
+// ambil transkrip per semester
 $stmt = $conn->prepare("SELECT * FROM transkrip WHERE nim = ? ORDER BY semester ASC, id ASC");
 $stmt->bind_param("s", $nim);
 $stmt->execute();
@@ -115,14 +118,10 @@ $stmt->close();
                                     <ul class="list-group mb-4" id="list-semester">
                                         <?php foreach ($matakuliah_list as $mk): ?>
                                             <?php $is_danger = in_array($mk['nilai_huruf'], ['D', 'E'], true); ?>
-                                            <li class="list-group-item list-group-item-action flex-column align-items-start <?php echo $is_danger ? 'border-left-danger' : ''; ?>">
+                                            <li class="list-group-item list-group-item-action flex-column align-items-start">
                                                 <div class="d-flex w-100 justify-content-between">
-                                                    <h6 class="mb-0"><?php echo htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8'); ?></h6>
-                                                    <span class="<?php 
-                                                        if ($mk['nilai_huruf'] === 'A') echo 'text-success';
-                                                        elseif ($is_danger) echo 'text-danger';
-                                                        else echo 'text-primary';
-                                                    ?>">
+                                                    <h6 class="mb-0"><?php echo strtoupper(htmlspecialchars($mk['nama_mk'], ENT_QUOTES, 'UTF-8')); ?></h6>
+                                                    <span class="text-dark">
                                                         <b><?php echo htmlspecialchars($mk['nilai_huruf'], ENT_QUOTES, 'UTF-8'); ?></b>
                                                     </span>
                                                 </div>
@@ -147,17 +146,5 @@ $stmt->close();
         </div>
     </div>
 </div>
-
-<style>
-.list-group-item h6 {
-    font-weight: 600;
-}
-.list-group-item:hover {
-    background-color: #f8f9fa;
-}
-.border-left-danger {
-    border-left: 3px solid #dc3545 !important;
-}
-</style>
 
 <?php include 'layout/footer.php'; ?>
